@@ -1,0 +1,105 @@
+$nav-gradient-1: #99C43D;
+$nav-gradient-2: #BAD533;
+
+.communities-list{
+	width: 62.5%;
+	float: right;
+	padding: .5em;
+	@media only screen and (max-width : 720px) {
+		width: 100%;
+		font-size: .9em;
+	}
+	h1{
+		display: inline-block;
+	}
+	.community-box{
+		background: #fff;
+		border: 1px solid #dadada;
+		margin: 0 0 1em 0;
+		.community-box-wrapper{
+			border-top: 1px solid #dadada;
+			padding: 1em;
+			&:hover{
+				background:#f8f8f8;
+			}
+		}
+	    .community-image{
+	    	display: inline-block;
+	    	width:100px;
+	    	float: left;	    	
+	    	@media only screen and (max-width : 260px){
+				float: none;
+				display: block;
+				margin: 0 auto;
+			}
+	    }
+	    .community-text{
+	    	display: table;
+	    	@media only screen and (max-width : 260px){
+				width:100%;
+			} 
+	    	
+
+	    }
+	    .community-name{
+ 	    	padding: 0 0 .2em 0;
+	    	vertical-align: text-bottom; 
+	    	text-transform: capitalize;
+ 	    }
+		.details{
+			font-size:.8em;
+			text-align:justify;
+			text-justify:inter-word;
+			}
+
+		.members{
+			display: inline;
+			color: #ccc;
+			margin-right:.5em;
+			font-size:.7em;
+		}
+	 }
+	.community-search-box{
+		display: inline-block;
+		float: right;
+		margin: .85em 0 .4em 0;
+		@media only screen and (max-width : 520px) {
+			display: block;
+			float: none;
+		}
+		input[type=text]{
+			border: 1px solid #ddd;
+			&:hover{
+				border: 1px solid #c6c6c6;
+				   -moz-box-shadow: 0 1px 1px rgba(0,0,0,.1);
+				-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.1);
+						box-shadow: 0 1px 1px rgba(0,0,0,.1);
+				-webkit-transition-duration: 0.2s;
+			       -moz-transition-duration: 0.2s;
+			    		transition-duration: 0.2s;
+			}
+			border-radius: 4px;
+			padding: .4em;
+			@media only screen and (max-width : 520px) {
+				width: 77%;
+			}
+		}
+		input[type=submit]{
+			border-radius: 4px;
+			@media only screen and (max-width : 520px) {
+				width: 20%;
+				float: right;
+			}
+		}
+		
+	}
+	.community-search-field{
+	}
+	.community-buttons{
+				@media only screen and (max-width : 380px) {
+					width:100%;
+					display:block;
+			}
+	}
+	
+}

@@ -1,0 +1,20 @@
+.icon-globe,.icon-house,.icon-search, .icon-share {
+	margin-right: .15em;
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	background-image: url(../images/sprites.png);
+	background-repeat: no-repeat;
+}
+.icon-globe {
+	background-position: 0 0;
+}
+.icon-share {
+	background-position: -48px 0;
+}
+.icon-house {
+	background-position: -96px 0;
+}
+.icon-search {
+	background-position: -144px 0;
+}

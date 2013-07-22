@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="js/jScrollPane/jquery.jscrollpane.css" />
+        <link rel="stylesheet" type="text/css" href="css/chat.css" />
+        <link rel="stylesheet" type="text/css" href="../css/style.min.css" />
+
+        <script src="../scripts/jquery-1.9.1.min.js"></script>
+        <script src="js/jScrollPane/jquery.mousewheel.js"></script>
+        <script src="js/jScrollPane/mwheelIntent.js"></script>
+        <script src="js/jScrollPane/jquery.jscrollpane.min.js"></script>
+        <script src="js/script.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#com1,#com2,#com3,#com4,#com5").click(function() {
+                    $("body").append('<div class="chatContainer"><div class="chatTopBar rounded"></div><div class="chatLineHolder"></div><div class="chatUsers rounded"></div>' +
+                            '<div class="chatBottomBar rounded"><div class="tip"></div><form id="loginForm" method="post" action=""><input id="name" name="name" class="rounded" maxlength="16" />' +
+                            '<input id="email" name="email" class="rounded" /><input type="submit" class="blueButton" value="Login" /></form><form autocomplete="off" id="submitForm" method="post" action="">' +
+                            '<input name="chatText" class="chatText rounded" maxlength="255" /><input type="submit" class="blueButton" value="Submit" /></form></div></div>');
+                    // Run the init method on document ready:
+                    chat.init();
+                    $(".chatContainer").show();
+                    
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <p><a id="com1">Start Chat</a></p>
+        <p><a id="com2">Start Chat</a></p>
+        <p><a id="com3">Start Chat</a></p>
+        <p><a id="com4">Start Chat</a></p>
+        <p><a id="com5">Start Chat</a></p>
+        <span class="chatSpan"></span>
+    </body>
+</html>

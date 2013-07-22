@@ -1,0 +1,30 @@
+.settings-list{
+	width: 62.5%;
+	float: right;
+	padding:.5em;
+	@media only screen and (max-width : 720px) {
+		width: 100%;
+		font-size: .9em;
+	}
+	.individual-setting{
+		border-bottom: 1px solid #dadada;
+		padding:.5em;
+		width:100%;
+		margin: 0 0 0.5em 0;
+	}
+	input[type=text], input[type=password], textarea,{
+		width:100%;
+	}
+
+	input[type="checkbox"]{
+		vertical-align: baseline !important;
+	}
+	.pic-user {
+		display: block;
+ 		border: 1px solid #ddd;
+		max-width: 150px;
+		width: 100%;
+		padding: .4em;
+		margin: 0 auto;
+	}
+}
