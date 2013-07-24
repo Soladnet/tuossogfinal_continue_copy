@@ -127,12 +127,10 @@ class Chat {
     public static function getUsers($uid, $comid) {
         include_once './GossoutUser.php';
         $u = new GossoutUser(0);
-        $user = new ChatUser(array('user_id' => $u->decodeData($uid), 'com_id' => $comid));
+        $id = $u->decodeData($uid);
+        $user = new ChatUser(array('user_id' => $id, 'com_id' => $comid));
         $user->update();
-
-        // Deleting chats older than 5 minutes and users inactive for 30 seconds
-//        DB::query("DELETE FROM community_chat WHERE time < SUBTIME(NOW(),'0:5:0')");
-        DB::query("UPDATE community_chat_online set `isOnline`=0 WHERE com_id=$comid AND user_id=$uid AND time < SUBTIME(NOW(),'0:0:30')");
+        DB::query("UPDATE community_chat_online set `isOnline`=0 WHERE time < SUBTIME(NOW(),'0:0:30')");
 
         $result = DB::query("SELECT cco.`com_id`, cco.`user_id`,concat(u.firstname,u.lastname) as name, cco.`isOnline` FROM `community_chat_online` as cco JOIN user_personal_info as u ON cco.user_id=u.id WHERE cco.`isOnline`=1 AND cco.com_id=$comid ORDER BY cco.user_id ASC");
         $users = array();
@@ -168,7 +166,7 @@ class Chat {
             } else {
                 $tz = "Africa/Lagos";
             }
-            Chat::convert_time_zone($chat->time, $tz);
+            $chat->time = Chat::convert_time_zone($chat->time, $tz);
             $photo = $user->getPix();
             if ($photo['thumbnail150']) {
                 $chat->gravatar = $photo['thumbnail50'];

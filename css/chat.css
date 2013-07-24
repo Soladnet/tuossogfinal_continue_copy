@@ -103,6 +103,7 @@
     right:10px;
     top:12px;
     font-size:11px;
+    color: #ccc;
 }
 
 .chat .author{
@@ -160,11 +161,10 @@
     left:20px;
 }
 
-.chatContainer textarea,.chatContainer input{
+.chatContainer textarea{
     background-color: #dcdcdc;
-    height:26px;
+    height:3em !important;
     font:13px/26px Calibri,Arial,sans-serif;
-    /*color:#777;*/
     border:1px solid;
     border-color:#c1c1c1 #eee #eee #c1c1c1;
     text-shadow:1px 1px 0 #E4E4E4;
@@ -172,6 +172,7 @@
     margin-right:5px;
     width:185px;
     outline:none;
+    line-height: 1em;
 }
 .chatContainer textarea{
     width:350px;
@@ -183,12 +184,6 @@
 #submitForm{
     display:none;
 }
-
-input.chatText{
-    /* The chat submit text field */
-    width:385px;
-}
-
 
 /* Overloading the default styles of jScrollPane */
 

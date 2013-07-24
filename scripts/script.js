@@ -2897,7 +2897,7 @@ var chat = {
 
             // Assigning a temporary ID to the chat:
             var tempID = 't' + Math.round(Math.random() * 1000000),
-            params = {
+                    params = {
                 id: tempID,
                 name: chat.data.name,
                 gravatar: chat.data.gravatar,
@@ -2926,9 +2926,7 @@ var chat = {
             return false;
         });
         // Checking whether the user is already logged (browser refresh)
-        $.tzGET('checkLogged', {
-            comid: comId
-        }, function(r) {
+        $.tzGET('checkLogged', {comid: comId}, function(r) {
             if (r.logged) {
                 chat.login(r.loggedAs.name, r.loggedAs.gravatar, comId, comname, pix);
                 //minimize chat windows
@@ -2976,24 +2974,24 @@ var chat = {
         switch (template) {
             case 'loginTopBar':
                 arr = [
-                '<span><img src="', pix, '" width="23" height="23" />',
-                '<span class="name">', comname,
-                '</span><span class="logoutButton rounded log_user_out">x</span>',
-                '<span class="logoutButton rounded minimize_chat_' + comId + '">-</span>'/*,
+                    '<span><img src="', pix, '" width="23" height="23" />',
+                    '<span class="name">', comname,
+                    '</span><span class="logoutButton rounded log_user_out" title="Close Chat">x</span>',
+                    '<span class="logoutButton rounded minimize_chat_' + comId + '" title="Minimize">-</span>'/*,
                      '<a href="" class="logoutButton rounded log_user_out">Logout</a></span>'*/
                 ];
                 break;
 
             case 'chatLine':
                 arr = [
-                '<div class="chat chat-', params.id, ' rounded"><span class="gravatar"><img src="', params.gravatar,
-                '" width="23" height="23" onload="this.style.visibility=\'visible\'" />', '</span><span class="author">', params.name,
-                ':</span><br/><span class="text">', nl2br(params.text), '</span><span class="time timeago" title="', params.time, '">', params.time, '</span></div>'];
+                    '<div class="chat chat-', params.id, ' rounded"><span class="gravatar"><a href="user/',params.user_id,'"><img src="', params.gravatar,
+                    '" width="23" height="23" onload="this.style.visibility=\'visible\'" /></a>', '</span><span class="author"><a href="user/',params.user_id,'">', params.name,
+                    '</a>:</span><br/><span class="text">', nl2br(params.text), '</span><span class="time timeago" title="', params.time, '">', params.time, '</span></div>'];
                 break;
             case 'user':
                 arr = [
-                '<div class="user" title="', params.name, '"><img src="',
-                params.gravatar, '" width="30" height="30" onload="this.style.visibility=\'visible\'" /></div>'
+                    '<div class="user" title="', params.name, '"><a href="user/',params.user_id,'"><img src="',
+                    params.gravatar, '" width="30" height="30" onload="this.style.visibility=\'visible\'" /></a></div>'
                 ];
                 break;
         }
@@ -3012,7 +3010,7 @@ var chat = {
         var d = new Date();
 
         var markup = chat.render('chatLine', params, comId, comname, pix),
-        exists = $('.chatLineHolder .chat-' + params.id);
+                exists = $('.chatLineHolder .chat-' + params.id);
 
         if (exists.length) {
             exists.remove();
@@ -3049,10 +3047,7 @@ var chat = {
     // (since lastID), and adds them to the page.
 
     getChats: function(callback, comId, comname, pix) {
-        $.tzGET('getChats', {
-            lastID: chat.data.lastID, 
-            comid: comId
-        }, function(r) {
+        $.tzGET('getChats', {lastID: chat.data.lastID, comid: comId}, function(r) {
             for (var i = 0; i < r.chats.length; i++) {
                 chat.addChatLine(r.chats[i], comId, comname, pix);
             }
@@ -3097,9 +3092,7 @@ var chat = {
     // Requesting a list with all the users.
 
     getUsers: function(callback, comId, comname, pix) {
-        $.tzGET('getUsers', {
-            comid: comId
-        }, function(r) {
+        $.tzGET('getUsers', {comid: comId}, function(r) {
 
             var users = [];
 
@@ -3162,16 +3155,13 @@ function checkChatBoxInputKey(chatboxtextarea, comId, comname, pix, working) {
 
     // Assigning a temporary ID to the chat:
     var tempID = 't' + Math.round(Math.random() * 1000000),
-    params = {
+            params = {
         id: tempID,
         name: chat.data.name,
         gravatar: chat.data.gravatar,
         text: nl2br(text.replace(/</g, '&lt;').replace(/>/g, '&gt;'))
     };
-    data = {
-        chatText: text, 
-        comid: comId
-    };
+    data = {chatText: text, comid: comId};
     // Using our addChatLine method to add the chat
     // to the screen immediately, without waiting for
     // the AJAX request to complete:
@@ -3234,7 +3224,5 @@ function logoutCommunityChat(comId) {
     if ($("#comChat_" + comId).length > 0) {
         $("#comChat_" + comId).remove();
     }
-    $.tzPOST('logout', {
-        comid: comId
-    });
+    $.tzPOST('logout', {comid: comId});
 }
