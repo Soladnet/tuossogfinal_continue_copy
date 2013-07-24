@@ -644,7 +644,13 @@ class Community {
                 if ($result->num_rows > 0) {
                     $sql = "UPDATE community_subscribers SET leave_status=0,datejoined=NOW() WHERE `user`=$this->uid AND community_id=$this->id";
                     if ($mysql->query($sql)) {
-                        $arr['status'] = TRUE;
+//                        $sql = "SELECT `unique_name`,`name` From community WHERE id =$this->id";
+//                        if ($result = $mysql->query($sql)){
+                            if ($result->num_rows > 0)
+                             $arr['status'] = TRUE;
+//                             $arr = $mysql->fetch_assoc();
+//                        }
+                       
                     } else {
                         $arr['status'] = FALSE;
                     }

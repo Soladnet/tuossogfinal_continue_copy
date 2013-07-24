@@ -20,7 +20,7 @@ if (isset($user)) {
             <!--<tr><td><span class="icon-16-calendar"></span></td><td class="profile-meta">Joined on Feb 18, 2013 </td></tr>-->
             <?php ?><tr><td><span class="icon-16-male"></span></td><td class="profile-meta"><?php echo isset($user) ? $user->getId() == 0 ? "GUEST" : ($user->getGender() == "M" ? "Male" : "Female")  : "GUEST"; ?></td></tr>
             <!--<tr><td><span class="icon-16-female"></span></td><td class="profile-meta">Female</td></tr>-->
-            <tr><td><span class="icon-16-dot"></span></td><td class="profile-meta"><a id="show-full-profile"> View Full Profile</a> </td></tr>
+            <tr><td><span class="icon-16-dot nouser"></span></td><td class="profile-meta"><a id="show-full-profile" class="nouser"> View Full Profile</a> </td></tr>
         </table>
         <div class="clear"></div>
         <div class="profile-summary">

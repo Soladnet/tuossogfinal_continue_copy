@@ -53,7 +53,8 @@ if (isset($_COOKIE['user_auth'])) {
                 $('#exploreMoreComm').hide();
                 $('#exploreMoreComm').click(function() {
                     var start = parseInt($('#exploreMoreComm').attr('newcomm'));
-                    sendData("loadCommunity", {target: "#all-communities-list", loadImage: true, max: true, start: 0, limit: 10,newuser:true});
+//                    alert(start);
+                    sendData("loadCommunity", {target: ".community-box", comType: 'allCom', loadImage: false, max: true, start: start, limit: 10, newuser:true, more:true});
                 });
                 if (Modernizr.inlinesvg) {
                     $('#logo').html('<a href="index"><img src="images/gossout-logo-text-svg.png" alt="Gossout" /></a>');

@@ -198,6 +198,8 @@ if (isset($_COOKIE['user_auth'])) {
                 var user = readCookie('user_auth');
                 if (user !== 0) {
                     sendData("loadNotificationCount", {title: document.title});
+                } else if(user === 0){
+                    $('.nouser').hide();
                 }
                 $(".fancybox").fancybox({
                     openEffect: 'none',
@@ -239,7 +241,7 @@ if (isset($_COOKIE['user_auth'])) {
                                 <div class="timeline-filter">
                                     <ul>
                                         <li><span class="icon-16-earth"></span></li>
-                                        <li id="my-communities"><a>My Communities</a></li>
+                                        <li id="my-communities" class="nouser"><a>My Communities</a></li>
                                         <!--<li id="suggestions"><a>Suggested</a></li>-->
                                         <li id="all"><div ><a>All</a></li>
 

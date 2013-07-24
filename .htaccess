@@ -1,6 +1,6 @@
 Options +FollowSymLinks
 RewriteEngine On
-RewriteBase /tuossogfinal_continue/
+RewriteBase /tuossogfinal_continue_copy/
 Options -Multiviews
 
 RewriteRule ^([a-zA-Z0-9_-\s]+)/?([a-zA-Z0-9_-\s]+)?/?([a-zA-Z0-9_-\s]+)?$ index.php?page=$1&param=$2&param2=$3
