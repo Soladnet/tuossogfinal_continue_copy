@@ -30,7 +30,7 @@ if (isset($_COOKIE['user_auth'])) {
         <link rel="stylesheet" href="css/chosen.css" />
         <link rel="stylesheet" href="css/validationEngine.jquery.css">
         <link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.css" />
-        <link rel="stylesheet" type="text/css" href="css/chat.css" />
+        <link rel="stylesheet" type="text/css" href="css/chat.min.1.0.css" />
         <?php
         if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
             ?>
