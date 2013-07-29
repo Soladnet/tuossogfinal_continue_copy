@@ -9,16 +9,12 @@
                 $comm = $userCommunity->userComm(0, 10000);
                 if ($comm['status']) {
                     foreach ($comm['community_list'] as $com) {
-                        echo "<option value='$com[id]'>$com[name]</option>";
+                        if ($com['enableMemberPost'] == 1 || $com['creator_id'] == $_COOKIE['user_auth'])
+                            echo "<option value='$com[id]'>$com[name]</option>";
                     }
                 }
                 ?>
             </select>
-            <pre>
-                <?php
-                print_r($comm);
-                ?>
-            </pre>
         </div>
         <input type="submit" class="submit button float-right" value="Post" id="postBtn">
         <input type="hidden" id="hiddenComm">
