@@ -14,7 +14,13 @@
             <div class="clear"></div>
         </div>
         <div class="clear"></div>
-        <button class="button profile-button openChatButton" id="chatButton" rel=""><span class="icon-16-chat"></span> Chat</button>
+        <?php
+        if (isset($_COOKIE['user_auth'])) {
+            ?>
+            <button class="button profile-button openChatButton" id="chatButton" rel=""><span class="icon-16-chat"></span> Chat</button>
+            <?php
+        }
+        ?>
         <button class="button profile-button" id="joinleave"><span class="icon-16-star"></span> <span id="joinleave-text">Join</span><input type="hidden" id="joinleave-comid" value="0"/></button>
         <span id="otherCommOption"></span>
         <div class="clear"></div>

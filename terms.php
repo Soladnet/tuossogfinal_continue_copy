@@ -21,7 +21,7 @@ if (isset($_COOKIE['user_auth'])) {
         <title>Gossout - Term of Service</title>
         <script src="scripts/jquery-1.9.1.min.js"></script>
         <link rel="shortcut icon" href="favicon.ico">
-        <link rel="stylesheet" media="screen" href="css/style.min.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
         <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" > 
         <script>

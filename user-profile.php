@@ -101,7 +101,7 @@ if (isset($_GET['param']) && trim($_GET['param']) == "") {
     <?php
 } else {
     ?>
-                    document.title = "<?php echo $user->getFullname() == "" ? "Gossout" : $user->getFullname()." [".$user->getScreenName()."]" ?>";
+                    document.title = "<?php echo $user->getFullname() == "" ? "Gossout" : $user->getFullname() . " [" . $user->getScreenName() . "]" ?>";
     <?php
 }
 if (isset($isfriend)) {
@@ -117,7 +117,7 @@ if (isset($isfriend)) {
                 var user = readCookie("user_auth");
                 if (user !== 0 && user !== "")
                     sendData("loadNotificationCount", {title: document.title});
-                sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true, loadImage: true, start:0, limit:20});
+                sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true, loadImage: true, start: 0, limit: 20});
                 $(".chzn-select").chosen();
                 $(".fancybox").fancybox({
                     openEffect: 'none',
@@ -224,7 +224,7 @@ if (isset($isfriend)) {
 
             <div class="content">
                 <div class="posts">
-                    <div class="success"><strong><?php echo $user->getFullname() == "" ? "User Timeline" : $user->getFullname(); ?></strong><?php echo isset($isfriend) ? $isfriend['status'] ? "" : "[ <span id='unfriend-" . $isfriend['uid'] . "'><a id='unfriend-" . $isfriend['uid'] . "-text'>Send Friend Request</a></span> ]"  : "" ?></div>
+                    <div class="success"><strong><?php echo $user->getFullname() == "" ? "User Timeline" : $user->getFullname(); ?></strong><?php echo (isset($isfriend) && isset($_COOKIE['user_auth'])) ? $isfriend['status'] ? "" : "[ <span id='unfriend-" . $isfriend['uid'] . "'><a id='unfriend-" . $isfriend['uid'] . "-text'>Send Friend Request</a></span> ]"  : "" ?></div>
                     <hr>
                     <?php
                     if (isset($_COOKIE['user_auth'])) {

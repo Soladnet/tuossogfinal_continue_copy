@@ -27,7 +27,7 @@ if (isset($_POST['first_name']) && isset($_POST['last_name']) && isset($_POST['g
         <meta name="keywords" content="Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs">
         <meta name="author" content="Soladnet Sofwares, Zuma Communication Nigeria Limited">
         <meta charset="UTF-8">
-        <link rel="stylesheet" media="screen" href="css/style.min.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" > 
         <?php
         if (isset($_SESSION['signup_login_error'])) {

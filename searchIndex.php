@@ -24,7 +24,7 @@ if (isset($_COOKIE['user_auth'])) {
         <meta name="author" content="Soladnet Sofwares, Zuma Communication Nigeria Limited">
         <meta charset="UTF-8">
         <link rel="shortcut icon" href="favicon.ico">
-        <link rel="stylesheet" media="screen" href="css/style.min.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
         <script src="scripts/jquery-1.9.1.min.js"></script>
         <link rel=" stylesheet" type="text/css" href="css/joyride-2.0.3.css">
         <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>

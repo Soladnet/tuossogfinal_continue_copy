@@ -143,7 +143,7 @@ function clean($value) {
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" > 
         <link rel="shortcut icon" href="favicon.ico">
 
-        <link rel="stylesheet" media="screen" href="css/style.min.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
         <!--<link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>-->
         <link rel="stylesheet" href="css/jquery-ui-base-1.8.20.css"/>
         <link rel="stylesheet" href="css/tagit-dark-grey.css"/>

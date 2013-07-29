@@ -13,8 +13,12 @@
                     }
                 }
                 ?>
-
             </select>
+            <pre>
+                <?php
+                print_r($comm);
+                ?>
+            </pre>
         </div>
         <input type="submit" class="submit button float-right" value="Post" id="postBtn">
         <input type="hidden" id="hiddenComm">

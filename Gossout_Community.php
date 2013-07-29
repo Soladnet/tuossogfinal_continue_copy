@@ -59,15 +59,15 @@ class Community {
                 } else if ($this->newuser) {
                     $sql = "SELECT DISTINCT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs, community as c  WHERE c.id = cs.community_id AND cs.community_id NOT IN (SELECT community_id FROM `community_subscribers` WHERE user = $this->uid AND leave_status = 0) order by c.name asc LIMIT $start, $limit";
                 } else if ($this->allcom) {
-                    $sql = "SELECT DISTINCT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id order by c.name asc LIMIT $start, $limit";
+                    $sql = "SELECT DISTINCT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id WHERE `type`='Public' order by c.name asc LIMIT $start, $limit";
                 } else {
                     $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 order by c.name asc LIMIT $start,$limit";
                 }
             } else {
                 if ($comname) {
-                    $sql = "SELECT id,creator_id,unique_name,`name` FROM community WHERE unique_name='$comname'";
+                    $sql = "SELECT id,creator_id,unique_name,`name`,enableMemberPost FROM community WHERE unique_name='$comname'";
                 } else {
-                    $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 order by c.name asc LIMIT $start,$limit";
+                    $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,enableMemberPost FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 order by c.name asc LIMIT $start,$limit";
                 }
             }
             if ($result = $mysql->query($sql)) {
