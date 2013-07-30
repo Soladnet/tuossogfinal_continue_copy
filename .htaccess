@@ -6,7 +6,7 @@ Options -Multiviews
 RewriteRule ^([a-zA-Z0-9_-\s]+)/?([a-zA-Z0-9_-\s]+)?/?([a-zA-Z0-9_-\s]+)?$ index.php?page=$1&param=$2&param2=$3
 <IfModule mod_deflate.c>
     AddOutputFilter DEFLATE js css
-    AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript
+    AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css image/svg+xml application/x-javascript application/javascript
  
     #The following lines are to avoid bugs with some browsers
     BrowserMatch ^Mozilla/4 gzip-only-text/html
@@ -23,14 +23,36 @@ RewriteRule ^([a-zA-Z0-9_-\s]+)/?([a-zA-Z0-9_-\s]+)?/?([a-zA-Z0-9_-\s]+)?$ index
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/png "access plus 1 month"
     ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
     ExpiresByType application/x-javascript "access plus 1 month"
     ExpiresByType application/javascript "access plus 1 week"
     ExpiresByType application/x-icon "access plus 1 year"
 </IfModule>
 # END EXPIRES
- 
+
+# proc/self/environ? no way!
+RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+
+# Block out any script trying to set a mosConfig value through the URL
+RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+
+# Block out any script trying to base64_encode crap to send via URL
+RewriteCond %{QUERY_STRING} base64_encode.*(.*) [OR]
+
+# Block out any script that includes a <script> tag in URL
+RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+
+# Block out any script trying to set a PHP GLOBALS variable via URL
+RewriteCond %{QUERY_STRING} GLOBALS(=|[|\%[0-9A-Z]{0,2}) [OR]
+
+# Block out any script trying to modify a _REQUEST variable via URL
+RewriteCond %{QUERY_STRING} _REQUEST(=|[|\%[0-9A-Z]{0,2})
+
+# Send all blocked request to homepage with 403 Forbidden error!
+RewriteRule ^(.*)$ index.php [F,L]
+
 <IfModule mod_headers.c>
-    <FilesMatch "\.(js|css|xml|gz)$">
+    <FilesMatch "\.(js|css|xml|gz|svg)$">
         Header append Vary Accept-Encoding
     </FilesMatch>
     <FilesMatch "\.(ico|jpe?g|png|gif|swf)$">  
@@ -46,3 +68,21 @@ RewriteRule ^([a-zA-Z0-9_-\s]+)/?([a-zA-Z0-9_-\s]+)?/?([a-zA-Z0-9_-\s]+)?$ index
         Header set Cache-Control "private, must-revalidate"  
     </FilesMatch>
 </IfModule>
+
+# secure htaccess file
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+
+# prevent viewing of a specific file
+#<Files secretfile.jpg>
+# order allow,deny
+# deny from all
+#</Files>
+
+# multiple file types
+<FilesMatch ".(htaccess|htpasswd|ini|phps|fla|psd|log|sh)$">
+ Order Allow,Deny
+ Deny from all
+</FilesMatch>

@@ -29,7 +29,6 @@ if (isset($_COOKIE['user_auth'])) {
         <meta http-equiv="Expires" content="-1" />
         <link rel="stylesheet" href="css/chosen.css" />
         <link rel="stylesheet" href="css/validationEngine.jquery.css">
-        <link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.css" />
         <link rel="stylesheet" type="text/css" href="css/chat.min.1.0.css" />
         <?php
         if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
@@ -56,7 +55,7 @@ if (isset($_COOKIE['user_auth'])) {
 
         <script src="scripts/jquery.mousewheel.js"></script>
         <script src="scripts/mwheelIntent.js"></script>
-        <script src="scripts/jquery.jscrollpane.min.js"></script>
+
         <script type="text/javascript">
             var current;
             var start = 0, limit = 10, currentCom = 'myCom';
@@ -119,10 +118,10 @@ if (isset($_COOKIE['user_auth'])) {
                         $('#my-communities').addClass('active');
                         $('#my-communities-list').show();
 //                         if (!($(this).hasClass('clicked'))) {
-                            sendData("loadCommunity", {target: "#my-communities-list", comType: 'myCom', loadImage: true, max: true, start: 0, limit: limit});
+                        sendData("loadCommunity", {target: "#my-communities-list", comType: 'myCom', loadImage: true, max: true, start: 0, limit: limit});
 //                            $(this).addClass('clicked');
 //                        }
-                        
+
                     });
 
                     $("#all").click(function() {
@@ -198,7 +197,7 @@ if (isset($_COOKIE['user_auth'])) {
                 var user = readCookie('user_auth');
                 if (user !== 0) {
                     sendData("loadNotificationCount", {title: document.title});
-                } else if(user === 0){
+                } else if (user === 0) {
                     $('.nouser').hide();
                 }
                 $(".fancybox").fancybox({

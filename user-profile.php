@@ -47,10 +47,6 @@ if (isset($_COOKIE['user_auth'])) {
 
         if (is_numeric($id) && $isValid['status']) {
             $user->getProfile();
-            if ($user->getId() != $uid) {
-                $isfriend = ($user->isAfriend($uid));
-                $isfriend['uid'] = $user->encodeData($user->getId());
-            }
         } else {
             include_once './404.php';
             exit;

@@ -2717,6 +2717,7 @@ function showOption(obj) {
             $(".chatContainer").show();
         } else {
             if ($("#comChat_" + $("#" + obj.id).attr("rel")).length > 0) {
+                alert($("#comChat_" + $("#" + obj.id).attr("rel")).length);
                 $("#comChat_" + $("#" + obj.id).attr("rel")).focus();
             } else {
                 $("#chatHolder").append('<div class="chatContainer" style="right:' + pos + 'px"><div class="chatTopBar rounded"></div><div class="chatLineHolder"></div><div class="chatUsers rounded"></div>' +
@@ -2856,15 +2857,12 @@ var chat = {
     },
     // Init binds event listeners and sets up timers:
     init: function(comId, comname, pix) {
-        // Using the defaultText jQuery plugin, included at the bottom:
-        $('#name').defaultText('Nickname');
-        $('#email').defaultText('Email (Gravatars are Enabled)');
         // Converting the #chatLineHolder div into a jScrollPane,
         // and saving the plugin's API in chat.data:
         chat.data.jspAPI = $('.chatLineHolder').jScrollPane({
             verticalDragMinHeight: 12,
             verticalDragMaxHeight: 12
-        }).data('jsp');
+        });
         // We use the working variable to prevent
         // multiple form submissions:
         var working = false;
@@ -3190,25 +3188,6 @@ $.tzGET = function(action, data, callback) {
     $.get('ajax.php?action=' + action, data, callback, 'json');
 };
 
-// A custom jQuery method for placeholder text:
-
-$.fn.defaultText = function(value) {
-
-    var element = this.eq(0);
-    element.data('defaultText', value);
-
-    element.focus(function() {
-        if (element.val() === value) {
-            element.val('').removeClass('defaultText');
-        }
-    }).blur(function() {
-        if (element.val() === "" || element.val() === value) {
-            element.addClass('defaultText').val(value);
-        }
-    });
-
-    return element.blur();
-};
 function minimizeChatToggle(comId) {
     if ($("#chatLineHolder_" + comId).css('display') !== 'none') {
         $("#chatLineHolder_" + comId).hide();

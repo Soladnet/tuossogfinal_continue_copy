@@ -1,4 +1,5 @@
 <?php
+header('Content-type: text/html; charset=UTF-8');
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
     include_once './GossoutUser.php';

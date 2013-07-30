@@ -1,13 +1,15 @@
 
 <link rel="shortcut icon" href="favicon.ico">
-<link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
 <link rel="stylesheet" href="css/hint.min.css">
 <link rel="stylesheet" href="css/jackedup.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.css" />
+<link rel="stylesheet" media="screen" href="css/style.css">
 
 <script type="text/javascript" src="scripts/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="scripts/jquery.fancybox.pack.js?v=2.1.4"></script>
 <script src="scripts/jquery.sticky.js"></script>
 <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
+<script src="scripts/jquery.jscrollpane.min.js"></script>
 <?php
 if (isset($_GET['page']) && $_GET['page'] == "user") {
     ?>
@@ -49,4 +51,4 @@ if (isset($_GET['page']) && $_GET['page'] == "user") {
         $("#nav-user").sticky({topSpacing: -4});
     });
 </script>
-<script type="text/javascript" src="scripts/script.min.1.0.js"></script>
+<script type="text/javascript" src="scripts/script.js"></script>
