@@ -10,11 +10,13 @@
 <script src="scripts/jquery.sticky.js"></script>
 <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
 <script src="scripts/jquery.jscrollpane.min.js"></script>
+<script src="scripts/jquery.mousewheel.js"></script>
+<script src="scripts/mwheelIntent.js"></script>
 <?php
 if (isset($_GET['page']) && $_GET['page'] == "user") {
     ?>
     <meta name="description" id="metaDescription" content="<?php echo $user->getFullname() . " [" . $user->getScreenName() . "] is on Gossout and is interested in " . ($user->getInterestTag() == "" ? "a lot of things" : $user->getInterestTag()) ?>">
-    <meta name="keywords" id="metaKeywords" content="<?php echo ($user->getFullname()==""?"":$user->getFullname().",").$user->getInterestTag()==""?"Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs":$user->getInterestTag().",Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs"?>">
+    <meta name="keywords" id="metaKeywords" content="<?php echo ($user->getFullname() == "" ? "" : $user->getFullname() . ",") . $user->getInterestTag() == "" ? "Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs" : $user->getInterestTag() . ",Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs" ?>">
     <?php
 } else {
     ?>

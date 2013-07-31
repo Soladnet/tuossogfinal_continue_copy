@@ -38,8 +38,8 @@ if (isset($_COOKIE['user_auth'])) {
                 if (pointer === 'wink-notification-icon') {
                     if ($("#" + pointer).hasClass("clicked")) {
                         $("#individual-notification-box-w").show();
-                         $('.loadMoreGossContent').attr('hold', 'Wink');
-                        if($("#" + pointer).hasClass("showmore"))
+                        $('.loadMoreGossContent').attr('hold', 'Wink');
+                        if ($("#" + pointer).hasClass("showmore"))
                             $('#loadMoreNotifDiv').show();
                     } else {
                         $("#" + pointer).addClass("clicked");
@@ -53,7 +53,7 @@ if (isset($_COOKIE['user_auth'])) {
                     if ($("#" + pointer).hasClass("clicked")) {
                         $("#individual-notification-box-c").show();
                         $('.loadMoreGossContent').attr('hold', 'Comment');
-                        if($("#" + pointer).hasClass("showmore"))
+                        if ($("#" + pointer).hasClass("showmore"))
                             $('#loadMoreNotifDiv').show();
                     } else {
                         $("#" + pointer).addClass("clicked");
@@ -64,11 +64,11 @@ if (isset($_COOKIE['user_auth'])) {
 
                 } else if (pointer === 'frq-notification-icon') {
                     hold.text('Friend Request');
-                    
+
                     if ($("#" + pointer).hasClass("clicked")) {
                         $("#individual-notification-box-f").show();
                         $('.loadMoreGossContent').attr('hold', 'Frq');
-                        if($("#" + pointer).hasClass("showmore"))
+                        if ($("#" + pointer).hasClass("showmore"))
                             $('#loadMoreNotifDiv').show();
                     } else {
                         $("#" + pointer).addClass("clicked");
@@ -80,8 +80,8 @@ if (isset($_COOKIE['user_auth'])) {
                     hold.text('Post');
                     if ($("#" + pointer).hasClass("clicked")) {
                         $("#individual-notification-box-p").show();
-                         $('.loadMoreGossContent').attr('hold', 'Post');
-                        if($("#" + pointer).hasClass("showmore"))
+                        $('.loadMoreGossContent').attr('hold', 'Post');
+                        if ($("#" + pointer).hasClass("showmore"))
                             $('#loadMoreNotifDiv').show();
                     } else {
                         $("#" + pointer).addClass("clicked");
@@ -94,11 +94,11 @@ if (isset($_COOKIE['user_auth'])) {
                     if ($("#" + pointer).hasClass("clicked")) {
                         $("#individual-notification-box-a").show();
                         $('.loadMoreGossContent').attr('hold', 'all');
-                        if($("#" + pointer).hasClass("showmore"))
+                        if ($("#" + pointer).hasClass("showmore"))
                             $('#loadMoreNotifDiv').show();
                     } else {
                         $("#" + pointer).addClass("clicked");
-                        
+
                         $('.loadMoreGossContent').attr('hold', 'all');
                         $("#individual-notification-box-a").show();
                     }
@@ -118,7 +118,7 @@ if (isset($_COOKIE['user_auth'])) {
                     $(".box").hide();
                     doSeparatGoss($(this).attr('id'));
                 });
-               
+
                 $('#loadMoreNotifDiv').hide();
                 $('.loadMoreGossContent').click(function() {
                     var hold = $(this).attr('hold');
@@ -155,7 +155,7 @@ if (isset($_COOKIE['user_auth'])) {
             include ("nav.php");
             include ("nav-user.php");
             ?>
-            <div class="logo"><img src="images/gossout-logo-text-svg.svg" alt=""></div>
+            <div class="logo" id="logo"><img alt=""></div>
 
             <div class="content">
                 <div class="all-notifications-list">

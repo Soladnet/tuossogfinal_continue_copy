@@ -52,10 +52,7 @@ if (isset($_COOKIE['user_auth'])) {
         <script type="text/javascript" src="scripts/jquery.form.js"></script>
         <script type="text/javascript" src="scripts/languages/jquery.validationEngine-en.js"></script>
         <script type="text/javascript" src="scripts/jquery.validationEngine.js"></script>
-
-        <script src="scripts/jquery.mousewheel.js"></script>
-        <script src="scripts/mwheelIntent.js"></script>
-
+        
         <script type="text/javascript">
             var current;
             var start = 0, limit = 10, currentCom = 'myCom';
@@ -214,7 +211,7 @@ if (isset($_COOKIE['user_auth'])) {
             include ("nav.php");
             include ("nav-user.php");
             ?>
-            <div class="logo"><img src="images/gossout-logo-text-svg.svg" alt=""></div>
+            <div class="logo" id="logo"><img alt=""></div>
 
             <div class="content">
                 <span id="rightcolumn" class="">

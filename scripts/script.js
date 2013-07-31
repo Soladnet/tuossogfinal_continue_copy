@@ -928,6 +928,10 @@ function loadGossbag(response, statusText, target) {
         });
         prepareDynamicDates();
         $(".timeago").timeago();
+        $('.notifications').jScrollPane({
+            verticalDragMinHeight: 12,
+            verticalDragMaxHeight: 12
+        });
     } else {
         if (response.error) {
             if (target.status === "append") {
@@ -2862,7 +2866,7 @@ var chat = {
         chat.data.jspAPI = $('.chatLineHolder').jScrollPane({
             verticalDragMinHeight: 12,
             verticalDragMaxHeight: 12
-        });
+        }).data('jsp');
         // We use the working variable to prevent
         // multiple form submissions:
         var working = false;

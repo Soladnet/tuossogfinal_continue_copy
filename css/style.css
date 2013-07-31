@@ -2145,6 +2145,7 @@ body {
     border-top: 1px solid #eee;
     background: #fff;
     padding: .3em 0;
+    word-wrap: break-word;
 }
 /* line 7, _timeline.scss */
 .timeline-news-single:hover {
@@ -2921,6 +2922,8 @@ input[type=checkbox] {
     }
     .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
         width: 18em;
+        overflow: auto;
+        max-height: 25em;
     }
 }
 /* line 540, style.scss */

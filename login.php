@@ -1,5 +1,5 @@
 <?php
-if (session_id() == ""){
+if (session_id() == "") {
     session_name('GSID');
     session_start();
 }
@@ -26,6 +26,7 @@ if ($ipData['timezone']) {
         <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" > 
         <script src="scripts/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
         <?php
         if (isset($_SESSION['login_error'])) {
             ?>
@@ -44,6 +45,11 @@ if ($ipData['timezone']) {
             }
             $(document).ready(function() {
                 $("#tz").val("<?php echo $timezone ?>");
+                if (Modernizr.inlinesvg) {
+                    $('#logo').html('<img src="images/gossout-logo-text-and-image-svg.svg" alt="Gossout" />');
+                } else {
+                    $('#logo').html('<img src="images/gossout-logo-text-and-image-svg.png" alt="Gossout" />');
+                }
             });
         </script>
     </head>
@@ -54,9 +60,7 @@ if ($ipData['timezone']) {
                 <div class="clear"></div>
             </div>
             <div class="index-banner">
-                <div class="index-logo">
-                    <a href="index"><img src="images/gossout-logo-text-and-image-svg.svg" alt="logo" ></a>
-                </div>
+                <div class="logo" id="logo"><img alt=""></div>
             </div>
             <div class="index-intro">
 

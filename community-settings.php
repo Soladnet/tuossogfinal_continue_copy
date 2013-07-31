@@ -137,6 +137,7 @@ if (isset($_COOKIE['user_auth'])) {
                     $("#uploadFileBtn").click(function() {
                         $("#fileUpload").trigger('click');
                     });
+                    
                 });
             </script>
             <?php
@@ -154,7 +155,7 @@ if (isset($_COOKIE['user_auth'])) {
             include ("nav.php");
             include ("nav-user.php");
             ?>
-            <div class="logo"><img src="images/gossout-logo-text-svg.svg" alt=""></div>
+            <div class="logo" id="logo"><img alt=""></div>
 
             <div class="content">
                 <div class="settings-list create-community">
