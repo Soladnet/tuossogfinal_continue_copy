@@ -1667,9 +1667,6 @@ function loadCommunity(response, statusText, target) {
                 if (lastChar === "/") {
                     currentLocation = currentLocation.substring(0, currentLocation.length - 1);
                 }
-                //redirect to base url/communities to list the available communities
-                alert(currentLocation);
-//            
             }
         }
         else {
@@ -2721,7 +2718,6 @@ function showOption(obj) {
             $(".chatContainer").show();
         } else {
             if ($("#comChat_" + $("#" + obj.id).attr("rel")).length > 0) {
-                alert($("#comChat_" + $("#" + obj.id).attr("rel")).length);
                 $("#comChat_" + $("#" + obj.id).attr("rel")).focus();
             } else {
                 $("#chatHolder").append('<div class="chatContainer" style="right:' + pos + 'px"><div class="chatTopBar rounded"></div><div class="chatLineHolder"></div><div class="chatUsers rounded"></div>' +
@@ -2743,7 +2739,7 @@ function showOption(obj) {
             }
         });
     } else {
-        alert("Not Implemented");
+//        alert("Not Implemented");
     }
 }
 function readCookie(name) {

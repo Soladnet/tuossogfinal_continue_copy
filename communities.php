@@ -1,5 +1,23 @@
 <?php
 header('Content-type: text/html; charset=UTF-8');
+include_once './Gossout_Community.php';
+$page = $_GET['page'];
+if (trim($page) == "communities") {
+    $comHelve = $_GET['param'];
+    if (trim($comHelve) != "") {
+        $commExist = Community::communityExist($comHelve);
+        if (!$commExist['status']) {
+            header("HTTP/1.0 404 Not Found");
+            exit;
+        }
+    }
+} else {
+    $commExist = Community::communityExist($page);
+    if (!$commExist['status']) {
+        header("HTTP/1.0 404 Not Found");
+        exit;
+    }
+}
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
     include_once './GossoutUser.php';
@@ -52,7 +70,7 @@ if (isset($_COOKIE['user_auth'])) {
         <script type="text/javascript" src="scripts/jquery.form.js"></script>
         <script type="text/javascript" src="scripts/languages/jquery.validationEngine-en.js"></script>
         <script type="text/javascript" src="scripts/jquery.validationEngine.js"></script>
-        
+
         <script type="text/javascript">
             var current;
             var start = 0, limit = 10, currentCom = 'myCom';

@@ -1,19 +1,5 @@
 <?php
 
-//$userAgent = $_SERVER['HTTP_USER_AGENT'];
-//$notMobile = array("ipad");
-//if (strstr($userAgent, "mobile")) {
-//    foreach ($notMobile as $x) {
-//        if (in_array($x, $userAgent)) {
-//            $isMobile = 0;
-//            break;
-//        }else{
-//            $isMobile = 1;
-//        }
-//    }
-//} else {
-//    $isMobile = 0;
-//}
 include_once './LoginClass.php';
 
 $confirm = new Login();

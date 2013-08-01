@@ -304,6 +304,24 @@ class Community {
         $this->newuser = true;
     }
 
+    public static function communityExist($comId) {
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT * FROM community WHERE unique_name='" . Community::clean($comId) . "' OR id='" . Community::clean($comId)."'";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    $arrFetch['status'] = TRUE;
+                }
+                $result->free();
+            }
+        }
+        $mysql->close();
+        return $arrFetch;
+    }
+
     public function setIsTimeline($isTimeline) {
         $this->isTimeline = $$isTimeline;
     }
@@ -646,11 +664,10 @@ class Community {
                     if ($mysql->query($sql)) {
 //                        $sql = "SELECT `unique_name`,`name` From community WHERE id =$this->id";
 //                        if ($result = $mysql->query($sql)){
-                            if ($result->num_rows > 0)
-                             $arr['status'] = TRUE;
+                        if ($result->num_rows > 0)
+                            $arr['status'] = TRUE;
 //                             $arr = $mysql->fetch_assoc();
 //                        }
-                       
                     } else {
                         $arr['status'] = FALSE;
                     }
@@ -725,7 +742,7 @@ class Community {
         }
     }
 
-    public function clean($value) {
+    public static function clean($value) {
         // If magic quotes not turned on add slashes.
         if (!get_magic_quotes_gpc()) {
             // Adds the slashes.
