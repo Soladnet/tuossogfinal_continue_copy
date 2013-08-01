@@ -3,8 +3,20 @@ header('Content-type: text/html; charset=UTF-8');
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
     include_once './GossoutUser.php';
+    include_once './Gossout_Community.php';
     $encrypt = new Encryption();
     $uid = $encrypt->safe_b64decode($_COOKIE['user_auth']);
+    $comHelve = $_GET['param'];
+    if (trim($comHelve) != "") {
+        $isCreator = Community::isCreator($comHelve, $uid);
+        if (!$isCreator['status']) {
+            header("Location: ../home");
+            exit;
+        }
+    } else {
+        header("Location: ../home");
+        exit;
+    }
     if (is_numeric($uid)) {
         $user = new GossoutUser($uid);
         $userProfile = $user->getProfile();
@@ -137,7 +149,7 @@ if (isset($_COOKIE['user_auth'])) {
                     $("#uploadFileBtn").click(function() {
                         $("#fileUpload").trigger('click');
                     });
-                    
+
                 });
             </script>
             <?php

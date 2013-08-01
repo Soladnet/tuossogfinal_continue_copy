@@ -7,14 +7,14 @@ if (trim($page) == "communities") {
     if (trim($comHelve) != "") {
         $commExist = Community::communityExist($comHelve);
         if (!$commExist['status']) {
-            header("HTTP/1.0 404 Not Found");
+            include_once './404.php';
             exit;
         }
     }
 } else {
     $commExist = Community::communityExist($page);
     if (!$commExist['status']) {
-        header("HTTP/1.0 404 Not Found");
+        include_once './404.php';
         exit;
     }
 }

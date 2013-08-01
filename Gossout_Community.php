@@ -310,7 +310,7 @@ class Community {
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT * FROM community WHERE unique_name='" . Community::clean($comId) . "' OR id='" . Community::clean($comId)."'";
+            $sql = "SELECT * FROM community WHERE unique_name='" . Community::clean($comId) . "' OR id='" . Community::clean($comId) . "'";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $arrFetch['status'] = TRUE;
@@ -320,6 +320,24 @@ class Community {
         }
         $mysql->close();
         return $arrFetch;
+    }
+
+    public static function isCreator($comId, $uid) {
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT * FROM community WHERE (unique_name='" . Community::clean($comId) . "' OR id='" . Community::clean($comId) . "') AND creator_id=$uid";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    $arrFetch['status'] = TRUE;
+                }
+                $result->free();
+            }
+        }
+        return $arrFetch;
+        $mysql->close();
     }
 
     public function setIsTimeline($isTimeline) {
