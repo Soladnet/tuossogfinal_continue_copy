@@ -213,7 +213,6 @@ if (isset($_POST['param'])) {
                 }
                 $print_status = trim(clean($_POST['cw'])) == "" ? TRUE : FALSE;
                 $user_msg = trim(clean($_POST['cw'])) == "" ? $msg->getMessages($status) : $msg->getConversation($msg->getScreenName(), trim(clean($_POST['cw'])));
-
                 isset($user_msg['m_t']) ? setcookie("m_t", encodeText($user_msg['m_t'])) : "";
                 if ($user_msg['status']) {
                     include_once("./sortArray_$.php");

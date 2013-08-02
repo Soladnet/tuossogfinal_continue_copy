@@ -1080,7 +1080,7 @@ class GossoutUser {
 
     public function getNotificationSummary() {
         $gb = $this->getGossbag(TRUE);
-        $msg = $this->getMessages(0, 1000, "AND status='N'", FALSE);
+        $msg = $this->getMessages("AND status='N'", FALSE);
         $response['msg'] = $msg['status'] ? count($msg['message']) : 0;
         $response['gb'] = $gb['status'] ? count($gb['bag']) : 0;
 //        $tw = 0;

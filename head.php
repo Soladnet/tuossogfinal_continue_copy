@@ -54,4 +54,4 @@ if (isset($_GET['page']) && $_GET['page'] == "user") {
         $("#nav-user").sticky({topSpacing: -4});
     });
 </script>
-<script type="text/javascript" src="scripts/script.min.1.0.1.js"></script>
+<script type="text/javascript" src="scripts/script.min.1.0.2.js"></script>
