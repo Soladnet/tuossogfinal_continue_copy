@@ -14,7 +14,7 @@ if ($mysql->connect_errno > 0) {
     echo '<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     ';
-    $sql = "SELECT unique_name FROM community";
+    $sql = "SELECT unique_name FROM community WHERE `type`='Public'";
     if ($result = $mysql->query($sql)) {
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -28,6 +28,15 @@ if ($mysql->connect_errno > 0) {
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 echo "<url><loc>http://www.gossout.com/user/$row[username]</loc></url>
+                        ";
+            }
+        }
+    }
+    $sql = "SELECT p.id,c.unique_name FROM post as p JOIN community as c ON p.community_id=c.id WHERE c.`type`='Public'";
+    if ($result = $mysql->query($sql)) {
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<url><loc>http://www.gossout.com/$row[unique_name]/$row[id]</loc></url>
                         ";
             }
         }

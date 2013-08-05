@@ -56,7 +56,7 @@ class Post {
                     $result = $mysql->query("SELECT NOW() as time");
                     $row = $result->fetch_assoc();
                     $result->free();
-                    $arrFetch['post']['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                    $arrFetch['post']['time'] = Post::convert_time_zone($row['time'], $this->tz);
                 } else {
                     $arrFetch['post']['id'] = 0;
                 }
@@ -98,9 +98,9 @@ class Post {
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        $row['firstname'] = $this->toSentenceCase($row['firstname']);
-                        $row['lastname'] = $this->toSentenceCase($row['lastname']);
-                        $comCount = $this->getCommentCountFor($row['id']);
+                        $row['firstname'] = Post::toSentenceCase($row['firstname']);
+                        $row['lastname'] = Post::toSentenceCase($row['lastname']);
+                        $comCount = Post::getCommentCountFor($row['id']);
                         if ($comCount['status']) {
                             $row['numComnt'] = $comCount['count'];
                         } else {
@@ -113,13 +113,13 @@ class Post {
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $post_image = $this->loadPostImage($row['id']);
+                        $post_image = Post::loadPostImage($row['id']);
                         if ($post_image['status']) {
                             $row['post_photo'] = $post_image['photo'];
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
-                        $row['isLike'] = $this->isLike($row['id'], $this->uid);
-                        $row['likeCount'] = $this->getLikeCount($row['id']);
+                        $row['time'] = Post::convert_time_zone($row['time'], $this->tz);
+                        $row['isLike'] = Post::isLike($row['id'], $this->uid);
+                        $row['likeCount'] = Post::getLikeCount($row['id']);
                         $row['sender_id'] = $encrypt->safe_b64encode($row['sender_id']);
 
 
@@ -139,19 +139,74 @@ class Post {
         return $arrFetch;
     }
 
-    public function getLikeCount($post_id) {
-        $likeCount = 0;
+    public static function getSinglePost($comId, $postId, $uid, $timeZone) {
+        $arrFetch = array();
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         //$count = 0;
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT `time` FROM `like` WHERE `post_id` = '$post_id'";
+            $encrypt = new Encryption();
+            $sql = "SELECT p.`id`, p.`post`, p.`sender_id`,u.username,u.firstname,u.lastname, p.`time`, p.`status` FROM `post` as p JOIN user_personal_info as u ON p.sender_id=u.id WHERE p.`community_id`=$comId AND p.id=$postId AND p.deleteStatus=0";
             if ($result = $mysql->query($sql)) {
-                $likeCount = $result->num_rows;
-//                     $likeCount = $row['likeCount'];
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    $row['firstname'] = Post::toSentenceCase($row['firstname']);
+                    $row['lastname'] = Post::toSentenceCase($row['lastname']);
+                    $comCount = Post::getCommentCountFor($row['id']);
+                    if ($comCount['status']) {
+                        $row['numComnt'] = $comCount['count'];
+                    } else {
+                        $row['numComnt'] = 0;
+                    }
+                    $user = new GossoutUser($row['sender_id']);
+                    $pix = $user->getProfilePix();
+                    if ($pix['status']) {
+                        $row['photo'] = $pix['pix'];
+                    } else {
+                        $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
+                    }
+                    $post_image = Post::loadPostImage($row['id']);
+                    if ($post_image['status']) {
+                        $row['post_photo'] = $post_image['photo'];
+                    }
+                    $row['time'] = Post::convert_time_zone($row['time'], $timeZone);
+                    $row['isLike'] = Post::isLike($row['id'], $uid);
+                    $row['likeCount'] = Post::getLikeCount($row['id']);
+                    $row['sender_id'] = $encrypt->safe_b64encode($row['sender_id']);
+                    $arrFetch['post'][] = $row;
+                    $arrFetch['status'] = TRUE;
+                } else {
+                    $arrFetch['status'] = FALSE;
+                }
+                $result->free();
             } else {
-                
+                $arrFetch['status'] = FALSE;
+            }
+        }
+        $mysql->close();
+        return $arrFetch;
+    }
+
+    public static function getLikeCount($post_id) {
+        $likeCount = array('count' => 0);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        //$count = 0;
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT l.user_id, concat(u.firstname,' ',u.lastname) as fullname FROM `like` as l JOIN user_personal_info as u ON l.user_id=u.id WHERE l.post_id='$post_id'";
+            if ($result = $mysql->query($sql)) {
+                $likeCount['count'] = $result->num_rows;
+                $count = 0;
+                while ($row = $result->fetch_assoc()) {
+                    $row['user_id'] = Post::encodeText($row['user_id']);
+                    $likeCount['likeBy'][] = $row;
+                    $count++;
+                    if ($count == 3) {
+                        break;
+                    }
+                }
             }
         }
         $mysql->close();
@@ -179,11 +234,11 @@ class Post {
         $arr['status'] = $status;
         $arr['action'] = $action;
 //        $arr['sql'] = $sql;
-        $arr['countLike'] = $this->getLikeCount($post_id);
+        $arr['countLike'] = Post::getLikeCount($post_id);
         return $arr;
     }
 
-    public function isLike($post_id, $user_id) {
+    public static function isLike($post_id, $user_id) {
         $isLike = false;
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         //$count = 0;
@@ -201,7 +256,7 @@ class Post {
         return $isLike;
     }
 
-    public function loadPostImage($postId) {
+    public static function loadPostImage($postId) {
         $arrFetch = array();
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         //$count = 0;
@@ -225,7 +280,7 @@ class Post {
         return $arrFetch;
     }
 
-    public function getCommentCountFor($postId) {
+    public static function getCommentCountFor($postId) {
         $arrFetch = array();
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         //$count = 0;
@@ -262,8 +317,8 @@ class Post {
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        $row['firstname'] = $this->toSentenceCase($row['firstname']);
-                        $row['lastname'] = $this->toSentenceCase($row['lastname']);
+                        $row['firstname'] = Post::toSentenceCase($row['firstname']);
+                        $row['lastname'] = Post::toSentenceCase($row['lastname']);
                         $row['comment'] = nl2br($row['comment']);
                         $user = new GossoutUser($row['sender_id']);
                         $pix = $user->getProfilePix();
@@ -273,7 +328,7 @@ class Post {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['sender_id'] = $encrypt->safe_b64encode($row['sender_id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = Post::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['comment'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -311,7 +366,7 @@ class Post {
                     $result = $mysql->query("SELECT NOW() as time");
                     $row = $result->fetch_assoc();
                     $result->free();
-                    $arrFetch['comment']['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                    $arrFetch['comment']['time'] = Post::convert_time_zone($row['time'], $this->tz);
                 } else {
                     $arrFetch['comment']['id'] = 0;
                 }
@@ -354,6 +409,10 @@ class Post {
 
     public function setTimezone($newTimeZone) {
         $this->tz = $newTimeZone;
+    }
+
+    public function getTimeZone() {
+        return $this->tz;
     }
 
     public function deletePost() {
@@ -409,8 +468,8 @@ class Post {
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        $row['firstname'] = $this->toSentenceCase($row['firstname']);
-                        $row['lastname'] = $this->toSentenceCase($row['lastname']);
+                        $row['firstname'] = Post::toSentenceCase($row['firstname']);
+                        $row['lastname'] = Post::toSentenceCase($row['lastname']);
                         $user = new GossoutUser($row['sender_id']);
                         $pix = $user->getProfilePix();
                         if ($pix['status']) {
@@ -418,18 +477,18 @@ class Post {
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $comCount = $this->getCommentCountFor($row['id']);
+                        $comCount = Post::getCommentCountFor($row['id']);
                         if ($comCount['status']) {
                             $row['numComnt'] = $comCount['count'];
                         } else {
                             $row['numComnt'] = 0;
                         }
-                        $post_image = $this->loadPostImage($row['id']);
+                        $post_image = Post::loadPostImage($row['id']);
                         if ($post_image['status']) {
                             $row['post_photo'] = $post_image['photo'];
                         }
                         $row['sender_id'] = $encrypt->safe_b64encode($row['sender_id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = Post::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['post'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -445,7 +504,7 @@ class Post {
         return $arrFetch;
     }
 
-    public function toSentenceCase($str) {
+    public static function toSentenceCase($str) {
         $arr = explode(' ', $str);
         $exp = array();
         foreach ($arr as $x) {
@@ -462,7 +521,19 @@ class Post {
         return implode(' ', $exp);
     }
 
-    private function convert_time_zone($timeFromDatabase_time, $tz) {
+    public static function decodeText($param) {
+        include_once './encryptionClass.php';
+        $encrypt = new Encryption();
+        return $encrypt->safe_b64decode($param);
+    }
+
+    public static function encodeText($param) {
+        include_once './encryptionClass.php';
+        $encrypt = new Encryption();
+        return $encrypt->safe_b64encode($param);
+    }
+
+    private static function convert_time_zone($timeFromDatabase_time, $tz) {
         $date = new DateTime($timeFromDatabase_time, new DateTimeZone(date_default_timezone_get()));
         $date->setTimezone(new DateTimeZone($tz));
         return $date->format('Y-m-d H:i:s');

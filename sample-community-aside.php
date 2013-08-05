@@ -34,7 +34,17 @@
         </span>
         <script>
             $(document).ready(function() {
-                sendData("loadCommunityMembers", {target: "#commember-aside", loadImage: true, comname: current[current.length - 1], start: 0, limit: 12});
+<?php
+if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
+    ?>
+                    sendData("loadCommunityMembers", {target: "#commember-aside", loadImage: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 12});
+    <?php
+} else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
+    ?>
+                    sendData("loadCommunityMembers", {target: "#commember-aside", loadImage: true, comname: "<?php echo trim($param2) == "" ? $page : $param ?>", start: 0, limit: 12});
+    <?php
+}
+?>
             });
         </script>
         <p class="community-listing">

@@ -313,7 +313,8 @@ class Community {
             $sql = "SELECT * FROM community WHERE unique_name='" . Community::clean($comId) . "' OR id='" . Community::clean($comId) . "'";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
-                    $arrFetch['status'] = TRUE;
+                    $row = $result->fetch_assoc();
+                    $arrFetch['status'] = $row['id'];
                 }
                 $result->free();
             }

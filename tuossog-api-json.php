@@ -809,7 +809,11 @@ if (isset($_POST['param'])) {
                 }
                 $post->setTimezone($tz);
                 $post->setUserId($id);
-                $load = $post->loadPost();
+                if (isset($_POST['pid'])) {
+                    $load = Post::getSinglePost(clean($_POST['cid']), clean($_POST['pid']),$post->getUserId(),$post->getTimeZone());
+                } else {
+                    $load = $post->loadPost();
+                }
                 if ($load['status']) {
                     echo json_encode($load['post']);
                 } else {
@@ -822,20 +826,13 @@ if (isset($_POST['param'])) {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
     } else if ($_POST['param'] == "likePost") {
-        $action = $_POST['action'];
+        $action = clean($_POST['action']);
         if (isset($_POST['uid']) && isset($_POST['postId'])) {
-            $post_id = $_POST['postId'];
+            $post_id = clean($_POST['postId']);
             $id = decodeText($_POST['uid']);
             if (is_numeric($id) && $id != 0 && is_numeric($_POST['postId']) && $_POST['postId'] != 0) {
                 include_once './Post.php';
                 $post = new Post();
-                if (isset($_COOKIE['tz'])) {
-                    $tz = decodeText($_COOKIE['tz']);
-                } else if (isset($_SESSION['auth']['tz'])) {
-                    $tz = decodeText($_SESSION['auth']['tz']);
-                } else {
-                    $tz = "Africa/Lagos";
-                }
                 $post->setUserId($id);
                 $doLike = $post->manageLikePost($action, $post_id, $id);
                 echo json_encode($doLike);
@@ -1588,7 +1585,7 @@ function decodeText($param) {
 function encodeText($param) {
     include_once './encryptionClass.php';
     $encrypt = new Encryption();
-    return $encrypt->safe_b64decode($param);
+    return $encrypt->safe_b64encode($param);
 }
 
 function clean($value) {
