@@ -19,11 +19,11 @@ if (isset($_GET['page']) && trim($_GET['page']) == "user") {
     <meta name="description" id="metaDescription" content="<?php echo $user->getFullname() . " [" . $user->getScreenName() . "] is on Gossout and is interested in " . ($user->getInterestTag() == "" ? "a lot of things" : $user->getInterestTag()) ?>">
     <meta name="keywords" id="metaKeywords" content="<?php echo ($user->getFullname() == "" ? "" : $user->getFullname() . ",") . $user->getInterestTag() == "" ? "Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs" : $user->getInterestTag() . ",Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs" ?>">
     <?php
-} else if (($_GET['page'] == "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) == "") || ($_GET['page'] == "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) != "") || ($_GET['page'] != "communities" && trim($_GET['param']) == "" && $_GET['param2'] == "") || ($_GET['page'] != "communities" && trim($_GET['param']) != "" && $_GET['param'] == "")) {//load community info
+} else if (isset($_GET['page']) && (($_GET['page'] == "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) == "") || ($_GET['page'] == "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) != "") || ($_GET['page'] != "communities" && trim($_GET['param']) == "" && $_GET['param2'] == "") || ($_GET['page'] != "communities" && trim($_GET['param']) != "" && $_GET['param'] == ""))) {//load community info
     ?>
 
     <?php
-} else if (($_GET['page'] != "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) == "" && is_numeric($_GET['param'])) || ($_GET['page'] == "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) != "" && is_numeric($_GET['param2']))) {//load single post
+} else if (isset($_GET['page']) && (($_GET['page'] != "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) == "" && is_numeric($_GET['param'])) || ($_GET['page'] == "communities" && trim($_GET['param']) != "" && trim($_GET['param2']) != "" && is_numeric($_GET['param2'])))) {//load single post
     ?>
     
     <?php
