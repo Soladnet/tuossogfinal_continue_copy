@@ -1085,6 +1085,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
+                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1098,8 +1099,6 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                     $arrFetch['status'] = FALSE;
             }
         }
-//        echo json_encode($arrFetch);
-//        exit;
         return $arrFetch;
     }
 

@@ -121,10 +121,10 @@ if (isset($_COOKIE['user_auth'])) {
                     <h1>All Friends</h1>
 
                     <div class="friend-search-box">
-                        <form action="tuossog-api-json.php" method="POST" id="searchForm">
+<!--                        <form action="tuossog-api-json.php" method="POST" id="searchForm">
                             <input name="a" class="friend-search-field validate[required]" placeholder="Search Friends" type="text" value="" id="searchTerm">
                             <input type="submit" class="button" value="Search">
-                        </form>
+                        </form>-->
                     </div>
                     <div class="clear"></div>
                     <span id="individual-friend-box"></span>

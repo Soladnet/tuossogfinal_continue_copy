@@ -577,7 +577,7 @@ function loadGossPost(response, statusText, target) {
                     '<img class= "all-notification-image" src="' + (response.photo.nophoto ? response.photo.alt : response.photo.thumbnail50) + '">' +
                     '<div class="all-notification-text"><h3><a href="user/' + response.username + '">' + response.firstname.concat(' ', response.lastname) + '</a></h3>' +
                     '<div class="all-notifications-comment">posts "' + (response.post.length > 50 ? response.post.substring(0, 50) + "..." : response.post) + '" in <a href="' + response.unique_name + '">' + response.name + '</a></div></div><hr><p>' +
-                    '<!--<a class="all-notifications-actions"><span class="icon-16-dot"></span>View</a>--></p></div>';
+                    '<a href="' + response.unique_name + '/' + response.id + '" class="all-notifications-actions"><span class="icon-16-dot"></span>View</a></p></div>';
         });
         if (target.status === "append") {
             $(target.target).append(htmlstr);
@@ -649,7 +649,7 @@ function loadGossComment(response, statusText, target) {
                     '<div class="all-notification-text"><h3><a href="user/' + response.username + '">' + response.firstname.concat(' ', response.lastname) + '</a></h3>' +
                     '<div class="all-notifications-message">Commented on ' + (response.isMyPost ? "on your post" : "a post") + ' in ' + response.name + '</div>' +
                     '<div class="all-notifications-comment">"' + (response.comment.length > 50 ? response.comment.substring(0, 50) + "..." : response.comment) + '"</div></div><hr><p>' +
-                    '<!--<a class="all-notifications-actions"><span class="icon-16-dot"></span>View</a>--></p></div>';
+                    '<a href="' + response.unique_name + '/' + response.post_id + '" class="all-notifications-actions"><span class="icon-16-dot"></span>View</a></p></div>';
         });
         if (target.status === "append") {
             $(target.target).append(htmlstr);
@@ -1084,7 +1084,7 @@ function sendFriendRequest(response, statusText, target) {
             });
         } else if (target.param === "Send Friend Request") {
             $("#aside-sugfriend-" + target.user).hide();
-            $("#unfriend-" + target.user).removeClass("loaded");
+            $(".unfriend-" + target.user).removeClass("loaded");
             $("#unfriend-" + target.user + "-text").html("Cancel Request");
             humane.log("Friend request action successful!", {
                 timeout: 3000,
@@ -1092,7 +1092,7 @@ function sendFriendRequest(response, statusText, target) {
                 addnCls: 'humane-jackedup-success'
             });
         } else if (target.param === "Cancel Request") {
-            $("#unfriend-" + target.user).removeClass("loaded");
+            $(".unfriend-" + target.user).removeClass("loaded");
             $("#unfriend-" + target.user + "-text").html("Send Friend Request");
             humane.log("Friend request canceled successful!", {
                 timeout: 3000,
@@ -1267,14 +1267,14 @@ function loadCommunityMembers(response, statusText, target) {
                     '<div class="profile-summary-wrapper"><a href="friends"><p class="number">' + response.ministat.fc + ' </p> <p class="type">Friends</p></a></div>' +
                     '<div class="clear"></div></div><div class="clear"></div>';
             if (response.isAfriend !== true && response.isAfriend !== "me") {
-                htmlstr += '<div class="profile-meta-functions button" id="unfriend-' + response.id + '"><span class="icon-16-checkmark"></span><span id="unfriend-' + response.id + '-text">Send Friend Request</span></div>';
+                htmlstr += '<div class="profile-meta-functions button unfriend-' + response.id + '" friend_id="' + response.id + '"><span class="icon-16-checkmark"></span><span id="unfriend-' + response.id + '-text">Send Friend Request</span></div>';
             }
             if (response.isAfriend !== "me") {
                 htmlstr += '<div class="profile-meta-functions button" id="wink-' + response.id + '"><span class="icon-16-eye"></span> Wink</div>';
                 if (wink !== "")
                     wink += ",";
                 wink += "#wink-" + response.id;
-                wink += ",#unfriend-" + response.id;
+                wink += ",.unfriend-" + response.id;
             }
             if (response.isAfriend === true) {
                 htmlstr += '<div class="profile-meta-functions button"><a href="messages/' + response.username + '"><span class="icon-16-mail"></span> Send Message</a></div>';
@@ -2137,9 +2137,9 @@ function loadFriends(response, statusText, target) {
                             '<div class="clear"></div></div><div class="clear"></div>' +
                             '<div class="profile-meta-functions button" id="wink-f-' + responseItem.id + '"><span class="icon-16-eye"></span> Wink</div>' +
                             '<div class="profile-meta-functions button"><a href="messages/' + responseItem.username + '"><span class="icon-16-mail"></span> Send Message</a></div>' +
-                            '<div class="profile-meta-functions button" id="unfriend-f-' + responseItem.id + '"><span class="icon-16-checkmark"></span> <span id="unfriend-f-' + responseItem.id + '-text">Unfriend</a></div><span id="loadImage-' + response.id + '"></span>' +
+                            '<div class="profile-meta-functions button unfriend-' + responseItem.id + '" friend_id="' + responseItem.id + '"><span class="icon-16-checkmark"></span> <span class="unfriend-f-' + responseItem.id + '-text">Unfriend</a></div><span id="loadImage-' + response.id + '"></span>' +
                             '<div class="clear"></div></div></div></div></a></div>';
-                    unfriend += "#unfriend-f-" + responseItem.id;
+                    unfriend += ".unfriend-" + responseItem.id;
                     unfriend += ",#wink-f-" + responseItem.id;
 
                 }
@@ -2158,12 +2158,12 @@ function loadFriends(response, statusText, target) {
                         '<div class="clear"></div></div>' +
                         '<div class="clear"></div><div class="profile-meta-functions button" id="wink-' + responseItem.id + '"><span class="icon-16-eye"></span> Wink</div>' +
                         '<div class="profile-meta-functions button"><a href="messages/' + responseItem.username + '"><span class="icon-16-mail"></span> Send Message</a></div>' +
-                        '<div class="profile-meta-functions button" id="unfriend-' + responseItem.id + '"><span class="icon-16-cross"></span> <span id="unfriend-' + responseItem.id + '-text">Unfriend</span></div><span id="loadImage-' + response.id + '"></span>' +
+                        '<div class="profile-meta-functions button unfriend-' + responseItem.id + '" friend_id="' + responseItem.id + '"><span class="icon-16-cross"></span> <span class="unfriend-' + responseItem.id + '-text">Unfriend</span></div><span id="loadImage-' + response.id + '"></span>' +
                         '<div class="clear"></div></div></div></div></a>';
                 if (i > 0 || unfriend !== "") {
                     unfriend += ",";
                 }
-                unfriend += "#unfriend-" + responseItem.id;
+                unfriend += ".unfriend-" + responseItem.id;
                 unfriend += ",#wink-" + responseItem.id;
             } else {
                 if (target.target === "#toUserInput") {
@@ -2287,13 +2287,13 @@ function loadSuggestFriends(response, statusText, target) {
                     '<div class="profile-summary-wrapper"><a href="communities"><p class="number">' + response.ministat.cc + ' </p> <p class="type">Communities</p></a></div>' +
                     '<div class="profile-summary-wrapper"><a href="friends"><p class="number">' + response.ministat.fc + ' </p> <p class="type">Friends</p></a></div>' +
                     '<div class="clear"></div></div>' +
-                    '<button class="profile-meta-functions button" id="unfriend-' + response.id + '"><span class="icon-16-user-add"></span> <span id="unfriend-' + response.id + '-text">Send Friend Request</span></button><span id="loadImage-' + response.id + '"></span>' +
+                    '<button class="profile-meta-functions button unfriend-' + response.id + '" friend_id="' + response.id + '"><span class="icon-16-user-add"></span> <span class="unfriend-' + response.id + '-text">Send Friend Request</span></button><span id="loadImage-' + response.id + '"></span>' +
                     '<div class="clear"></div></div></div></div>';
             htmlstr += '</a></div>';
             if (i > 0) {
                 unfriend += ",";
             }
-            unfriend += "#unfriend-" + response.id;
+            unfriend += ".unfriend-" + response.id;
         });
         $(target.target).html(htmlstr);
         $(".fancyboxAlert").fancybox({
@@ -2604,15 +2604,15 @@ function showOption(obj) {
                 param: $("#joinleave-text").html()
             });
         }
-    } else if ((obj.id).indexOf("unfriend") >= 0) {
-        var userIdPos = (obj.id).lastIndexOf("-") + 1;
-        var userId = ((obj.id).substring(userIdPos));
-        if (!$("#" + obj.id).hasClass("loaded")) {
-            $("#" + obj.id).addClass("loaded");//<span id="loadImage-' + response.id + '"></span>
+    } else if (obj.getAttribute('class').indexOf('unfriend') >= 0) {
+        var userId = obj.getAttribute('friend_id');
+        $(".unfriend-" + userId).addClass("");
+        if (!$(".unfriend-" + userId).hasClass("loaded")) {
+            $(".unfriend-" + userId).addClass("loaded");
             sendData("sendFriendRequest", {
                 target: "#loadImage-" + userId,
                 user: userId,
-                param: $("#" + obj.id + "-text").html(),
+                param: $(".unfriend-" + userId + "-text").html(),
                 loadImage: true
             });
         } else {
@@ -2796,7 +2796,11 @@ function showOption(obj) {
             }
         });
     } else {
-//        alert("Not Implemented");
+//        alert(obj.getAttribute('class'));
+//        var classList = obj.classList;
+//        for(x in classList){
+//            alert(x+" => "+classList[x])
+//        }
     }
 }
 function readCookie(name) {

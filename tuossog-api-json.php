@@ -1520,7 +1520,7 @@ if (isset($_POST['param'])) {
                             } else {
                                 $resp = $com->enablePostStatus("1", clean($_POST['helve']));
                             }
-                            if (isset($_POST['comTag']) && trim($_POST['comTag']) != "") {
+                            if (isset($_POST['comTag']) && $_POST['comTag'] != "") {
                                 $resp = $com->updateCommunityTag(clean(implode(',', $_POST['comTag'])), clean($_POST['helve']));
                             }
                             if (isset($_POST['privacy'])) {

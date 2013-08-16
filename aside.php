@@ -18,8 +18,7 @@ if (isset($user)) {
             <tr><td></td><td><h3><a href="user/<?php echo isset($user) ? $user->getScreenName() : "" ?>" id="asideName"><?php echo isset($user) ? $user->getId() == 0 ? "GUEST" : $user->getFullname()  : "GUEST"; ?></a></h3></td></tr>
             <!--<tr><td><span class="icon-16-location"></span></td><td class="profile-meta"><?php echo isset($user) ? $user->getLocation() != "" ? $user->getLocation() : "Set your location"  : ""; ?></td></tr>-->
             <!--<tr><td><span class="icon-16-calendar"></span></td><td class="profile-meta">Joined on Feb 18, 2013 </td></tr>-->
-            <?php ?><tr><td><span class="icon-16-male"></span></td><td class="profile-meta"><?php echo isset($user) ? $user->getId() == 0 ? "GUEST" : ($user->getGender() == "M" ? "Male" : "Female")  : "GUEST"; ?></td></tr>
-            <!--<tr><td><span class="icon-16-female"></span></td><td class="profile-meta">Female</td></tr>-->
+            <tr><td><span class="icon-16-male"></span></td><td class="profile-meta"><?php echo isset($user) ? $user->getId() == 0 ? "GUEST" : ($user->getGender() == "M" ? "Male" : "Female")  : "GUEST"; ?></td></tr>
             <tr><td><span class="icon-16-dot nouser"></span></td><td class="profile-meta"><a id="show-full-profile" class="nouser"> View Full Profile</a> </td></tr>
         </table>
         <div class="clear"></div>
@@ -36,11 +35,23 @@ if (isset($user)) {
             <table class="profile-meta " colspan="1">
                 <tr><td><strong>Name</strong></td><td id="more-fullname"><?php echo isset($user) ? $user->getFullname() : "GUEST"; ?><td></tr>
                 <tr><td><strong>Username</strong></td><td><?php echo isset($user) ? $user->getScreenName() : ""; ?><td></tr>
-                <tr><td><strong>Email</strong></td><td><?php echo isset($user) ? $user->getEmail() : ""; ?><td></tr>
+                <?php
+                if (isset($_COOKIE['user_auth'])) {
+                    ?>
+                    <tr><td><strong>Email</strong></td><td><?php echo isset($user) ? $user->getEmail() : ""; ?><td></tr>
+                    <?php
+                }
+                ?>
                 <tr><td><strong>Gender</strong></td><td><?php echo isset($user) ? $user->getGender() == "M" ? "Male" : "Female"  : "N/A"; ?><td></tr>
-                <tr><td><strong>Birthday</strong></td><td> <?php echo isset($user) ? $user->getDOB() : ""; ?><td></tr>
-                <!--<tr><td><strong>Relationship</strong></td><td>Single<td></tr>-->
-                <!--<tr><td><strong>Phone</strong></td><td><?php echo isset($user) ? $user->getTel() != "" ? $user->getTel() : "Not Set"  : ""; ?><td></tr>-->
+                <?php
+                if (isset($_COOKIE['user_auth'])) {
+                    ?>
+                    <tr><td><strong>Birthday</strong></td><td> <?php echo isset($user) ? $user->getDOB() : ""; ?><td></tr>
+                    <!--<tr><td><strong>Relationship</strong></td><td>Single<td></tr>-->
+                    <!--<tr><td><strong>Phone</strong></td><td><?php echo isset($user) ? $user->getTel() != "" ? $user->getTel() : "Not Set"  : ""; ?><td></tr>-->
+                    <?php
+                }
+                ?>
                 <tr><td><strong>Website</strong></td><td><?php echo isset($user) ? $user->getUrl() != "" ? $user->getUrl() : "Not set"  : ""; ?><td></tr>
             </table>
             <!--<hr>-->
@@ -63,7 +74,7 @@ if (isset($user)) {
                         <?php
                     }
                     ?>
-                    <!--<span><span class="icon-16-dot"></span><a id="show-suggested-community" href="communities">Explore all Communities</a></span>-->
+            <!--<span><span class="icon-16-dot"></span><a id="show-suggested-community" href="communities">Explore all Communities</a></span>-->
                 </span>
             </p>
         </div>
