@@ -1236,7 +1236,7 @@ if (isset($_POST['param'])) {
                         if (trim($_POST['fname']) != "" && trim($_POST['lname']) != "") {
                             $x = $user->updateFirstname(clean($_POST['fname']));
                             $y = $user->updateLastname(clean($_POST['lname']));
-                            if (isset($_POST['comTag']) && trim($_POST['comTag']) != "")
+                            if (isset($_POST['comTag']) && $_POST['comTag'] != "")
                                 $z = $user->updateInterestTag(clean(implode(',', $_POST['comTag'])));
                             if ($x['status'] || $y['status'] || $z['status']) {
                                 $status['status'] = TRUE;
@@ -1409,7 +1409,7 @@ if (isset($_POST['param'])) {
                         } else {
                             $status = $com->enablePostStatus("1", clean($_POST['helve']));
                         }
-                        if (isset($_POST['comTag']) && trim($_POST['comTag']) != "") {
+                        if (isset($_POST['comTag']) && $_POST['comTag'] != "") {
                             $status = $com->updateCommunityTag(clean(implode(',', $_POST['comTag'])), clean($_POST['helve']));
                         }
                         if ($status['status']) {
@@ -1429,7 +1429,7 @@ if (isset($_POST['param'])) {
                     } else {
                         $status = $com->enablePostStatus("1", clean($_POST['helve']));
                     }
-                    if (isset($_POST['comTag']) && trim($_POST['comTag']) != "") {
+                    if (isset($_POST['comTag']) && $_POST['comTag'] != "") {
                         $status = $com->updateCommunityTag(clean(implode(',', $_POST['comTag'])), clean($_POST['helve']));
                     }
                     if ($status['status']) {
@@ -1541,7 +1541,7 @@ if (isset($_POST['param'])) {
                     } else {
                         $resp = $com->enablePostStatus("1", clean($_POST['helve']));
                     }
-                    if (isset($_POST['comTag']) && trim($_POST['comTag']) != "") {
+                    if (isset($_POST['comTag']) && $_POST['comTag'] != "") {
                         $resp = $com->updateCommunityTag(clean(implode(',', $_POST['comTag'])), clean($_POST['helve']));
                     }
                     if (isset($_POST['privacy'])) {
