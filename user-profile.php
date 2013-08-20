@@ -3,20 +3,21 @@ header('Content-type: text/html; charset=UTF-8');
 include_once './GossoutUser.php';
 include_once './Gossout_Community.php';
 $user = new GossoutUser(0);
+$publicUser = TRUE;
 $userCommunity = new Community();
 if (isset($_COOKIE['user_auth'])) {
-    $uid = $user->decodeData($_COOKIE['user_auth']);
+    $uid = $user->decodeData($_COOKIE['user_auth']);//loged in user
     if (is_numeric($uid)) {
         $user = new GossoutUser($uid);
-        $userProfile = $user->getProfile();
+//        $userProfile = $user->getProfile();
         $userCommunity->setUser($uid);
     }
-    if (isset($_GET['param']) && trim($_GET['param']) != "") {
+    if (isset($_GET['param']) && trim($_GET['param']) != "") {//use another user's id
         $user->setUserId(NULL);
-        if (is_numeric($_GET['param'])) {
+        if (is_numeric($_GET['param'])) {//parameter is numeric
             $user->setUserId($_GET['param']);
             $id = $user->getId();
-        } else {
+        } else {//parameter is alphanumeric
             $user->setScreenName($_GET['param']);
             $id = $user->getId();
         }
@@ -27,6 +28,8 @@ if (isset($_COOKIE['user_auth'])) {
             if ($user->getId() != $uid) {
                 $isfriend = ($user->isAfriend($uid));
                 $isfriend['uid'] = $user->encodeData($user->getId());
+            }else{
+                $publicUser = FALSE;
             }
         } else {
             include_once './404.php';

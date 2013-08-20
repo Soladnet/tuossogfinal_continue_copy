@@ -160,7 +160,7 @@ if (isset($_POST['param'])) {
                     if (isset($allcom) && $allcom) {
                         $comm->setAllCom();
                     }
-                    $user_comm = $comm->userComm($start, $limit, $_POST['max'], isset($_POST['comname']) ? ($_POST['comname'] == "" ? FALSE : $_POST['comname']) : FALSE); //$_POST['comname'] == "" ? FALSE : $_POST['comname']
+                    $user_comm = $comm->userComm($start, $limit, $_POST['max'], isset($_POST['comname']) ? ($_POST['comname'] == "" ? FALSE : $_POST['comname']) : FALSE, isset($_POST['p']) ? clean($_POST['p']) : "ALL");
                     if ($user_comm['status']) {
                         echo json_encode($user_comm['community_list']);
                     } else {
@@ -810,7 +810,7 @@ if (isset($_POST['param'])) {
                 $post->setTimezone($tz);
                 $post->setUserId($id);
                 if (isset($_POST['pid'])) {
-                    $load = Post::getSinglePost(clean($_POST['cid']), clean($_POST['pid']),$post->getUserId(),$post->getTimeZone());
+                    $load = Post::getSinglePost(clean($_POST['cid']), clean($_POST['pid']), $post->getUserId(), $post->getTimeZone());
                 } else {
                     $load = $post->loadPost();
                 }

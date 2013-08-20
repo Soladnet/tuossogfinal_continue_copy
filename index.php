@@ -71,6 +71,8 @@ if (isset($_GET['page'])) {
         include_once './terms.php';
     } else if ($_GET['page'] == "user") {
         include_once 'user-profile.php';
+    } else if ($_GET['page'] == "search-results") {
+        include_once 'index-search-results.php';
     } else {
         include_once './communities.php';
     }

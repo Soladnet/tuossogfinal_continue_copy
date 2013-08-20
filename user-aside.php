@@ -89,10 +89,10 @@ if (isset($user)) {
         </div>
         <div class="aside-wrapper" id="aside-wrapper-frnd"><h3><a href="friends">Friends</a></h3>
             <script>
-                        $(document).ready(function() {
-                            sendData("loadFriends", {target: "#aside-friends-list", uid: "<?php echo $user->encodeData($user->getId()) ?>", start: 0, limit: 12, loadImage: true <?php echo isset($_GET['page']) ? $_GET['page'] == "friends" ? ",friendPage:'#individual-friend-box'" : ""  : "" ?>});
-                            sendData("loadCommunity", {target: "#aside-community-list", uid: "<?php echo $user->encodeData($user->getId()) ?>", loadImage: true, max: "", start: 0, limit: 5});
-                        });
+                    $(document).ready(function() {
+                        sendData("loadFriends", {target: "#aside-friends-list", uid: "<?php echo $user->encodeData($user->getId()) ?>", start: 0, limit: 12, loadImage: true <?php echo isset($_GET['page']) ? $_GET['page'] == "friends" ? ",friendPage:'#individual-friend-box'" : ""  : "" ?>});
+                        sendData("loadCommunity", {target: "#aside-community-list", uid: "<?php echo $user->encodeData($user->getId()) ?>", loadImage: true, p: "<?php echo $publicUser ? 0 : 1 ?>", max: "", start: 0, limit: 5});
+                    });
             </script>
             <span id="aside-friends-list"></span>
             <p class="community-listing">

@@ -47,27 +47,33 @@ class Community {
      * @return Array An associative array is returned with the information for the user's community
      * 
      */
-    public function userComm($start, $limit, $max = FALSE, $comname = FALSE) {
+    public function userComm($start, $limit, $max = FALSE, $comname = FALSE, $comPrivacy = "ALL") {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         $arr = array();
+        $privacy = "";
+        if ($comPrivacy == "0") {
+            $privacy = "AND c.type='Public'";
+        } else if ($comPrivacy == "1") {
+            $privacy = "AND c.type='Private'";
+        }
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
             if ($max) {
                 if ($comname) {
-                    $sql = "SELECT id,creator_id,unique_name,`name`,category,`pix`,thumbnail100,thumbnail150,thumbnail150,`type`,description,verified,`enableMemberPost` FROM community WHERE unique_name='$comname'";
+                    $sql = "SELECT c.id,c.creator_id,c.unique_name,c.`name`,c.category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,c.`enableMemberPost` FROM community as c WHERE c.unique_name='$comname' $privacy";
                 } else if ($this->newuser) {
-                    $sql = "SELECT DISTINCT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs, community as c  WHERE c.id = cs.community_id AND cs.community_id NOT IN (SELECT community_id FROM `community_subscribers` WHERE user = $this->uid AND leave_status = 0) order by c.name asc LIMIT $start, $limit";
+                    $sql = "SELECT c.id,c.creator_id,c.unique_name,c.`name`,c.`type`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified FROM community as c WHERE c.`type`='Public' AND c.id NOT IN (SELECT community_id FROM `community_subscribers` WHERE user = $this->uid AND leave_status = 0) order by c.name asc LIMIT $start, $limit";
                 } else if ($this->allcom) {
-                    $sql = "SELECT DISTINCT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id WHERE `type`='Public' order by c.name asc LIMIT $start, $limit";
+                    $sql = "SELECT DISTINCT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,c.category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,c.`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id WHERE `type`='Public' order by c.name asc LIMIT $start, $limit";
                 } else {
-                    $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 order by c.name asc LIMIT $start,$limit";
+                    $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,c.category,c.`pix`,c.thumbnail100,c.thumbnail150,c.thumbnail150,c.`type`,c.description,c.verified,c.`enableMemberPost` FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id WHERE cs.`user`=$this->uid AND cs.leave_status=0 $privacy order by c.name asc LIMIT $start,$limit";
                 }
             } else {
                 if ($comname) {
-                    $sql = "SELECT id,creator_id,unique_name,`name`,enableMemberPost FROM community WHERE unique_name='$comname'";
+                    $sql = "SELECT c.id,c.creator_id,c.unique_name,c.`name`,c.enableMemberPost FROM community as c WHERE c.unique_name='$comname' $privacy";
                 } else {
-                    $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,enableMemberPost FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 order by c.name asc LIMIT $start,$limit";
+                    $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,c.enableMemberPost FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 $privacy order by c.name asc LIMIT $start,$limit";
                 }
             }
             if ($result = $mysql->query($sql)) {

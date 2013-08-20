@@ -19,7 +19,7 @@ class Search {
     }
 
     public function search($term, $start, $limit, $opt = "both") {
-        $response = array();
+        $response = array('status' => FALSE);
         $comInfo = new Community();
         $user = new GossoutUser(0);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
@@ -41,26 +41,20 @@ class Search {
                     }
                     $arr = array($arr[0], $merg);
                     //first combination
-                    $searchCombination = "((`firstname` = '$arr[0]' OR `firstname` = '$arr[1]') AND (`lastname` = '$arr[1]' OR `lastname` = '$arr[0]') OR email = '$term')";
+                    $searchCombination = "((`firstname` LIKE '%$arr[0]%' OR `firstname` LIKE '%$arr[1]%') AND (`lastname` LIKE '%$arr[1]%' OR `lastname` LIKE '%$arr[0]%') OR email = '$term')";
                 }
                 $sql = "SELECT id,firstname,lastname,location,gender FROM `user_personal_info` WHERE $searchCombination Limit $start,$limit";
                 if ($result = $mysql->query($sql)) {
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             $row['firstname'] = $this->toSentenceCase($row['firstname']);
-                    $row['lastname'] = $this->toSentenceCase($row['lastname']);
+                            $row['lastname'] = $this->toSentenceCase($row['lastname']);
                             $response['people'][] = $row;
                         }
                         $response['status'] = TRUE;
-                    } else {
-                        $response['status'] = FALSE;
                     }
                     $result->free();
-                } else {
-                    $response['status'] = FALSE;
                 }
-            } else {
-                $response['status'] = FALSE;
             }
             if ($opt == "community" || $opt == "both") {
                 $sqlCommunity = "SELECT `id`,unique_name, `name`, `category`, `description` FROM `community` WHERE (`name` LIKE '%$term%' OR unique_name LIKE '%$term%' OR description LIKE '%$term%') Limit $start,$limit";
@@ -70,18 +64,9 @@ class Search {
                             $response['community'][] = $row;
                         }
                         $response['status'] = TRUE;
-                    } else {
-                        if (!$response['status'])
-                            $response['status'] = FALSE;
                     }
                     $result->free();
-                } else {
-                    if (!$response['status'])
-                        $response['status'] = FALSE;
                 }
-            }else {
-                if (!$response['status'])
-                    $response['status'] = FALSE;
             }
             if ($opt == "mc") {
                 $sqlCommunity = "SELECT c.`id`, c.`type`,c.unique_name,c.`name`,c.thumbnail100,c.thumbnail150, c.`description` FROM `community` as c JOIN community_subscribers as cs ON c.id=cs.community_id WHERE (c.`name` LIKE '%$term%' OR c.unique_name LIKE '%$term%' OR description LIKE '%$term%') AND cs.`user`=$this->uid AND cs.leave_status=0 Limit $start,$limit";
@@ -104,18 +89,9 @@ class Search {
                             $response['community'][] = $row;
                         }
                         $response['status'] = TRUE;
-                    } else {
-                        if (!$response['status'])
-                            $response['status'] = FALSE;
                     }
                     $result->free();
-                } else {
-                    if (!$response['status'])
-                        $response['status'] = FALSE;
                 }
-            }else {
-                if (!$response['status'])
-                    $response['status'] = FALSE;
             }
             if ($opt == "mf") {
                 $searchCombination = "";
@@ -138,7 +114,7 @@ class Search {
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             $row['firstname'] = $this->toSentenceCase($row['firstname']);
-                    $row['lastname'] = $this->toSentenceCase($row['lastname']);
+                            $row['lastname'] = $this->toSentenceCase($row['lastname']);
                             $row['sql'] = $sql;
                             $user->setUserId($row['id']);
                             $pix = $user->getProfilePix();
@@ -150,16 +126,9 @@ class Search {
                             $response['people'][] = $row;
                         }
                         $response['status'] = TRUE;
-                    } else {
-                        $response['status'] = FALSE;
-                    }
+                    } 
                     $result->free();
-                } else {
-                    $response['status'] = FALSE;
                 }
-            } else {
-                if (!$response['status'])
-                    $response['status'] = FALSE;
             }
         }
         $mysql->close();

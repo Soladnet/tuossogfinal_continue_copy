@@ -35,7 +35,7 @@
         <script>
             $(document).ready(function() {
 <?php
-if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
+if ((($page == "communities" || $page == "community-settings") && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
     ?>
                     sendData("loadCommunityMembers", {target: "#commember-aside", loadImage: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 12});
     <?php

@@ -28,7 +28,7 @@ if (isset($_COOKIE['user_auth'])) {
         <meta name="keywords" content="Community,Communities,Interest,Interests,Friend,Friends,Connect,Search,Discover,Discoveries,Gossout,Gossout.com,Zuma Communication Nigeria Limited,Soladnet Software,Soladoye Ola Abdulrasheed, Muhammad Kori,Ali Sani Mohammad,Lagos,Nigeria,Nigerian,Africa,Surulere,Pictures,Picture,Video,Videos,Blog,Blogs">
         <meta name="author" content="Soladnet Sofwares, Zuma Communication Nigeria Limited">
         <meta charset="UTF-8">
-        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.1.css">
         <link rel="stylesheet" href="css/jackedup.css" type="text/css"/>
         <link rel="stylesheet" href="css/hint.min.css">
         

@@ -1,5 +1,24 @@
 <?php
 header('Content-type: text/html; charset=UTF-8');
+include_once './Gossout_Community.php';
+$page = $_GET['page'];
+$param = $_GET['param'];
+$param2 = $_GET['param2'];
+if (trim($page) == "community-settings") {
+    if (trim($param) != "") {
+        $commExist = Community::communityExist($param);
+        if (!$commExist['status']) {
+            include_once './404.php';
+            exit;
+        }
+    }
+} else {
+    $commExist = Community::communityExist($page);
+    if (!$commExist['status']) {
+        include_once './404.php';
+        exit;
+    }
+}
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
     include_once './GossoutUser.php';

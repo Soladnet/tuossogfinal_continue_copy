@@ -13,6 +13,7 @@ function sendData(callback, target) {
                 max: target.max,
                 comname: target.comname,
                 start: target.start,
+                p: target.p,
                 limit: target.limit,
                 more: target.more,
                 newuser: target.newuser,

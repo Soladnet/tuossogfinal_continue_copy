@@ -2911,7 +2911,7 @@ input[type=checkbox] {
     position: absolute;
     padding: 0 .5em .5em .5em;
     left: -6px;
-    width: 25em;
+    width: auto;
     top: 15px;
     border: 1px solid #bbb;
 }
@@ -2924,6 +2924,22 @@ input[type=checkbox] {
         width: 18em;
         overflow: auto;
         max-height: 25em;
+    }
+}
+@media only screen and (max-width: 640px) {
+    /* line 521, style.scss */
+    .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
+        width: auto;
+        overflow: auto;
+        max-height: 20em;
+    }
+}
+@media only screen and (max-width: 800px) {
+    /* line 521, style.scss */
+    .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
+        width: auto;
+        overflow: auto;
+        max-height: 35em;
     }
 }
 /* line 540, style.scss */
@@ -2973,6 +2989,9 @@ input[type=checkbox] {
 /* line 573, style.scss */
 .notifications-container .notification-text, .messages-container .notification-text {
     padding: 0 0 0 52px;
+}
+.individual-notification .notification-text p{
+    word-wrap: break-word;
 }
 /* line 576, style.scss */
 .notifications-container .notification-actions, .messages-container .notification-actions {
