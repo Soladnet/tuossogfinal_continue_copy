@@ -33,17 +33,26 @@ if (isset($_COOKIE['user_auth'])) {
     $user = new GossoutUser(0);
     $userProfile = $user->getProfile();
 }
-//echo "<pre>";
-//print_r($_SESSION);
-//echo "</pre>";
 ?>
 <!doctype html>
 <html lang="en">
     <head>
         <?php
         include_once './webbase.php';
+        if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
+            ?>
+            <title>Gossout - Communities</title>
+            <?php
+        } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
+            ?>
+
+            <?php
+        } else {
+            ?>
+            <title>Gossout - Communities</title>
+            <?php
+        }
         ?>
-        <title>Gossout - Communities</title>
         <meta http-equiv="Pragma" http-equiv="no-cache" />
         <meta http-equiv="Expires" content="-1" />
         <link rel="stylesheet" href="css/chosen.css" />

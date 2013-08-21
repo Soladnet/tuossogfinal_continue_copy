@@ -61,7 +61,7 @@ class Chat {
                     $comChaT = $_COOKIE['cc'];
                     $comChat = json_decode($comChaT, TRUE);
                     if (!$comChat[$comId]) {
-                        $var = $com->getCommunityInfo();
+                        $var = Community::getCommunityInfo($com->getComId());
                         if ($var['status']) {
                             $comChat[$comId] = array("comid" => $comId, "uid" => $id, "comname" => $var['comm']['name'], "pix" => $var['comm']['thumbnail150']);
                         } else {
@@ -70,7 +70,7 @@ class Chat {
                         setcookie('cc', json_encode($comChat));
                     }
                 } else {
-                    $var = $com->getCommunityInfo();
+                    $var = Community::getCommunityInfo($com->getComId());
                     if ($var['status']) {
                         $comChat[$comId] = array("comid" => $comId, "uid" => $id, "comname" => $var['comm']['name'], "pix" => $var['comm']['thumbnail150']);
                     } else {

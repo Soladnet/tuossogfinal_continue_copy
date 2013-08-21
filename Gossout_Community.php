@@ -265,17 +265,20 @@ class Community {
         return $arr;
     }
 
-    public function getCommunityInfo() {
+    public static function getCommunityInfo($param) {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         $arr = array();
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT * from community WHERE id=$this->id";
+            if (is_numeric($param)) {
+                $sql = "SELECT * from community WHERE id=$this->id";
+            } else {
+                $sql = "SELECT * from community WHERE unique_name='$param'";
+            }
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
-                    $row['sql'] = $sql;
                     $arr['comm'] = $row;
                     $arr['status'] = TRUE;
                 } else {
@@ -369,6 +372,10 @@ class Community {
      */
     public function setCommunityId($newId) {
         $this->id = $newId;
+    }
+
+    public function getComId() {
+        return $this->id;
     }
 
     public function suggest() {

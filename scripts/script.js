@@ -410,7 +410,7 @@ function loadTimeline(response, statusText, target) {
                     htmlstr += '</p><div class="clear"></div>';
                 }
                 if (response.post) {
-                    htmlstr += '<p>' + linkify(response.post.length > 200 ? response.post.substring(0, 200) + '<span style="display:none" id="continuereading-' + response.id + '">' + response.post.substring(200) + '</span> <a id="continue-' + response.id + '">continue reading...</a>' : response.post) + '</p>' +
+                    htmlstr += '<p>' + linkify(response.post.length > 200 ? response.post.substring(0, 200) + '<span style="display:none" id="continuereading-' + response.id + '">' + response.post.substring(200) + '</span> <a id="continue-' + response.id + '">...show more</a>' : response.post) + '</p>' +
                             '<!--<p class="post-meta"><span id="post-new-comment-show-' + response.id + '" class=""><span class="icon-16-comment"></span>Comment(20)</span>' +
                             '<span class="post-meta-gossout"><span class="icon-16-share"></span><a class="fancybox " id="inline" href="#share-123456">Share(20)</a></span></p>--><div class="clear"></div></div>';
                 } else {
@@ -999,7 +999,7 @@ function loadNewGossbag(response, statusText, target) {
         //                        });
         //                        htmlstr += '</p><div class="clear"></div>';
         //                    }
-        //                    htmlstr += '<p>' + (response.post.length > 200 ? response.post.substring(0, 200) + '<span style="display:none" id="continuereading-' + response.id + '">' + response.post.substring(200) + '</span> <a id="continue-' + response.id + '">continue reading...</a>' : response.post) + '</p>' +
+        //                    htmlstr += '<p>' + (response.post.length > 200 ? response.post.substring(0, 200) + '<span style="display:none" id="continuereading-' + response.id + '">' + response.post.substring(200) + '</span> <a id="continue-' + response.id + '">...show more</a>' : response.post) + '</p>' +
         //                            '<!--<p class="post-meta"><span id="post-new-comment-show-' + response.id + '" class=""><span class="icon-16-comment"></span>Comment(20)</span>' +
         //                            '<span class="post-meta-gossout"><span class="icon-16-share"></span><a class="fancybox " id="inline" href="#share-123456">Share(20)</a></span></p>--><div class="clear"></div></div>';
         //                    if (response.post.length > 200) {
@@ -1847,7 +1847,7 @@ function loadPost(response, statusText, target) {
         var count = response.length;
         $.each(response, function(i, responseItem) {
             if (responseItem.post) {
-                htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content"><p>' + (responseItem.post.length > 200 ? nl2br(linkify(responseItem.post.substring(0, 200))) + '<span style="display:none" id="continuereading-' + responseItem.id + '">' + nl2br(linkify(responseItem.post.substring(200))) + '</span> <a id="continue-' + responseItem.id + '">continue reading...</a>' : nl2br(linkify(responseItem.post))) + '</p>';
+                htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content"><p>' + (responseItem.post.length > 200 ? nl2br(linkify(responseItem.post.substring(0, 200))) + '<span style="display:none" id="continuereading-' + responseItem.id + '">' + nl2br(linkify(responseItem.post.substring(200))) + '</span> <a id="continue-' + responseItem.id + '">...show more</a>' : nl2br(linkify(responseItem.post))) + '</p>';
             } else {
                 htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content"><p></p>';
             }
@@ -2570,10 +2570,10 @@ function showOption(obj) {
     } else if ((obj.id).indexOf("continue-") >= 0) {
         var postIdPos = (obj.id).lastIndexOf("-") + 1;
         var postId = ((obj.id).substring(postIdPos));
-        if ($("#" + obj.id).html() === "continue reading...") {
-            $("#" + obj.id).html("show less");
+        if ($("#" + obj.id).html() === "...show more") {
+            $("#" + obj.id).html(" << show less");
         } else {
-            $("#" + obj.id).html("continue reading...");
+            $("#" + obj.id).html("...show more");
         }
         $("#continuereading-" + postId).toggle();
     } else if (obj.id === "joinleave" || (obj.id).indexOf("joinCom-") >= 0) {

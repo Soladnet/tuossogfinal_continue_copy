@@ -4,7 +4,7 @@ include_once './LoginClass.php';
 
 $confirm = new Login();
 $confirm->isLoggedIn();
-
+$pageName = array("index", "home", "communities", "messages", "friends", "login", "login_exec", "settings", "notifications", "signup-personal", "signup-login", "signup-photo", "signup-agreement", "create-community", "community-settings", "password-recovery", "password-recovery-confirm", "password-reset", "tos", "rights", "privacy", "terms", "validate-email","user");
 if (isset($_GET['page'])) {
     if ($_GET['page'] == "index") {
         include_once './searchIndex.php';
@@ -96,4 +96,17 @@ if (isset($_GET['page'])) {
         include_once './searchIndex.php';
     }
 }
+
+function decodeText($param) {
+    include_once './encryptionClass.php';
+    $encrypt = new Encryption();
+    return $encrypt->safe_b64decode($param);
+}
+
+function encodeText($param) {
+    include_once './encryptionClass.php';
+    $encrypt = new Encryption();
+    return $encrypt->safe_b64encode($param);
+}
+
 ?>
