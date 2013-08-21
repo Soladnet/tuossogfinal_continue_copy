@@ -40,12 +40,16 @@ if (isset($_COOKIE['user_auth'])) {
         <?php
         include_once './webbase.php';
         if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
+            $comname = $_GET['page'] == "communities" ? $_GET['param'] : $_GET['page'];
+            $comInfo = Community::getCommunityInfo($comname);
             ?>
-            <title>Gossout - Communities</title>
+            <title><?php echo $comInfo['status'] ? $comInfo['comm']['name'] : "Gossout - Community" ?></title>
             <?php
         } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
+            $comname = $_GET['page'] == "communities" ? $_GET['param'] : $_GET['page'];
+            $comInfo = Community::getCommunityInfo($comname);
             ?>
-
+            <title><?php echo $comInfo['status'] ? $comInfo['comm']['name'] : "Gossout - Community" ?></title>
             <?php
         } else {
             ?>
