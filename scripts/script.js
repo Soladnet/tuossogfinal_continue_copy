@@ -1843,7 +1843,7 @@ function loadPost(response, statusText, target) {
     if (!response.error) {
         var uid = readCookie('user_auth');
         var htmlstr = "";
-        var toggleId = "", formBox = "";
+        var toggleId = "", formBox = "", watcherId = "";
         var count = response.length;
         $.each(response, function(i, responseItem) {
             if (responseItem.post) {
@@ -1851,6 +1851,11 @@ function loadPost(response, statusText, target) {
             } else {
                 htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content"><p></p>';
             }
+            if (watcherId !== "") {
+                watcherId += ",";
+            }
+            watcherId += "#post-" + responseItem.id;
+
             if (responseItem.post_photo) {
                 $.each(responseItem.post_photo, function(k, photo) {
                     htmlstr += '<a class="fancybox" rel="gallery' + responseItem.id + '"  href="' + photo.original + '" rel="group"><img src="' + photo.thumbnail + '"></a>';
@@ -1887,12 +1892,12 @@ function loadPost(response, statusText, target) {
                         likeBy += " liked this";
                     }
                 }
-                htmlstr += '<span class="post-time ' + responseItem.id + '" id="likeAction-showCount-' + responseItem.id + '" title="' + likeBy + '"><span class="icon-16-heart post=' + responseItem.id + '"></span><span id="likeCount-' + responseItem.id + '">' + responseItem.likeCount.count + '</span> </span>&nbsp;';
+                htmlstr += '<span class="post-time ' + responseItem.id + '" id="likeAction-showCount-' + responseItem.id + '" title="' + likeBy + '"><span class="icon-16-heart post=' + responseItem.id + '" title="likes"></span><span id="likeCount-' + responseItem.id + '">' + responseItem.likeCount.count + '</span> </span>&nbsp;';
             }
-            //             '<span class="post-time"><span class="icon-16-heart like-item" post='+responseItem.id+'> ' + responseItem.numComnt +' </span></span>' +
-            htmlstr += '<span class="post-time"><span class="icon-16-comment"></span><span id="numComnt-' + responseItem.id + '">' + responseItem.numComnt + '</span> </span>&nbsp;' +
+            htmlstr += '<span class="post-time"><span class="icon-16-comment" title="comment"></span><span id="numComnt-' + responseItem.id + '">' + responseItem.numComnt + '</span> </span>&nbsp;' +
+                    '<span class="post-time"><span class="icon-16-eye" title="seen this"></span>24</span> ' +
                     //                    '<span class="post-time"><span class="icon-16-share"></span>24</span>' +
-                    '<span class="post-time"><span class="icon-16-clock"></span><span class="timeago" title="' + responseItem.time + '">' + responseItem.time + '</span></span>' +
+                    '<span class="post-time"><span class="icon-16-clock" title="time"></span><span class="timeago" title="' + responseItem.time + '">' + responseItem.time + '</span></span>' +
                     '</div></h3></div><hr><div class="post-meta">';
             if (target.uid !== 0) {
                 htmlstr += '<span class="post-meta-delete like-icon"><span class="icon-16-heart like-item" post=' + responseItem.id + '></span><hold class="likeAction" id="likeAction-' + responseItem.id + '">' + (responseItem.isLike ? 'Unlike' : 'Like') + '</hold></span>&nbsp';
@@ -1927,6 +1932,7 @@ function loadPost(response, statusText, target) {
             if (target.uid === responseItem.sender_id) {
                 toggleId += ",#deletePost-" + responseItem.id;
             }
+
         });
         if (target.append) {
             $(target.target).append(htmlstr);
@@ -1966,6 +1972,15 @@ function loadPost(response, statusText, target) {
         });
         prepareDynamicDates();
         $(".timeago").timeago();
+
+        $(watcherId).waypoint(function() {
+            alert(this.id);
+        }, {
+            triggerOnce: true,
+            offset: 'bottom-in-view'
+        });
+
+
         $(formBox).ajaxForm({
             beforeSubmit: function(formData, jqForm, options) {
                 var postIdPos = (jqForm.attr('id')).lastIndexOf("-") + 1;

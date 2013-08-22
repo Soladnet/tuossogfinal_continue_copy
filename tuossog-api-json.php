@@ -1557,6 +1557,8 @@ if (isset($_POST['param'])) {
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
+    } else if ($_POST['param'] == "postView") {
+        
     } else {
         displayError(400, "The request cannot be fulfilled due to bad syntax");
     }
