@@ -2911,35 +2911,36 @@ input[type=checkbox] {
     position: absolute;
     padding: 0 .5em .5em .5em;
     left: -6px;
-    width: auto;
+    width: 25em;
     top: 15px;
     border: 1px solid #bbb;
+    
 }
 @media only screen and (max-width: 300px) {
-    /* line 521, style.scss */
+     /*line 521, style.scss*/ 
     .chatContainer,.openChatButton{
         display: none;
     }
     .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
         width: 18em;
         overflow: auto;
-        max-height: 25em;
+        max-height: 20em;
     }
 }
 @media only screen and (max-width: 640px) {
-    /* line 521, style.scss */
+     /*line 521, style.scss*/ 
     .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
-        width: auto;
+        width: 20em;
         overflow: auto;
         max-height: 20em;
     }
 }
 @media only screen and (max-width: 800px) {
-    /* line 521, style.scss */
+     /*line 521, style.scss*/ 
     .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
-        width: auto;
+        width: 22em;
         overflow: auto;
-        max-height: 35em;
+        max-height: 20em;
     }
 }
 /* line 540, style.scss */
@@ -3277,7 +3278,8 @@ input[type=checkbox] {
 /* line 804, style.scss */
 .post-comment p {
     padding: 0 0 0 47px;
-    line-height: 1.4em;
+    line-height: 1.2em;
+    font-size: 0.75em;
 }
 
 /* line 809, style.scss */
@@ -3340,6 +3342,7 @@ input[type=checkbox] {
     width: 65%;
     margin: .2em !important;
     border: 1px solid #ddd;
+    overflow: hidden;
 }
 /* line 853, style.scss */
 .post-new-comment .comment-field:hover {

@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="css/hint.min.css">
 <link rel="stylesheet" href="css/jackedup.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.css" />
-<link rel="stylesheet" media="screen" href="css/style.min.1.0.2.css">
+<link rel="stylesheet" media="screen" href="css/style.min.1.0.3.css">
 <link rel="stylesheet" href="css/jackedup.css">
 
 <script type="text/javascript" src="scripts/jquery-1.9.1.min.js"></script>
@@ -81,4 +81,4 @@ if (isset($_GET['page']) && trim($_GET['page']) == "user") {
         $("#nav-user").sticky({topSpacing: -4});
     });
 </script>
-<script type="text/javascript" src="scripts/script.js"></script>
+<script type="text/javascript" src="scripts/script.min.1.0.6.js"></script>

@@ -79,6 +79,9 @@ function sendData(callback, target) {
             }
         };
     } else if (callback === "sendFriendRequest") {
+//        for(x in target){
+//            alert(x+" "+target[x]);
+//        }
         option = {
             beforeSend: function() {
                 showuidfeedback(target);
@@ -410,7 +413,7 @@ function loadTimeline(response, statusText, target) {
                     htmlstr += '</p><div class="clear"></div>';
                 }
                 if (response.post) {
-                    htmlstr += '<p>' + linkify(response.post.length > 200 ? response.post.substring(0, 200) + '<span style="display:none" id="continuereading-' + response.id + '">' + response.post.substring(200) + '</span> <a id="continue-' + response.id + '">...show more</a>' : response.post) + '</p>' +
+                    htmlstr += '<p>' + nl2br(linkify(response.post.length > 200 ? response.post.substring(0, 200) + '<span style="display:none" id="continuereading-' + response.id + '">' + response.post.substring(200) + '</span> <a id="continue-' + response.id + '">...show more</a>' : response.post)) + '</p>' +
                             '<!--<p class="post-meta"><span id="post-new-comment-show-' + response.id + '" class=""><span class="icon-16-comment"></span>Comment(20)</span>' +
                             '<span class="post-meta-gossout"><span class="icon-16-share"></span><a class="fancybox " id="inline" href="#share-123456">Share(20)</a></span></p>--><div class="clear"></div></div>';
                 } else {
@@ -487,6 +490,7 @@ function loadTimeline(response, statusText, target) {
                 showOption(this);
             });
         }
+
     } else {
         $(target.target).html('<div class="timeline-news-single"><p>Oops!... no post is attached to this user</p></div>');
     }
@@ -1268,7 +1272,7 @@ function loadCommunityMembers(response, statusText, target) {
                     '<div class="profile-summary-wrapper"><a href="friends"><p class="number">' + response.ministat.fc + ' </p> <p class="type">Friends</p></a></div>' +
                     '<div class="clear"></div></div><div class="clear"></div>';
             if (response.isAfriend !== true && response.isAfriend !== "me") {
-                htmlstr += '<div class="profile-meta-functions button unfriend-' + response.id + '" friend_id="' + response.id + '"><span class="icon-16-checkmark"></span><span id="unfriend-' + response.id + '-text">Send Friend Request</span></div>';
+                htmlstr += '<div class="profile-meta-functions button unfriend-' + response.id + '" friend_id="' + response.id + '"><span class="icon-16-checkmark"></span><span  id="unfriend-' + response.id + '-text">Send Friend Request</span></div>';
             }
             if (response.isAfriend !== "me") {
                 htmlstr += '<div class="profile-meta-functions button" id="wink-' + response.id + '"><span class="icon-16-eye"></span> Wink</div>';
@@ -1293,6 +1297,9 @@ function loadCommunityMembers(response, statusText, target) {
             openEffect: 'none',
             closeEffect: 'none',
             minWidth: 400
+        });
+        $('.sendFRqBtn').on('click', function() {
+//            alert(0);
         });
         $(wink).click(function() {
             showOption(this);
@@ -1864,7 +1871,7 @@ function loadPost(response, statusText, target) {
             htmlstr += '<hr><h3 class="name"><img onload="OnImageLoad(event);" class="post-profile-pic" src="' + (responseItem.photo.nophoto ? responseItem.photo.alt : responseItem.photo.thumbnail45) + '"><a href="user/' + responseItem.username + '">' + responseItem.firstname.concat(' ', responseItem.lastname) + '</a>' +
                     '<div class="float-right">';
             if (responseItem.likeCount.count === 0) {
-                htmlstr += '<span class="post-time ' + responseItem.id + ' hideLikeCount" id="likeAction-showCount-' + responseItem.id + '"><span class="icon-16-heart post=' + responseItem.id + '"></span><span id="likeCount-' + responseItem.id + '">' + responseItem.likeCount + '</span> </span>&nbsp;';
+                htmlstr += '<span class="post-time ' + responseItem.id + ' hideLikeCount" id="likeAction-showCount-' + responseItem.id + '"><span class="icon-16-heart post=' + responseItem.id + '"></span><span id="likeCount-' + responseItem.id + '">' + responseItem.likeCount.count + '</span> </span>&nbsp;';
             }
             else {
                 var likeBy = "";
@@ -1895,7 +1902,7 @@ function loadPost(response, statusText, target) {
                 htmlstr += '<span class="post-time ' + responseItem.id + '" id="likeAction-showCount-' + responseItem.id + '" title="' + likeBy + '"><span class="icon-16-heart post=' + responseItem.id + '" title="likes"></span><span id="likeCount-' + responseItem.id + '">' + responseItem.likeCount.count + '</span> </span>&nbsp;';
             }
             htmlstr += '<span class="post-time"><span class="icon-16-comment" title="comment"></span><span id="numComnt-' + responseItem.id + '">' + responseItem.numComnt + '</span> </span>&nbsp;' +
-                    '<span class="post-time"><span class="icon-16-eye" title="seen this"></span>24</span> ' +
+                    '<span class="post-time"><span class="icon-16-eye" title="seen this"></span>' + responseItem.vc + '</span> ' +
                     //                    '<span class="post-time"><span class="icon-16-share"></span>24</span>' +
                     '<span class="post-time"><span class="icon-16-clock" title="time"></span><span class="timeago" title="' + responseItem.time + '">' + responseItem.time + '</span></span>' +
                     '</div></h3></div><hr><div class="post-meta">';
@@ -1914,7 +1921,7 @@ function loadPost(response, statusText, target) {
             htmlstr += '<div class="post-comments" id="post-comments-' + responseItem.id + '">' +
                     '</div><div class="post-new-comment" id="post-new-comment-' + responseItem.id + '">';
             if (target.uid !== 0) {
-                htmlstr += '<form method="POST" autocomplete="off" action="tuossog-api-json.php?pid=' + responseItem.id + '" id="post-new-comment-form-' + responseItem.id + '"><!--<img class="post-thumb" src="images/snip.jpg">--><span><input type="text" class="comment-field" required placeholder="Add comment..." name="comment" id="input-' + responseItem.id + '"/></span>' +
+                htmlstr += '<form method="POST" autocomplete="off" action="tuossog-api-json.php?pid=' + responseItem.id + '" id="post-new-comment-form-' + responseItem.id + '"><!--<img class="post-thumb" src="images/snip.jpg">--><span><textarea class="comment-field" required placeholder="Add comment..." name="comment" id="input-' + responseItem.id + '"></textarea></span>' +
                         '<input type="submit" class="submit" value="Comment"><div class="clear"></div></form>';
             }
 
@@ -1974,7 +1981,12 @@ function loadPost(response, statusText, target) {
         $(".timeago").timeago();
 
         $(watcherId).waypoint(function() {
-            alert(this.id);
+            $.ajax({
+                type: "POST",
+                url: "tuossog-api-json.php",
+                data: {param: "pview", p: this.id.substring(parseInt(this.id.indexOf("-")) + 1)},
+                dataType: "json"
+            });
         }, {
             triggerOnce: true,
             offset: 'bottom-in-view'
@@ -2812,11 +2824,6 @@ function showOption(obj) {
             }
         });
     } else {
-//        alert(obj.getAttribute('class'));
-//        var classList = obj.classList;
-//        for(x in classList){
-//            alert(x+" => "+classList[x])
-//        }
     }
 }
 function readCookie(name) {

@@ -6,7 +6,7 @@
         ?>
         <title>Gossout - Password Reset</title>
         <link rel="shortcut icon" href="favicon.ico">
-        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.2.css">
         <script type="text/javascript" src="scripts/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" > 

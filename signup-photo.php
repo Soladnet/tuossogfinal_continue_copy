@@ -15,7 +15,7 @@ if (isValidEmail($email)) {
     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
     if ($mysql->connect_errno > 0) {
         $arrayToJs[] = TRUE;
-        echo json_encode($arrayToJs);
+//        echo json_encode($arrayToJs);
     } else {
         $sql = "SELECT * FROM `user_personal_info` WHERE email = '" . clean($email) . "'";
         if ($result = $mysql->query($sql)) {
@@ -143,7 +143,7 @@ function clean($value) {
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" > 
         <link rel="shortcut icon" href="favicon.ico">
 
-        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.2.css">
         <!--<link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>-->
         <link rel="stylesheet" href="css/jquery-ui-base-1.8.20.css"/>
         <link rel="stylesheet" href="css/tagit-dark-grey.css"/>
@@ -152,8 +152,6 @@ function clean($value) {
         <script type="text/javascript" src="scripts/jquery-ui.1.8.20.min.js"></script>
         <script type="text/javascript" src="scripts/tagit.js"></script>
         <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
-        <!--<script src="scripts/languages/jquery.validationEngine-en.js" type="text/javascript"></script>-->
-        <!--<script src="scripts/jquery.validationEngine.js" type="text/javascript"></script>-->
         <script type="text/javascript" src="scripts/jquery.form.js"></script>
         <script>
             function showTags(tags) {
@@ -235,6 +233,12 @@ function clean($value) {
                 });
 
             });
+            function showImageName(name) {
+                var last_backslash = name.lastIndexOf('\\');
+                //var values = name.split('\\');
+                var value = name.substring(last_backslash + 1);
+                return value;
+            }
         </script>
         <style>
             .progress { position:relative; width:400px; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
@@ -272,14 +276,14 @@ function clean($value) {
                                         ?>" id="target">
                                     </div>
                                     <hr>
-                                    <input type="file" onchange="$('#selectedFile').html('<br/><strong>File Name:</strong> ' + this.value);" id="fileInput" name="myfile" class="" style="position: absolute;left: -9999px;"/>
+                                    <input type="file" onchange="$('#selectedFile').html('<br/><strong>File Name:</strong> ' + showImageName(this.value));" id="fileInput" name="myfile" class="" style="position: absolute;left: -9999px;"/>
                                     <div id="fileChookseBtn" class="button"><span class="icon-16-camera"></span> Click to choose image</div>
                                     <span id="selectedFile"></span>
-                                    <p>Maximum file size of 5MB<br/>Image type of .jpg, .jpeg, .gif, and .png</p>
+                                    <p><strong>Maximum file size:</strong> 5MB<br/><strong>Image types:</strong> .jpg, .jpeg, .gif, and .png</p>
                                 </center>
                                 <hr>
                                 <h2>Interests and Tags</h2>
-                                <p class="desc">Add tags to help other users discover you more quickly</p>
+                                <p class="desc">Add tags to help other users discover you more quickly. Separate each tags with coma(,) or space( )</p>
                                 <ul id="communityTag" data-name="comTag[]">
                                     <?php
                                     if (isset($userReg)) {

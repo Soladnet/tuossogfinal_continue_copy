@@ -82,7 +82,7 @@ class Community {
                     while ($row = $result->fetch_assoc()) {
                         $this->setCommunityId($row['id']);
                         $row['name'] = $this->toSentenceCase($row['name']);
-                        $isAm = $this->isAmember($this->uid);
+                        $isAm = Community::isAmember($row['id'],$this->uid);
                         if ($isAm['status']) {
                             $row['isAmember'] = "true";
                         } else {
@@ -119,13 +119,13 @@ class Community {
         return $arr;
     }
 
-    public function isAmember($uid) {
+    public static function isAmember($comId,$uid) {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         $arr = array();
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT * FROM community_subscribers WHERE `user`=$uid AND leave_status=0 AND community_id=$this->id";
+            $sql = "SELECT * FROM community_subscribers WHERE `user`=$uid AND leave_status=0 AND community_id=$comId";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $arr['status'] = TRUE;
@@ -272,7 +272,7 @@ class Community {
             throw new Exception("Connection to server failed!");
         } else {
             if (is_numeric($param)) {
-                $sql = "SELECT * from community WHERE id=$this->id";
+                $sql = "SELECT * from community WHERE id=$param";
             } else {
                 $sql = "SELECT * from community WHERE unique_name='$param'";
             }
@@ -404,24 +404,7 @@ class Community {
         } else {
             $response['status'] = FALSE;
         }
-//        if ($response['status']) {
-//            $myComm = $this->userComm(0, 1000, TRUE);
-//            if ($myComm['status']) {
-//                foreach ($myComm['community_list'] as $item) {
-//                    if (array_key_exists($item['id'], $arr)) {
-//                        unset($arr[$item['id']]);
-//                    }
-//                }
-//            }
-//            if (count($arr) == 0) {
-//                $response['status'] = FALSE;
-//            } else {
-//                $response['suggest'] = array_values($arr);
-//                shuffle($response['suggest']);
-//            }
-//        } //else {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
-//        $arr = array();
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {

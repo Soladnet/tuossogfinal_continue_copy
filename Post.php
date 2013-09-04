@@ -120,6 +120,8 @@ class Post {
                         $row['time'] = Post::convert_time_zone($row['time'], $this->tz);
                         $row['isLike'] = Post::isLike($row['id'], $this->uid);
                         $row['likeCount'] = Post::getLikeCount($row['id']);
+                        $viewerCount = Post::getViewer($row['id']);
+                        $row['vc'] = $viewerCount['vc'];
                         $row['sender_id'] = $encrypt->safe_b64encode($row['sender_id']);
 
 
@@ -173,6 +175,8 @@ class Post {
                     $row['time'] = Post::convert_time_zone($row['time'], $timeZone);
                     $row['isLike'] = Post::isLike($row['id'], $uid);
                     $row['likeCount'] = Post::getLikeCount($row['id']);
+                    $viewerCount = Post::getViewer($row['id']);
+                    $row['vc'] = $viewerCount['vc'];
                     $row['sender_id'] = $encrypt->safe_b64encode($row['sender_id']);
                     $arrFetch['post'][] = $row;
                     $arrFetch['status'] = TRUE;
@@ -413,6 +417,41 @@ class Post {
 
     public function getTimeZone() {
         return $this->tz;
+    }
+
+    public static function saveViewer($postId, $uid, $ip) {
+        $arrFetch = array('status' => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "INSERT INTO post_view(post_id,user_id,ip) VALUES($postId,$uid,'$ip')";
+            if ($mysql->query($sql)) {
+                if ($mysql->affected_rows > 0) {
+                    $arrFetch['status'] = TRUE;
+                }
+            }
+        }
+        $mysql->close();
+        return $arrFetch;
+    }
+
+    public static function getViewer($postId) {
+        $arrFetch = array('vc' => 0);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT count(post_id) as pcount FROM post_view WHERE post_id=$postId";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    $rec = $result->fetch_assoc();
+                    $arrFetch['vc'] = $rec['pcount'];
+                }
+            }
+        }
+        $mysql->close();
+        return $arrFetch;
     }
 
     public function deletePost() {

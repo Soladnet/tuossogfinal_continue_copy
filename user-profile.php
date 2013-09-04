@@ -6,7 +6,7 @@ $user = new GossoutUser(0);
 $publicUser = TRUE;
 $userCommunity = new Community();
 if (isset($_COOKIE['user_auth'])) {
-    $uid = $user->decodeData($_COOKIE['user_auth']);//loged in user
+    $uid = $user->decodeData($_COOKIE['user_auth']); //loged in user
     if (is_numeric($uid)) {
         $user = new GossoutUser($uid);
 //        $userProfile = $user->getProfile();
@@ -28,7 +28,7 @@ if (isset($_COOKIE['user_auth'])) {
             if ($user->getId() != $uid) {
                 $isfriend = ($user->isAfriend($uid));
                 $isfriend['uid'] = $user->encodeData($user->getId());
-            }else{
+            } else {
                 $publicUser = FALSE;
             }
         } else {
@@ -113,10 +113,21 @@ if (isset($isfriend)) {
     }
 }
 ?>
+                $('.sendFrqBtn').on('click', function() {
+                    var userId = $(this).attr('theId');
+                     sendData("sendFriendRequest", {
+                        target: "#loader-" + userId,
+                        user: userId,
+                        param: $("#unfriend-" + userId + "-text").html(),
+                        loadImage: true
+                    });
+                    alert($(this).attr('theId'));
+                    return;
+                });
                 var user = readCookie("user_auth");
                 if (user !== 0 && user !== "")
                     sendData("loadNotificationCount", {title: document.title});
-                sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true,postType:"pub", loadImage: true, start: 0, limit: 20});
+                sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true, postType: "pub", loadImage: true, start: 0, limit: 20});
                 $(".chzn-select").chosen();
                 $(".fancybox").fancybox({
                     openEffect: 'none',
@@ -223,7 +234,7 @@ if (isset($isfriend)) {
 
             <div class="content">
                 <div class="posts">
-                    <div class="success"><strong><?php echo $user->getFullname() == "" ? "User Timeline" : $user->getFullname(); ?></strong><?php echo (isset($isfriend) && isset($_COOKIE['user_auth'])) ? $isfriend['status'] ? "" : "[ <span id='unfriend-" . $isfriend['uid'] . "'><a id='unfriend-" . $isfriend['uid'] . "-text'>Send Friend Request</a></span> ]"  : "" ?></div>
+                    <div class="success"><strong><?php echo $user->getFullname() == "" ? "User Timeline" : $user->getFullname(); ?></strong><?php echo (isset($isfriend) && isset($_COOKIE['user_auth'])) ? $isfriend['status'] ? "" : "[ <span  id='unfriend-" . $isfriend['uid'] . "'><a class='sendFrqBtn' theId ='" . $isfriend['uid'] . "' id='unfriend-" . $isfriend['uid'] . "-text'>Send Friend Request</a></span> ]<span id ='loader-" . $isfriend['uid'] . "'></span>"  : "" ?></div>
                     <hr>
                     <?php
                     if (isset($_COOKIE['user_auth'])) {
@@ -251,6 +262,8 @@ if (isset($isfriend)) {
                 <script>
                     $(document).ready(function() {
                         processCom(<?php echo $comm['status'] == 1 ? json_encode($comm['community_list']) : "{}" ?>);
+
+
                     });
                 </script>
                 <?php

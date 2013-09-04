@@ -1212,6 +1212,20 @@ if (isset($_POST['param'])) {
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
+    } else if ($_POST['param'] == "pview") {
+        if (isset($_POST['uid']) && isset($_POST['p'])) {
+            $id = decodeText($_POST['uid']);
+            if (is_numeric($id) && is_numeric($_POST['p'])) {
+                $ip = $_SERVER['REMOTE_ADDR'];
+                include_once './Post.php';
+                $response = Post::saveViewer($_POST['p'], $id, $ip);
+                echo json_encode($response);
+            } else {
+                displayError(400, "The request cannot be fulfilled due to bad syntax");
+            }
+        } else {
+            displayError(400, "The request cannot be fulfilled due to bad syntax");
+        }
     } else if ($_POST['param'] == "settings") {
         if (isset($_POST['uid'])) {
             $id = decodeText($_POST['uid']);

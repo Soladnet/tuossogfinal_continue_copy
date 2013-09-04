@@ -77,6 +77,60 @@ class GossoutUser {
         return $response;
     }
 
+    public static function verifyUserByEmail($email) {
+        $response['status'] = FALSE;
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT * FROM `user_personal_info` WHERE email = '$email'";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    $response['details'] = $result->fetch_assoc();
+                    $response['status'] = TRUE;
+                }
+            }
+        }
+        return $response;
+    }
+
+    public static function verifyUserById($id) {
+        $response['status'] = FALSE;
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            if (is_numeric($id)) {
+                $sql = "SELECT * FROM `user_personal_info` WHERE id = '$id'";
+                if ($result = $mysql->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $response['details'] = $result->fetch_assoc();
+                        $response['status'] = TRUE;
+                    }
+                }
+            }
+        }
+        return $response;
+    }
+    public static function verifyUserByScreenName($screename) {
+        $response['status'] = FALSE;
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            if (is_numeric($id)) {
+                $sql = "SELECT * FROM `user_personal_info` WHERE username = '$screename'";
+                if ($result = $mysql->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $response['details'] = $result->fetch_assoc();
+                        $response['status'] = TRUE;
+                    }
+                }
+            }
+        }
+        return $response;
+    }
+
     public function isAvalidUser() {
         $response['status'] = FALSE;
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
@@ -1197,7 +1251,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $com->setCommunityId($row['id']);
-                        $isAmember = $com->isAmember($this->id);
+                        $isAmember = Community::isAmember($row['id'],$this->id);
                         $row['isAmember'] = $isAmember['status'];
                         $row['creator_id'] = $this->encodeData($row['creator_id']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);

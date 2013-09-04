@@ -28,7 +28,7 @@ if (count($decodedTokenSplit) == 4) {
         ?>
         <title>Gossout - Password Reset</title>
         <link rel="shortcut icon" href="favicon.ico">
-        <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
+        <link rel="stylesheet" media="screen" href="css/style.min.1.0.2.css">
         <link rel="stylesheet" href="css/validationEngine.jquery.css">
         <link rel="stylesheet" href="css/jackedup.css">
         <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>

@@ -151,7 +151,7 @@ class Chat {
     public static function getChats($lastID, $comid) {
         $lastID = (int) $lastID;
 
-        $result = DB::query("SELECT cc.`id`, cc.`user_id`,concat(u.firstname,' ',u.lastname) as name, cc.`text`, cc.`time` FROM `community_chat` as cc JOIN user_personal_info as u ON cc.user_id=u.id WHERE  cc.id > $lastID AND cc.com_id=$comid ORDER BY cc.id ASC");
+        $result = DB::query("SELECT cc.`id`, cc.`user_id`,concat(u.firstname,' ',u.lastname) as name, cc.`text`, cc.`time` FROM `community_chat` as cc JOIN user_personal_info as u ON cc.user_id=u.id WHERE  cc.id > $lastID AND cc.com_id=$comid ORDER BY cc.id DESC LIMIT 8");
         include_once './GossoutUser.php';
         $user = new GossoutUser(0);
         $chats = array();
@@ -175,7 +175,7 @@ class Chat {
             }
             $chats[] = $chat;
         }
-
+        $chats = array_reverse($chats);
         return array('chats' => $chats);
     }
 

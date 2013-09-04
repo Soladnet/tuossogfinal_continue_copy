@@ -46,9 +46,9 @@ if ($ipData['timezone']) {
             $(document).ready(function() {
                 $("#tz").val("<?php echo $timezone ?>");
                 if (Modernizr.inlinesvg) {
-                    $('#logo').html('<img src="images/gossout-logo-text-and-image-svg.svg" alt="Gossout" />');
+                    $('#logo').html('<a href="index"><img src="images/gossout-logo-text-and-image-svg.svg" alt="Gossout" /></a>');
                 } else {
-                    $('#logo').html('<img src="images/gossout-logo-text-and-image-svg.png" alt="Gossout" />');
+                    $('#logo').html('<a href="index"><img src="images/gossout-logo-text-and-image-svg.png" alt="Gossout" /></a>');
                 }
             });
         </script>
