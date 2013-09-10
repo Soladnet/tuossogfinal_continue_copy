@@ -1300,7 +1300,7 @@ if (isset($_POST['param'])) {
         }
     } else if ($_POST['param'] == "pview") {
         if (isset($_POST['uid']) && isset($_POST['p'])) {
-            $id = $_POST['uid'] == 0 ? $_POST['uid'] : decodeText($_POST['uid']);
+            $id = $_POST['uid'] == "0" ? $_POST['uid'] : decodeText($_POST['uid']);
             if (is_numeric($id) && is_numeric($_POST['p'])) {
                 $ip = $_SERVER['REMOTE_ADDR'];
                 include_once './Post.php';
