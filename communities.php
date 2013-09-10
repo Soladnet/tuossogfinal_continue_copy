@@ -18,6 +18,8 @@ if (trim($page) == "communities") {
         include_once './404.php';
         exit;
     }
+//    $isMember = Community::isAmember($comId, $uid);
+//    if($commExist['info']['type']=="Private" && )
 }
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
@@ -199,6 +201,30 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                     closeEffect: 'none',
                     minWidth: 250
                 });
+                $("#commMsgForm").ajaxForm({
+                    beforeSubmit: function() {
+                        if ($.trim($('#messageTitle').val()) === "" || $.trim($('#message').val()) === "") {
+                            $('#commMsgError').slideDown(300);
+                            $('.commMsgInput').css('border-color', '#8A1F11');
+                            setTimeout(function() {
+                                $('.commMsgInput').css('border-color', '#CCCCCC');
+                                $('#commMsgError').slideUp(300);
+                            }, 10000);
+                            return false;
+                        } else {
+                            $('#loadMoreImg').show();
+                        }
+                    },
+                    success: function(responseText, statusText, xhr, $form) {
+//                        alert('Success');
+                    },
+                    complete: function(xhr) {
+//                    alert('Complete');
+                    },
+                    data: {
+                        uid: readCookie("user_auth")
+                    }
+                });
             });
         </script>
     </head>
@@ -220,13 +246,6 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                             </div>
                             <div class="clear"></div>      
                             <h1>Communities</h1>
-
-                            <!--                            <div class="community-search-box">
-                                                            <form action="tuossog-api-json.php" method="POST" id="searchForm">
-                                                                <input name="a" class="community-search-field validate[required]" id="searchTerm" placeholder="Search your communities" type="text" value="" >
-                                                                <input type="submit" class="button" value="Search">
-                                                            </form>
-                                                        </div>-->
                             <div class="clear"></div>
 
 
@@ -262,6 +281,7 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
 
                         </div>
                     <?php } ?>
+
                 </span>
 
                 <?php
@@ -277,6 +297,48 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
             <?php
             include("footer.php");
             ?>
+            <style>
+                .commMsgInput{
+                    border: 1px #ccc solid;
+                    border-radius:3px;
+                    width:100%;
+                }
+                .words{
+                    font-size:0.8em;
+                    margin-top:5px;
+                }
+            </style>
+            <div class="contactAdminMsg" id="contactAdminMsg-<?php echo $comInfo['status'] ? $comInfo['comm']['id'] : "" ?>" style='display:none;width:500px;max-width:90%; position: fixed;right:10px;bottom: 2px;background:white;padding:5px;border: 1px #ccc solid;border-radius:3px;'>
+                <div style='width:100%;cursor: pointer;'><h3>Send new message to <span id="fullCommName"><?php echo $comInfo['comm']['unique_name']; ?></span><span id='closeMsg' style='float:right;margin-right:5px;'><strong>x</strong></span></h3></div><hr>
+                <div id="sendMsgDiv">
+                    <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Error -empty fields!</strong> All fields must be filled before your message could be sent.  </div>
+                    <form name="commMsgForm" id="commMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
+                        <div class="words">Message Title:</div>
+                        <hr/>
+                        <input type="text" name="messageTitle" id="messageTitle" class="commMsgInput" placeholder="Type the title of you message here (compulsory)"/>
+                        <p><div class="words" style="margin-top:5px;">Message:</div>
+                        <hr/>
+                        <textarea style="min-height:250px;" name="message" id="message" placeholder="Type your message here. . ." class="commMsgInput"></textarea>
+                        <!--<hr><input type="file" name="commMsgFile" id="commMsgFile" style="border-radius: 3px;border:1px solid #ebebeb;height:30px;width:100px;"/>-->
+                        <p></p>
+                        <hr/>
+
+                        <input type="submit" id="sendMsg" name="sendMsg" class="button submit" value="Send Message" style="float: left;">
+                        <input type="hidden" name="param" value="Send-Community-Message"/><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div>
+                        <input type="hidden" name ="comId" value="<?php echo $comInfo['comm']['id']; ?>" />
+                    </form>
+                    <br/><br/>
+                </div>
+                <div id="feedBackMsgDiv" style="display:none;">
+
+                    <div style="font-size:0.9em;margin-bottom: 14px;" class="success"><strong>Successful delivery!</strong> Your message with the details below was sent successfully. Be aware that the response to this message shall be delivered to your Inbox as soon as the Administrator replies.</div>
+                    <div class="" style="font-size:0.9em;margin-top:-5px;"><h3><span id="returnTitle"></span></h3></div>
+                    <hr/>
+                    <div class="" style="font-size:0.8em;padding:5px;" id="returnMessage"></div>
+
+                </div>
+
+            </div>
         </div>
     </body>
 </html>

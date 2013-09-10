@@ -33,6 +33,92 @@ if (isset($_POST['param'])) {
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
+    }if ($_POST['param'] == "Send-Community-Message") {
+        if (isset($_POST['uid']) && isset($_POST['comId'])) {
+            $uid = decodeText($_POST['uid']);
+            $comId = $_POST['comId'];
+            if (is_numeric($uid) && is_numeric($comId)) {
+                $message = $_POST['message'];
+                $title = $_POST['messageTitle'];
+                include_once './Gossout_Community.php';
+                $c = new Community();
+                $r = $c->sendCommunityMessage($title, $message, $uid, $comId);
+                $return = array('title' => $title, 'message' => $message);
+                if ($r['status']) {
+                    echo json_encode($return);
+                    exit();
+                }
+            } else {
+                displayError(400, "The request cannot be fulfilled due to bad syntax");
+            }
+        } else {
+            displayError(400, "The request cannot be fulfilled due to bad syntax");
+        }
+    } else if ($_POST['param'] == "CommMsgInbox" || $_POST['param']=="CommMsgSent") {
+        if (isset($_POST['uid']) && isset($_POST['comId'])) {
+            $start = (isset($_POST['start']) && is_numeric($_POST['start'])) ? $_POST['start'] : 0;
+            $limit = (isset($_POST['limit']) && is_numeric($_POST['limit'])) ? $_POST['limit'] : 20;
+
+            $uid = decodeText($_POST['uid']);
+            $comId = $_POST['comId'];
+            include_once 'GossoutUser.php';
+            include_once 'Gossout_Community.php';
+            $gUser = new GossoutUser(0);
+            if (isset($_COOKIE['tz'])) {
+                $tz = decodeText($_COOKIE['tz']);
+            } else if (isset($_SESSION['auth']['tz'])) {
+                $tz = decodeText($_SESSION['auth']['tz']);
+            } else {
+                $tz = "Africa/Lagos";
+            };
+            $user = new GossoutUser($uid);
+            $user->setTimezone($tz);
+            $comm = new Community();
+            if ($_POST['param'] == "CommMsgInbox"){
+                $c = $comm->getCommMsgInbox($comId, $start, $limit);
+                echo json_encode($c);
+            }
+            else if ($_POST['param'] == "CommMsgSent") {
+                $c = $comm->getCommMsgSent($comId, $start, $limit);
+                echo json_encode($c);
+            }
+            
+        } else {
+            displayError(400, "The request cannot be fulfilled due to bad syntax");
+        }
+    }
+    else if ($_POST['param'] == 'EachCommInboxMsg') {
+        if (isset($_POST['msgId'])) {
+            include_once 'Gossout_Community.php';
+            $msgId = $_POST['msgId'];
+            $msg = Community::getEachCommInbox($msgId);
+            echo json_encode($msg);
+        } else {
+            displayError(400, "The request cannot be fulfilled due to bad syntax");
+        }
+    } else if ($_POST['param'] == 'sendMsgFromAdmin') {
+        if (isset($_POST['receiverId']) && isset($_POST['comId']) && isset($_POST['messageTitle']) && isset($_POST['realMessage']) && isset($_POST['uid']) && isset($_POST['parent'])) {
+            $receiverId = $_POST['receiverId'];
+            $uid = decodeText($_POST['uid']);
+            $comId = $senderId = $_POST['comId'];
+            if (is_numeric($comId) && is_numeric($receiverId)) {
+                $message = $_POST['realMessage'];
+                $title = $_POST['messageTitle'];
+                $parent = $_POST['parent'];
+                include_once './Gossout_Community.php';
+                $c = new Community();
+                $r = $c->sendCommunityMessage($title, $message, $senderId, $receiverId,$parent);
+                $return = array('title' => $title, 'message' => $message);
+                if ($r['status']) {
+                    echo json_encode($return);
+                    exit();
+                }
+            } else {
+                displayError(400, "The request cannot be fulfilled due to bad syntax -1");
+            }
+        } else {
+            displayError(400, "The request cannot be fulfilled due to bad syntax -2");
+        }
     } else if ($_POST['param'] == "friends") {
         include_once './GossoutUser.php';
         if (isset($_POST['uid'])) {
@@ -1214,7 +1300,7 @@ if (isset($_POST['param'])) {
         }
     } else if ($_POST['param'] == "pview") {
         if (isset($_POST['uid']) && isset($_POST['p'])) {
-            $id = decodeText($_POST['uid']);
+            $id = $_POST['uid'] == 0 ? $_POST['uid'] : decodeText($_POST['uid']);
             if (is_numeric($id) && is_numeric($_POST['p'])) {
                 $ip = $_SERVER['REMOTE_ADDR'];
                 include_once './Post.php';
@@ -1571,8 +1657,6 @@ if (isset($_POST['param'])) {
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
-    } else if ($_POST['param'] == "postView") {
-        
     } else {
         displayError(400, "The request cannot be fulfilled due to bad syntax");
     }

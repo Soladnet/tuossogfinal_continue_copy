@@ -165,7 +165,7 @@ if ($type == 'xml') {
     ?> 
 
     for (var i=0; i < 2; i++) 
-    alert('Script evaluated!'); 
+    <!--alert('Script evaluated!');--> 
 
     <?php
     if (!$xhr)

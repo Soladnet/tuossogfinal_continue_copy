@@ -121,7 +121,6 @@ if (isset($isfriend)) {
                         param: $("#unfriend-" + userId + "-text").html(),
                         loadImage: true
                     });
-                    alert($(this).attr('theId'));
                     return;
                 });
                 var user = readCookie("user_auth");
@@ -210,7 +209,6 @@ if (isset($isfriend)) {
                 });
                 $('#loadMoreNotifDiv').hide();
                 $('#loadMoreNotifDiv').click(function() {
-//                    alert('Ok man!');
                     start = parseInt($('.loadMoreTimeLine').attr("timeLine"));
                     $('#loadMoreImg').show();
                     sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true, loadImage: false, start: start, limit: 10, loadMore: true});
