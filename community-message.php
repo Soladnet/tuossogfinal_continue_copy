@@ -29,7 +29,7 @@ if (isset($_COOKIE['user_auth'])) {
         $commm->setCommunityId($comId);
         $isAmember = $commm->isAmember($comId, $uid);
         $isCreator = Community::isCreator($comId, $uid);
-        if (!$isCreator) {
+        if (!$isCreator['status']) {
             header("HTTP/1.0 404 Not Found");
             exit;
         }
@@ -56,9 +56,9 @@ if (isset($_COOKIE['user_auth'])) {
         if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
             ?>
             <style>
-                .progress { position:relative; width:60%; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
-                .bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
-                .percent { position:absolute; display:inline-block; top:3px; left:48%; }
+                .progress{position:relative; width:60%; border: 1px solid #ddd; padding: 1px; border-radius: 3px;}
+                .bar{background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
+                .percent{position:absolute; display:inline-block; top:3px; left:48%;}
             </style>
             <?php
         }
@@ -76,84 +76,85 @@ if (isset($_COOKIE['user_auth'])) {
         <script type="text/javascript" src="scripts/jquery.validationEngine.js"></script>
         <?php if (empty($_GET['param2'])) { ?>
             <script type="text/javascript">
-                var current;
-                var start = 0, limit = 10, comId = <?php echo $comId; ?>;
-                var helveArray = (window.location + '').split('/');
-                //            var helveArray = ($.trim(helveArray1)).split("/");
-                //            han
-                (helveArray[helveArray.length - 1] == '') ? helve = helveArray[helveArray.length - 2] : helve = helveArray[helveArray.length - 1];
-                //           alert(helve);
-                $(document).ready(function() {
+                var current; <?php $start = 2;?>
+            var start = 0, limit = <?php echo $start; ?>, comId = <?php echo $comId; ?>;
+            var helveArray = (window.location + '').split('/');
+            //            var helveArray = ($.trim(helveArray1)).split("/");
+            //            han
+            (helveArray[helveArray.length - 1] == '') ? helve = helveArray[helveArray.length - 2] : helve = helveArray[helveArray.length - 1];
+            //           alert(helve);
+            $(document).ready(function() {
 
-                    sendData("loadCommunity", {target: "#rightcolumn1", loadImage: true, max: true, loadAside: true, comname: helve, start: 0, limit: 10});
-                    sendData("loadCommMsgInbox", {target: "#inboxCommMsg", loadImage: true, start: start, limit: limit, comId: comId, append: false, helve: helve});
-                    $('#comm_more_inbox').hide();
-                    $('#sentCommMsgDiv').hide();
-                    $('#inbox').on('click', function() {
-                        sendData("loadCommMsgInbox", {target: "#inboxCommMsg", loadImage: true, start: start, limit: limit, comId: comId, append: false, inboxInitiator: true, helve: helve});
-                    })
-                    $('#comm_more_inbox').click(function() {
-                        var start = parseInt($(this).attr('start'));
-                        sendData("loadCommMsgInbox", {target: "#inboxCommMsg", loadImage: false, start: start, limit: limit, comId: comId, append: true, helve: helve});
-                        return false;
-                    })
-                    $('#sent_message').click(function() {
-                        sendData("loadCommMsgSent", {target: "#sentCommMsg", loadImage: true, start: start, limit: limit, comId: comId, sentBox: true});
-                        return false;
-                    })
-                    $('#comm_more_sentMsg').on('click', function() {
-                        return false;
-                    });
-                    $(".fancybox").fancybox({
-                        openEffect: 'none',
-                        closeEffect: 'none',
-                        minWidth: 250
-                    });
-                    $("#commMsgForm").ajaxForm({
-                        beforeSubmit: function() {
-                            if ($.trim($('#messageTitle').val()) == "" || $.trim($('#message').val()) == "") {
-                                $('#commMsgError').slideDown(300);
-                                $('.commMsgInput').css('border-color', '#8A1F11');
-                                setTimeout(function() {
-                                    $('.commMsgInput').css('border-color', '#CCCCCC');
-                                    $('#commMsgError').slideUp(300);
-                                }, 10000);
-                                return false;
-                            } else {
-                                $('#loadMoreImg').show();
-                            }
-                        },
-                        success: function(responseText, statusText, xhr, $form) {
-                            $('#sendMsgDiv').slideUp(500);
-                            $('#returnTitle').html(responseText.title);
-                            $('#returnMessage').html(responseText.message);
-                            $('#feedBackMsgDiv').slideDown(500);
-                            $('#loadMoreImg').hide();
-                        },
-                        complete: function(xhr) {
-
-                        },
-                        data: {
-                            uid: readCookie("user_auth")
-                        }
-                    });
-
-                    $('.gossbag-separation-icons').click(function() {
-                        $('.gossbag-separation-icons').removeClass('active');
-                        $(this).addClass('active');
-                        if ($(this).attr('id') === 'inbox') {
-                            $('.showCommMsg').hide();
-                            $('#inboxCommMsgDiv').show();
-                        }
-                        else if ($(this).attr('id') === 'sent_message') {
-                            $('.showCommMsg').hide();
-                            $('#sentCommMsgDiv').show();
+                sendData("loadCommunity", {target: "#rightcolumn1", loadImage: true, max: true, loadAside: true, comname: helve, start: 0, limit: 10});
+                sendData("loadCommMsgInbox", {target: "#inboxCommMsg", loadImage: false, start: start, limit: limit, comId: comId, append: false, helve: helve});
+                $('#comm_more_inbox').hide();
+                $('#sentCommMsgDiv').hide();
+                $('#inbox').on('click', function() {
+                    sendData("loadCommMsgInbox", {target: "#inboxCommMsg", loadImage: true, start: start, limit: limit, comId: comId, append: false, inboxInitiator: true, helve: helve});
+                })
+                $('#comm_more_inbox').click(function() {
+                    var start = parseInt($(this).attr('start'))
+                    sendData("loadCommMsgInbox", {target: "#inboxCommMsg", loadImage: false, start: start, limit: limit, comId: comId, append: true, helve: helve});
+                    $('#comm_more_inbox').attr('start', parseInt($('#comm_more_inbox').attr('start')) + limit);
+                    return false;
+                })
+                $('#sent_message').click(function() {
+                    sendData("loadCommMsgSent", {target: "#sentCommMsg", loadImage: true, start: start, limit: limit, comId: comId, sentBox: true});
+                    return false;
+                })
+                $('#comm_more_sentMsg').on('click', function() {
+                    return false;
+                });
+                $(".fancybox").fancybox({
+                    openEffect: 'none',
+                    closeEffect: 'none',
+                    minWidth: 250
+                });
+                $("#commMsgForm").ajaxForm({
+                    beforeSubmit: function() {
+                        if ($.trim($('#messageTitle').val()) == "" || $.trim($('#message').val()) == "") {
+                            $('#commMsgError').slideDown(300);
+                            $('.commMsgInput').css('border-color', '#8A1F11');
+                            setTimeout(function() {
+                                $('.commMsgInput').css('border-color', '#CCCCCC');
+                                $('#commMsgError').slideUp(300);
+                            }, 10000);
+                            return false;
                         } else {
+                            $('#loadMoreImg').show();
                         }
+                    },
+                    success: function(responseText, statusText, xhr, $form) {
+                        $('#sendMsgDiv').slideUp(500);
+                        $('#returnTitle').html(responseText.title);
+                        $('#returnMessage').html(responseText.message);
+                        $('#feedBackMsgDiv').slideDown(500);
+                        $('#loadMoreImg').hide();
+                    },
+                    complete: function(xhr) {
 
-                    });
+                    },
+                    data: {
+                        uid: readCookie("user_auth")
+                    }
+                });
+
+                $('.gossbag-separation-icons').click(function() {
+                    $('.gossbag-separation-icons').removeClass('active');
+                    $(this).addClass('active');
+                    if ($(this).attr('id') === 'inbox') {
+                        $('.showCommMsg').hide();
+                        $('#inboxCommMsgDiv').show();
+                    }
+                    else if ($(this).attr('id') === 'sent_message') {
+                        $('.showCommMsg').hide();
+                        $('#sentCommMsgDiv').show();
+                    } else {
+                    }
 
                 });
+
+            });
 
             </script>
         <?php } ?>
@@ -164,7 +165,7 @@ if (isset($_COOKIE['user_auth'])) {
                 /*min-height:600px;*/
             }
             .aside{
-                /*                width: 374px;
+                /*              width: 374px;
                                 float:left !important;*/
                 /*min-height:400px;*/
                 /*border:#efefee 1px solid;*/
@@ -193,13 +194,11 @@ if (isset($_COOKIE['user_auth'])) {
             }
             .message_content{
                 display:none;
-                margin-top: -12px !important;
-
-                margin-bottom:5px;
+               margin-bottom:5px;
                 padding:5px;
                 border-radius: 3px;
                 border:1px solid #efefef;
-                width:96%;
+                width:98%;
                 margin: 0 auto;
                 background: #fcfcfc;
             }
@@ -207,11 +206,12 @@ if (isset($_COOKIE['user_auth'])) {
                 float:left;margin-left:5px;margin-top:-5px
             }
             #inboxCommMsg,#sentCommMsg{
-                padding:0;
+                padding:1px;
                 width:100%;
                 border:1px #efefef solid;
                 border-radius: 3px;
                 padding-bottom: 5px;
+                min-width: 305px;
                 /*float:left;*/
 
             }
@@ -245,12 +245,38 @@ if (isset($_COOKIE['user_auth'])) {
             @media only screen and (max-width: 720px) {
                 .just {
                     min-height: 300px !important;
+                    position: relative !important;
+
                 }
             }
             @media only screen and (max-width: 440px) {
                 .just {
                     min-height: 400px !important;
                 }
+            }
+            .all-messages-image{
+                position: relative;
+                padding:2px;
+            }
+            .senderComm{
+                float:left;
+                max-height: 45px;
+                max-width: 60px;
+                overflow: hidden;
+            }
+            .commEachMsgDiv{
+                min-height: 54px;
+               
+                width: 98%;
+                 border:1px #efefef solid;
+                border-radius: 3px;
+                margin-bottom: 4px;
+            }
+            .commMsgSender{
+                font-size:12px;
+            }
+            .posts{
+                min-width: 325px;
             }
         </style>
         <div class="page-wrapper">
@@ -265,9 +291,7 @@ if (isset($_COOKIE['user_auth'])) {
                 <span id="rightcolumn" class="">
                     <?php
                     if ($isCreator['status']) {
-//                        print_r($helve);
                         ?>
-
                         <div class="posts">
 
                             <div class="showClickOption">
@@ -291,18 +315,19 @@ if (isset($_COOKIE['user_auth'])) {
                                     <!--<li class=" gossbag-separation-li gossbag-separation-icons" id="compose_new" rel="all-notification-icon" title="Compose new message"><span class="icon-16-pencil"></span>Compose new</li>-->
                                 </ul>
                             </div>
-                            <p class="">
-                            <!--<hr class="hr">-->
-                            <div>
+                            <!--<hr style="margin-top:-10px;">-->
+                           
+                            <div style="margin-top:-36px;">
                                 <br>
                                 <br>
                                 <!--<div  style="border-bottom: 1px solid #efefef;width:100%;"></div>-->       
                                 <div class="aside profile-meta showCommMsg mainCommCont" id="inboxCommMsgDiv">
                                     <div id="inboxCommMsg">
-
+                                       
                                     </div>
                                     <hr>
-                                    <div class="button" style="float:left;" id="comm_more_inbox" start="0">
+                                    <p>
+                                    <div class="button" style="float:left;" id="comm_more_inbox" start="<?php echo 2;?>">
                                         <a href="">More messages > ></a>
                                     </div>&nbsp;<img src='images/loading.gif' style='border:none;margin-top: -10px;display:none' id="loader1"/>
                                 </div>
@@ -311,16 +336,12 @@ if (isset($_COOKIE['user_auth'])) {
                                     <div id="sentCommMsg">
 
                                     </div>
-                                    <hr>
-                                    <!--                                    <div class="button" style="float:left;" id="comm_more_sentMsg">
-                                                                            <a href="">More messages > ></a>
-                                                                        </div>&nbsp;<img src='images/loading.gif' style='border:none;margin-top: -10px;display:none' id="loader1"/>-->
-
-                                </div>
+                                   </div>
                                 <div class="aside profile-meta showCommMsg" id="newCommMsg" style="display:none"> 
 
                                     <div id="sendMsgDiv" style="width:100%;">
                                         <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Error -empty fields!</strong> All fields must be filled before your message could be sent.  </div>
+                                        <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgSuc2" class="success"><strong>Success!</strong> Your message was sent successfully.  </div>
                                         <form name="replyMsgForm" id="replyMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
                                             <div class="words">Message Title:</div>
                                             <hr/>
@@ -342,7 +363,7 @@ if (isset($_COOKIE['user_auth'])) {
 
                                         </form> 
                                         <div style="float:right;">
-                                            <a href style="float:left;" id="commInboxShow"> [Back to message]</a> &nbsp;&nbsp;<a href style="float:right;" id="">&nbsp;[Show conversations]</a> 
+                                            <a href style="float:left;" id="commInboxShow"> [Back to message]</a> &nbsp;&nbsp;<!--<a href style="float:right;" id="">&nbsp;[Show conversations]</a> -->
                                         </div>
 
                                         <br/><br/>
@@ -353,50 +374,11 @@ if (isset($_COOKIE['user_auth'])) {
                                         <hr/>
                                         <div class="" style="font-size:0.8em;padding:5px;" id="returnMessage"></div>
                                         <a href style="float:right;" id="commMsgDiv"> << Back to inbox</a>
-                                     </div>
+                                    </div>
                                 </div>
                             </div>
 
                         <?php } elseif ($isAmember['status']) { ?>
-
-
-                            <div class="posts" id="comDiv-'+response.id+'">
-                                <h3>Send new message to <span id="fullCommName"><?php echo $helv['status']; ?></span></h3><hr>
-                                <div id="sendMsgDiv">
-                                    <!--                                    <div class="success" id="welcomemsg">
-                                                                            <p>Messages sent through this medium are only accessible to the community administrator.
-                                                                                We advice you make your message a post within communities of your choice if you want your message seen by many.</p>
-                                                                        </div>-->
-
-                                    <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Error -empty fields!</strong> All fields must be filled before your message could be sent.  </div>
-                                    <form name="commMsgForm" id="commMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
-                                        <div class="words">Message Title:</div>
-                                        <hr/>
-                                        <input type="text" name="messageTitle" id="messageTitle" class="commMsgInput" placeholder="Type the title of you message here (compulsory)"/>
-                                        <p><div class="words" style="margin-top:5px;">Message:</div>
-                                        <hr/>
-                                        <textarea style="min-height:250px;" name="message" id="message" placeholder="Type your message here. . ." class="commMsgInput"></textarea>
-                                        <!--<hr><input type="file" name="commMsgFile" id="commMsgFile" style="border-radius: 3px;border:1px solid #ebebeb;height:30px;width:100px;"/>-->
-                                        <p></p>
-                                        <hr/>
-
-                                        <input type="submit" id="sendMsg" name="sendMsg" class="button submit" value="Send Message" style="float: left;">
-                                        <input type="hidden" name="param" value="Send-Community-Message"/><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div>
-                                        <input type="hidden" name ="comId" value="<?php echo $comId; ?>" />
-                                    </form>
-                                    <br/><br/>
-                                </div>
-                                <div id="feedBackMsgDiv" style="display:none;">
-
-                                    <div style="font-size:0.9em;margin-bottom: 14px;" class="success"><strong>Successful delivery!</strong> Your message with the details below was sent successfully. Be aware that the response to this message shall be delivered to your Inbox as soon as the Administrator replies.</div>
-                                    <div class="" style="font-size:0.9em;margin-top:-5px;"><h3><span id="returnTitle"></span></h3></div>
-                                    <hr/>
-                                    <div class="" style="font-size:0.8em;padding:5px;" id="returnMessage"></div>
-
-                                </div>
-
-                            </div>
-                        <?php } else { ?>
 
 
 
@@ -440,10 +422,10 @@ if (isset($_COOKIE['user_auth'])) {
                     <span id="commember-aside">
                     </span>
                     <script>
-//                $(document).ready(function() {
-//                    sendData("loadCommunityMembers", {target: "#commember-aside", loadImage: true, comname: current[current.length - 1], start: 0, limit: 12});
-//                });
-//                        </script>
+                    //                $(document).ready(function() {
+                    //                    sendData("loadCommunityMembers", {target: "#commember-aside", loadImage: true, comname: current[current.length - 1], start: 0, limit: 12});
+                    //                });
+                    //                        </script>
                     <p class="community-listing">
                     <div class="clear"></div>
                     <span>
@@ -470,6 +452,7 @@ if (isset($_COOKIE['user_auth'])) {
     </span>
     <?php
     include("footer.php");
+//    print_r($_SESSION['cd']);
     ?>
 
 </div>

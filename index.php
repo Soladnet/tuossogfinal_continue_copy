@@ -73,6 +73,8 @@ if (isset($_GET['page'])) {
         include_once 'user-profile.php';
     } else if ($_GET['page'] == "search-results") {
         include_once 'index-search-results.php';
+    }else if ($_GET['page'] == "community-message") {
+        include_once 'community-message.php';
     } else {
         include_once './communities.php';
     }

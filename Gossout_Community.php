@@ -382,39 +382,41 @@ class Community {
 //        $mysql->close();
 //        return $arr;
 //    }
-    public static function sendCommunityMessage($title, $message, $uid, $comId, $parent_id = 0) {
+     public static function sendCommunityMessage($title, $message, $uid, $comId, $table,$parent_id = 0) {
         $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "Insert Into community_message (sender_id, receiver_id, message_title, message, status) VALUES ('$uid', '$comId', '$title', '$message', 'D')";
+            if($table=='p')
+                $sql = "Insert Into community_message (sender_id, com_id, message_title, message, status) VALUES ('$uid', '$comId', '$title', '$message', 'D')";
+            elseif($table=='c')
+                 $sql = "Insert Into community_message_child (sender_id, parent_id, reply_title, reply, status) VALUES ('$uid', '$parent_id', '$title', '$message', 'D')";
+            else{}
             if ($result = $mysql->query($sql)) {
                 if ($mysql->affected_rows > 0) {
-                    $id = $mysql->insert_id;
-                    $run = $mysql->query("Insert Into community_message_child (parent_message, child_message) VALUES ('$parent_id', '$id')");
-                    if ($run)
                         $arrFetch['status'] = TRUE;
-                }
+               }
             } else {
-                $arrFetch['sql'] = $sql;
+                $arrFetch['sql_parent'] = $sql;
             }
         }
         $mysql->close();
         return $arrFetch;
     }
     
-    public function getEachCommInbox($msgId) {
+    public function getEachCommInbox($msgId,$initiator) {
         $arrFetch = array("status" => FALSE);
+        if(isset($initiator) && (strtolower($initiator)=='c' || strtolower($initiator)=='p')){
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT message, sender_id FROM community_message WHERE id=$msgId";
+            ($initiator=='p') ? $sql = "SELECT message, sender_id FROM community_message WHERE id=$msgId Limit 1" : $sql = "SELECT reply as message, sender_id FROM community_message_child WHERE id=$msgId Limit 1";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
-//                    $row['sender_id'] = $this->encodeData($row['sender_id']);
+                    $row['sender_id'] = $this->encodeData($row['sender_id']);
                     $arrFetch['message'] = $row;
                     $run = $mysql->query("Update community_message SET `time` = `time`, status = 'R' WHERE id = '$msgId'");
                     if ($run)
@@ -426,19 +428,27 @@ class Community {
             }
         }
         return $arrFetch;
+        }else{
+             return $arrFetch;
+        }
     }
 
-    public static function getCommMsgInbox($comId, $start = 0, $limit = 20){
+    public static function getAdminInbox($comId, $uid, $start = 0, $limit = 20){
         $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "Select community_message.id as id, sender_id, message_title, status, community_message.`time`, CONCAT(firstname, ' ',lastname) as fullname, username, parent_message FROM community_message, user_personal_info, community_message_child WHERE user_personal_info.id  = sender_id AND child_message = community_message.id AND receiver_id = $comId ORDER BY `time` DESC Limit $start, $limit";
+            $sql = "Select cmc.id, cmc.sender_id, reply_title as message_title, cmc.status, cmc.time, CONCAT(firstname, ', ',lastname) as fullname, 
+                     username, parent_id as parent_message FROM community_message_child as cmc, community_message as cm, user_personal_info 
+                    WHERE user_personal_info .id = cmc.sender_id AND cmc.parent_id = cm.id AND cm.com_id = $comId AND cmc.sender_id <> $uid
+                    UNION
+                    Select community_message.id as id, sender_id, message_title, status, community_message.`time`, CONCAT(firstname, ', ',lastname) 
+                    as fullname, username, community_message.id as parent_message FROM community_message, user_personal_info WHERE 
+                    user_personal_info.id  = sender_id AND com_id = $comId";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
-
-                    while ($row = $result->fetch_assoc()) {
+                    while($row = $result->fetch_assoc()){
                         $row['fullname'] = ucwords($row['fullname']);
                         $user = new GossoutUser(0);
                         $user->setUserId($row['sender_id']);
@@ -451,7 +461,10 @@ class Community {
                         }
                         $arrFetch['inbox'][] = $row;
                     }
-                    $arrFetch['status'] = TRUE;
+                    include_once 'sortArray_$.php';
+                    $sort = new SortMultiArray($arrFetch['inbox'], 'time', 1);
+                    $arrFetch['inbox'] = $sort->GetSortedArray();
+                  $arrFetch['status'] = TRUE;
                 }
             }
         }

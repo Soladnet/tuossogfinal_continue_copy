@@ -30,21 +30,27 @@ if (isset($_COOKIE['user_auth'])) {
         $user = new GossoutUser($uid);
         $userProfile = $user->getProfile();
     }
+    $commExist = Community::communityExist($page);
+    $comId = $commExist['status'];
+    $commm = new Community();
+    $commm->setCommunityId($comId);
+    $isCreator = Community::isCreator($comId, $uid);
 } else {
     include_once './GossoutUser.php';
     $user = new GossoutUser(0);
     $userProfile = $user->getProfile();
 }
+//print_r($isCreator);
 ?>
 <!doctype html>
 <html lang="en">
     <head>
-        <?php
-        include_once './webbase.php';
-        if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
-            $comname = $_GET['page'] == "communities" ? $_GET['param'] : $_GET['page'];
-            $comInfo = Community::getCommunityInfo($comname);
-            ?>
+<?php
+include_once './webbase.php';
+if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
+    $comname = $_GET['page'] == "communities" ? $_GET['param'] : $_GET['page'];
+    $comInfo = Community::getCommunityInfo($comname);
+    ?>
             <title><?php echo $comInfo['status'] ? $comInfo['comm']['name'] : "Gossout - Community" ?></title>
             <?php
         } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
@@ -64,17 +70,17 @@ if (isset($_COOKIE['user_auth'])) {
         <link rel="stylesheet" href="css/chosen.css" />
         <link rel="stylesheet" href="css/validationEngine.jquery.css">
         <link rel="stylesheet" type="text/css" href="css/chat.min.1.0.css" />
-        <?php
-        if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
-            ?>
+<?php
+if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
+    ?>
             <style>
                 .progress { position:relative; width:60%; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
                 .bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
                 .percent { position:absolute; display:inline-block; top:3px; left:48%; }
             </style>
-            <?php
-        }
-        ?>
+    <?php
+}
+?>
         <?php
         include ("head.php");
         ?>
@@ -179,8 +185,11 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
     <?php
 } else {
     if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
-        ?>
-                        sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10});
+                    if(!$isCreator['status']){?>
+                        sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10});//do not load community message count (Only for admin)
+                    <?php }else {?>
+                         sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10,adminMsgCount:true,comId:<?php echo $comId; ?>});//load community message count for admin
+                    <?php } ?>
         <?php
     } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
         ?>
@@ -204,6 +213,7 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                 $("#commMsgForm").ajaxForm({
                     beforeSubmit: function() {
                         if ($.trim($('#messageTitle').val()) === "" || $.trim($('#message').val()) === "") {
+                            $('#commMsgSuc').hide();
                             $('#commMsgError').slideDown(300);
                             $('.commMsgInput').css('border-color', '#8A1F11');
                             setTimeout(function() {
@@ -212,14 +222,19 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                             }, 10000);
                             return false;
                         } else {
-                            $('#loadMoreImg').show();
+                            $('#loadMoreImg1').show();
                         }
                     },
                     success: function(responseText, statusText, xhr, $form) {
-//                        alert('Success');
+                        $('#commMsgError').hide();
+                        $('#commMsgSuc').show();
+                        $('.commMsgInput').val("");
+                        setTimeout(function() {
+                            $('#commMsgSuc').slideUp(300);
+                        }, 80000);
                     },
                     complete: function(xhr) {
-//                    alert('Complete');
+                        $('#loadMoreImg1').hide();
                     },
                     data: {
                         uid: readCookie("user_auth")
@@ -230,15 +245,15 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
     </head>
     <body>
         <div class="page-wrapper">
-            <?php
-            include ("nav.php");
-            include ("nav-user.php");
-            ?>
+<?php
+include ("nav.php");
+include ("nav-user.php");
+?>
             <div class="logo" id="logo"><img alt=""></div>
 
             <div class="content">
                 <span id="rightcolumn" class="">
-                    <?php if ($_GET['page'] == "communities" && $_GET['param'] == "") { ?>
+<?php if ($_GET['page'] == "communities" && $_GET['param'] == "") { ?>
                         <div class="communities-list">
                             <div>
                                 <div style="float:left;background:#f8f8f8;padding:3px;width:94px;border:1px solid #c6c6c6;"><a href="create-community">Create new </a></div>
@@ -280,23 +295,23 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                             </div>&nbsp;<img src='images/loading.gif' style='border:none;margin-top: -10px;display:none' id="loader1"/>
 
                         </div>
-                    <?php } ?>
+<?php } ?>
 
                 </span>
 
-                <?php
-                if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page == "communities" && trim($param) != "" && trim($param2) != "") || ($page != "communities" && trim($param) == "" && $param2 == "") || ($page != "communities" && trim($param) != "" && $param2 == "")) {
-                    include("sample-community-aside.php");
-                } else {
-                    include("aside.php");
-                }
-                ?>
+<?php
+if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page == "communities" && trim($param) != "" && trim($param2) != "") || ($page != "communities" && trim($param) == "" && $param2 == "") || ($page != "communities" && trim($param) != "" && $param2 == "")) {
+    include("sample-community-aside.php");
+} else {
+    include("aside.php");
+}
+?>
 
 
             </div>
-            <?php
-            include("footer.php");
-            ?>
+<?php
+include("footer.php");
+?>
             <style>
                 .commMsgInput{
                     border: 1px #ccc solid;
@@ -307,38 +322,52 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                     font-size:0.8em;
                     margin-top:5px;
                 }
+
+                @media only screen and (max-width: 440px) {
+                    .contactAdminMsg {
+                        height: 280px !important;
+                    }
+                    .inputt{
+                        height:80px !important;
+                    }
+
+                }
+
             </style>
-            <div class="contactAdminMsg" id="contactAdminMsg-<?php echo $comInfo['status'] ? $comInfo['comm']['id'] : "" ?>" style='display:none;width:500px;max-width:90%; position: fixed;right:10px;bottom: 2px;background:white;padding:5px;border: 1px #ccc solid;border-radius:3px;'>
-                <div style='width:100%;cursor: pointer;'><h3>Send new message to <span id="fullCommName"><?php echo $comInfo['comm']['unique_name']; ?></span><span id='closeMsg' style='float:right;margin-right:5px;'><strong>x</strong></span></h3></div><hr>
-                <div id="sendMsgDiv">
-                    <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Error -empty fields!</strong> All fields must be filled before your message could be sent.  </div>
-                    <form name="commMsgForm" id="commMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
-                        <div class="words">Message Title:</div>
-                        <hr/>
-                        <input type="text" name="messageTitle" id="messageTitle" class="commMsgInput" placeholder="Type the title of you message here (compulsory)"/>
-                        <p><div class="words" style="margin-top:5px;">Message:</div>
-                        <hr/>
-                        <textarea style="min-height:250px;" name="message" id="message" placeholder="Type your message here. . ." class="commMsgInput"></textarea>
-                        <!--<hr><input type="file" name="commMsgFile" id="commMsgFile" style="border-radius: 3px;border:1px solid #ebebeb;height:30px;width:100px;"/>-->
-                        <p></p>
-                        <hr/>
+<?php if (!($page == "communities" && trim($param) == "" )) { ?>
+                <div class="contactAdminMsg" id="contactAdminMsg-<?php echo $comInfo['status'] ? $comInfo['comm']['id'] : "" ?>" style='display:none;width:500px;max-width:90%; position: fixed;right:10px;bottom: 2px;background:white;padding:5px;border: 1px #ccc solid;border-radius:3px;'>
+                    <div style='width:100%;cursor: pointer;'><h3>Send new message to <span id="fullCommName"><?php echo $comInfo['comm']['unique_name']; ?></span><span id='closeMsg' style='float:right;margin-right:5px;'><strong>x</strong></span></h3></div><hr>
+                    <div id="sendMsgDiv">
+                        <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Error -empty fields!</strong> All fields must be filled before your message could be sent.  </div>
+                        <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgSuc" class="success"><strong>Success!</strong> Your message was sent successfully.  </div>
+                        <form name="commMsgForm" id="commMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
+                            <div class="words">Message Title:</div>
+                            <hr/>
+                            <input type="text" name="messageTitle" id="messageTitle" class="commMsgInput" placeholder="Type the title of you message here (compulsory)"/>
+                            <p><div class="words" style="margin-top:5px;">Message:</div>
+                            <hr/>
+                            <textarea  name="message" style='height:250px;' id="message" placeholder="Type your message here. . ." class="commMsgInput inputt"></textarea>
+                            <!--<hr><input type="file" name="commMsgFile" id="commMsgFile" style="border-radius: 3px;border:1px solid #ebebeb;height:30px;width:100px;"/>-->
+                            <p></p>
+                            <hr/>
 
-                        <input type="submit" id="sendMsg" name="sendMsg" class="button submit" value="Send Message" style="float: left;">
-                        <input type="hidden" name="param" value="Send-Community-Message"/><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div>
-                        <input type="hidden" name ="comId" value="<?php echo $comInfo['comm']['id']; ?>" />
-                    </form>
-                    <br/><br/>
+                            <input type="submit" id="sendMsg" name="sendMsg" class="button submit" value="Send Message" style="float: left;">
+                            <input type="hidden" name="param" value="Send-Community-Message"/><div id="loadMoreImg1" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div>
+                            <input type="hidden" name ="comId" value="<?php echo $comInfo['comm']['id']; ?>" />
+                        </form>
+                        <br/><br/>
+                    </div>
+                    <div id="feedBackMsgDiv" style="display:none;">
+
+                        <div style="font-size:0.9em;margin-bottom: 14px;" class="success"><strong>Successful delivery!</strong> Your message with the details below was sent successfully. Be aware that the response to this message shall be delivered to your Inbox as soon as the Administrator replies.</div>
+                        <div class="" style="font-size:0.9em;margin-top:-5px;"><h3><span id="returnTitle"></span></h3></div>
+                        <hr/>
+                        <div class="" style="font-size:0.8em;padding:5px;" id="returnMessage"></div>
+
+                    </div>
+
                 </div>
-                <div id="feedBackMsgDiv" style="display:none;">
-
-                    <div style="font-size:0.9em;margin-bottom: 14px;" class="success"><strong>Successful delivery!</strong> Your message with the details below was sent successfully. Be aware that the response to this message shall be delivered to your Inbox as soon as the Administrator replies.</div>
-                    <div class="" style="font-size:0.9em;margin-top:-5px;"><h3><span id="returnTitle"></span></h3></div>
-                    <hr/>
-                    <div class="" style="font-size:0.8em;padding:5px;" id="returnMessage"></div>
-
-                </div>
-
-            </div>
+<?php } ?>
         </div>
     </body>
 </html>

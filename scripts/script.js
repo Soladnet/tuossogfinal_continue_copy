@@ -34,10 +34,11 @@ function sendData(callback, target) {
                 param: "CommMsgInbox",
                 start: target.start,
                 limit: target.limit,
-                append:target.append,
-                comId:target.comId
+                comId:target.comId,
+                append:target.append
             }
         };
+    //alert(0);
     } 
     else if (callback === "loadCommMsgSent") {
         option = {
@@ -55,6 +56,7 @@ function sendData(callback, target) {
                 comId:target.comId
             }
         };
+    //alert(0);
     } 
     else if (callback === "loadEachCommInbox") {
         option = {
@@ -66,10 +68,12 @@ function sendData(callback, target) {
             },
             data: {
                 param: "EachCommInboxMsg",
-                msgId: target.msgId
+                msgId: target.msgId,
+                initiator: target.initiator
                 
             }
         };
+    //alert(0);
     }else if (callback === "loadSuggestCommunity") {
         option = {
             beforeSend: function() {
@@ -127,6 +131,9 @@ function sendData(callback, target) {
             }
         };
     } else if (callback === "sendFriendRequest") {
+//        for(x in target){
+//            alert(x+" "+target[x]);
+//        }
         option = {
             beforeSend: function() {
                 showuidfeedback(target);
@@ -206,6 +213,7 @@ function sendData(callback, target) {
         option = {
             beforeSend: function() {
                 showuidfeedback(target);
+                //                alert('loadWink');
             },
             success: function(response, statusText, xhr) {
                 loadGossFrq(response, statusText, target);
@@ -440,7 +448,7 @@ function showuidfeedback(target) {
 function loadEachCommInbox(response, statusText, target){
     if (response.status) {
         //        option = '<span style="float:right;margin-top:5px;"><a href class="profile-meta reply-message" style="font-size: 0.8em;color:#99C43D !important;">Reply</a>'+'&nbsp;&nbsp;'+'<a href class="profile-meta close_each_msg" style="font-size: 0.8em;color:#99C43D !important;">Hide message</a></span>'
-        $(target.target).html(response.message.message);
+        $(target.target).html(nl2br(response.message.message));
         $('#message-options-'+target.msgId).show();
         $('.close_each_msg').click(function(){
             $(this).parent().parent().hide();
@@ -476,16 +484,10 @@ function loadEachCommInbox(response, statusText, target){
                     },
                     success: function(responseText, statusText, xhr, $form) {
                         if(responseText.error){
-//                            alert('Error!')
+                            //alert('Error!')
                         }
                         else{
-//                            alert('Success!')
-//                            $('.mainCommCont, #welcomemsg').hide();
-//                            $('#sendMsgDiv').slideUp(100);
-//                            
-//                            $('#returnTitle').html(responseText.title);
-//                            $('#returnMessage').html(responseText.message);
-//                            $('#feedBackMsgDiv').slideDown(100); 
+                            //alert('Success!')
                             $('#loadMoreImg').hide();
                     
                         }
@@ -528,17 +530,17 @@ function loadCommMsgInbox(response, statusText, target){
         var htmlstr = "";
         var countCommInbox  = response.inbox.length;
         $.each(response.inbox, function(i, resp) {
-            htmlstr+= '<div class="individual-message-box commEachMsgDiv" id="commEachMsgDiv-'+resp.id+'" rel="'+resp.username+'" title="'+((resp.status=='D') ? "Unread" : "Read")+'"></p><img class="all-messages-image" style="float:left;" src="'+resp.photo.thumbnail45+'"><p>'+
-            '<div class="all-messages-text"><span><h4 id="message-head-'+resp.id+'" class="message_head'+((resp.status=='D') ? " unread" : "")+'">'+(resp.message_title.length > 50 ? resp.message_title.substr(0,50) : resp.message_title)+'</h4></span>'+
-            '<a href=user/'+resp.username+'><h4 id="sender-name-'+resp.id+'">'+resp.fullname+'</h4></a></div><p style="float:right;">'+
-            '<span class="timeago" title="'+resp.time+'" id="message-time-'+resp.id+'">'+resp.time+'</span></p><hr> </div>'+
+            htmlstr+= '<div class="individual-message-box commEachMsgDiv" initiator="'+((resp.parent_message===resp.id) ? "p" : "c") +'" id="commEachMsgDiv-'+resp.id+'" rel="'+resp.username+'" title="'+((resp.status=='D') ? "Unread" : "Read")+'"></p><div class="senderComm"><center><img class="all-messages-image" style="float:left;max-width:60px;" src="'+(!(resp.photo.nophoto) ? resp.photo.thumbnail45 : resp.photo.alt)+'"></center></div><p>'+
+            '<div class="all-messages-text"><span><h4 id="message-head-'+resp.id+'" class="message_head'+((resp.status=='D') ? " unread" : "")+'">'+(resp.message_title.length > 35 ? resp.message_title.substr(0,35) : resp.message_title)+'</h4></span>'+
+            '<a href=user/'+resp.username+'><h4 class="commMsgSender" id="sender-name-'+resp.id+'">'+resp.fullname+'</h4></a></div><p style="float:right;">'+
+            '<span class="timeago" title="'+resp.time+'" id="message-time-'+resp.id+'">'+resp.time+'</span></div>'+
             '<div class="message_content" id="commFullMsg-'+resp.id+'"><span style="float:left;display:none;" id="message-options-'+resp.id+'">'+
             ((!target.sentBox) ? ('<a href class="profile-meta reply-message" id="replymessage-'+resp.id+'"  parent="'+resp.parent_message+'" rel="'+resp.sender_id+'"  style="font-size: 0.8em;color:#99C43D !important;">[Reply]</a>') : "") +
             '&nbsp;&nbsp;'+
             '<a href class="profile-meta close_each_msg" style="font-size: 0.8em;color:#99C43D !important;">[Hide message]</a>'+
             '&nbsp;&nbsp;'+
-            '<a href="" parent="'+resp.parent_message+'" class="profile-meta" style="font-size: 0.8em;color:#99C43D !important;">[Show conversations]</a>'+
-            '</span><br><span id="commFullMsg-span-'+resp.id+'"></span>'+
+            '<!--<a href="" parent="'+resp.parent_message+'" class="profile-meta" style="font-size: 0.8em;color:#99C43D !important;">[Show conversations]</a>-->'+
+            '</span><br><p><span id="commFullMsg-span-'+resp.id+'"></span>'+
             '</div>';
         });
         if((countCommInbox === target.limit)){
@@ -548,7 +550,7 @@ function loadCommMsgInbox(response, statusText, target){
             $('#comm_more_inbox').hide();
         }else{}
         if(!($('#comm_more_inbox').is(':hidden')) && !target.inboxInitiator){
-            $('#comm_more_inbox').attr('start', parseInt($('#comm_more_inbox').attr('start')) + target.limit)
+//            $('#comm_more_inbox').attr('start', parseInt($('#comm_more_inbox').attr('start')) + target.limit)
         }
          
         (target.append) ? $(target.target).html($(target.target).html()+ htmlstr) : $(target.target).html(htmlstr);
@@ -559,12 +561,12 @@ function loadCommMsgInbox(response, statusText, target){
             mouseX = (e.pageX-35)+'px'; 
             mouseY = (e.pageY-10)+'px';
         });  
-        var trackEachMsg;
+        var trackEachMsg,initiator;
         $(".commEachMsgDiv").on('click', function(){
             trackEachMsg = true;
             var id = ($(this).attr('id').split('-'))[1];
             var username = $(this).attr('rel')
-           
+           initiator = $(this).attr('initiator');
             
             
             $('.read_message').attr('rel',id).addClass('current');
@@ -587,6 +589,7 @@ function loadCommMsgInbox(response, statusText, target){
         
         $('.read_message').on('click',function(){
             if(trackEachMsg){
+                //                alert(0);
                 var id = $(this).attr('rel');
                 if(!$('#commFullMsg-'+id).is(":hidden")){
                     $('#commFullMsg-'+id).hide();
@@ -596,7 +599,8 @@ function loadCommMsgInbox(response, statusText, target){
                     sendData("loadEachCommInbox",{
                         target: '#commFullMsg-span-'+id, 
                         loadImage: true,
-                        msgId:id
+                        msgId:id,
+                        initiator:initiator
                     });
                 }
                 $('.showClickOption').hide();
@@ -608,6 +612,13 @@ function loadCommMsgInbox(response, statusText, target){
         prepareDynamicDates();
         $(".timeago").timeago();
     }else{
+        if(target.append)
+            humane.log("Opps! you've got it all!", {
+                            timeout: 3000,
+                            clickToClose: true,
+                            addnCls: 'humane-jackedup-success'
+                        });
+                    else
     $(target.target).html('<br><center><p>Oops! you have no message in your community message inbox.<p></center><br>')
     }
   
@@ -718,6 +729,7 @@ function loadWink(response, statusText, target) {
     var htmlstr = "", htmlFirst = "", accept_frq_text = "", winkCount;
     if (!response.error) {
         winkCount = response.bag.length;
+        //        alert(winkCount)
         $.each(response.bag, function(i, response) {
             htmlstr += '<div class="individual-notification-box"><p><span class="icon-16-eye"></span><span class="all-notifications-time timeago" title="' + response.time + '"> ' + response.time + ' </span></p>' +
                     '<img class= "all-notification-image" src="' + (response.photo.nophoto ? response.photo.alt : response.photo.thumbnail50) + '"><div class="all-notification-text">' +
@@ -860,7 +872,9 @@ function loadGossPost(response, statusText, target) {
     }
 }
 function loadGossComment(response, statusText, target) {
+    //     $.each(response.bag, function(i, response){alert(response.firstname)});
     var htmlstr = "", htmlFirst = "", accept_frq_text = "", commemtCount;
+    //      alert('htmlstr');
     if (!response.error) {
         commemtCount = response.bag.length;
         $.each(response.bag, function(i, response) {
@@ -929,8 +943,10 @@ function loadGossComment(response, statusText, target) {
     }
 }
 function loadGossFrq(response, statusText, target) {
+    //     $.each(response.bag, function(i, response){alert(response.firstname)});
     var htmlstr = "", htmlFirst = "", accept_frq_text = "", frqCount;
 
+    //    alert('htmlstr');
     if (!response.error) {
         frqCount = response.bag.length;
         $.each(response.bag, function(i, response) {
@@ -1169,11 +1185,13 @@ function loadGossbag(response, statusText, target) {
     }
 }
 function loadNewMessage(response, statusText, target) {
+//    alert(response);
 }
 function loadNewGossbag(response, statusText, target) {
     if (!response.error) {
         var url = document.URL.split("/"), accept_frq_text = "", toggleId = "";
         var isHome = $.inArray("home", url);
+        //        alert(url);
         response.reverse();
         //        $.each(response, function(i, response) {
         //            if (response.type === "TW") {
@@ -1358,6 +1376,8 @@ function loadNavMessages(response, statusText, target) {
                 '</form><div class="clear"></div></div><div class="float-right"><span class="icon-16-arrow-left"></span><a href="messages" class="back">Back to messages</a></div>');
         if (response.conversation) {
             $.each(response.conversation, function(i, response) {
+                //               alert(converPhoto?converPhoto.nophoto:"B");
+                //                if (target.uid === response.sender_id) {
                 htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span>' +
                         '</p><img class= "all-messages-image" src="' + (converPhoto.nophoto ? converPhoto.alt : (response.s_username === target.cw ? converPhoto[response.s_username].thumbnail50 : converPhoto[response.s_username].thumbnail50)) + '"><div class="all-messages-text">' +
                         '<a href=""><h3>' + (response.s_username === target.cw ? response.s_firstname.concat(' ', response.s_lastname) : response.s_firstname.concat(' ', response.s_lastname)) + ' </h3></a>' +
@@ -1397,6 +1417,7 @@ function loadNavMessages(response, statusText, target) {
             }
         });
     }
+    //alert(htmlstr);
     $(target.target).html(htmlstr);
     prepareDynamicDates();
     $(".timeago").timeago();
@@ -1518,6 +1539,7 @@ function loadCommunityMembers(response, statusText, target) {
     }
 }
 function loadCommunity(response, statusText, target) {
+    //    alert(0);
     if (!response.error) {
         var comid = "", htmlstr = "", isAmember;
         if (target.loadAside) {
@@ -1566,7 +1588,7 @@ function loadCommunity(response, statusText, target) {
                 if (response.isAmember === "true" && !target.settings) {//prepare setting option for member of this community
                     if (response.creator_id === readCookie('user_auth')) {
                         $("#commMsgCompose").remove();
-                        $("#otherCommOption").html('<div class=" button profile-button" id="loadCommore">More <span class="icon-16-arrow-down"></span>' +
+                        $("#otherCommOption").html('<div class=" button profile-button" id="loadCommore">More '+' ['+'<span class="commUnreadMsgCount"></span>'+']'+'<span class="icon-16-arrow-down"></span>' +
                             '<div class="more-container" id="pop-up-community-more"><div class="more"><ul>' +
                             '<li id="inviteMemBtn"><a class="displayX" href="#inviteDisplay"><span class="icon-16-user-add"></span> Invite Members<div style="display:none">' +
                             '<div id="inviteDisplay" class="registration" style="width: 800"><h3>Invite Friends</h3><hr/>' +
@@ -1575,7 +1597,7 @@ function loadCommunity(response, statusText, target) {
                             '</ul></form></div></div></a></li>' +
                             '<hr>' +
                             '<li><a href="community-settings/' + target.comname + '"><span class="icon-16-cog"></span> Settings</a></li>' +
-//                            '<li><a href="community-message/' + target.comname + '""><span class="icon-16-mail"></span> Message Box '+' ['+23+']'+'</a></li>' +
+                            '<li><a href="community-message/' + target.comname + '""><span class="icon-16-mail"></span> Message Box '+' ['+'<span class="commUnreadMsgCount"></span>'+']'+'</a></li>' +
                             '</ul></div></div></div>');
                     } else {
                          $("#commMsgInbox").remove();
@@ -1586,10 +1608,12 @@ function loadCommunity(response, statusText, target) {
                             '<form id="inviteForm" method="POST" action="tuossog-api-json.php"><ul>' +
                             '<li><span id="toUserInput"></span></li>' +
                             '</ul></form></div></div></a></li>' +
-//                          '<hr>' + '<li><a class="contactAdmin" href="contactAdmin-' + response.id+'" id="contactAdmin-'+response.name+'" rel="'+response.name+' unique_name="'+response.unique_name+'"><span class="icon-16-mail"></span> Contact Admin</a></li>' +
+                          '<hr>' + '<li class="contactAdmin"><a class="contactAdmin" href="contactAdmin-' + response.id+'" id="contactAdmin-'+response.name+'" rel="'+response.name+' unique_name="'+response.unique_name+'"><span class="icon-16-mail"></span> Contact Admin</a></li>' +
                             '</ul></div></div></div>');
                         }
+                        $('.commUnreadMsgCount').text(3);
                         $('.contactAdmin').on('click',function(){
+                             $('#commMsgSuc, #commMsgError').hide();
                            $('.contactAdminMsg').show(); 
                             $("#pop-up-community-more").hide();
                             return false;
@@ -1696,14 +1720,15 @@ function loadCommunity(response, statusText, target) {
                     }
                 }
                 else {
+                    
                     htmlstr += '<div class="posts"><h1>' + response.name + '</h1><hr/><span id="loadPost"></span>\n\<hr/><div class="button" style="float:left;display:none;" id ="commMorePostDiv"><a commPost="20"  class="commMorePost" id="commMorePost">Load more > ></a></div><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div></div>';
                 }
-
+                       
             });
 
             if (htmlstr !== "") {
                 $(target.target).html(htmlstr);
-                if (!target.settings) {
+                if (!target.settings && !target.commMsg) {
                     sendData("loadPost", {
                         target: "#loadPost",
                         uid: readCookie("user_auth"),
@@ -1714,6 +1739,8 @@ function loadCommunity(response, statusText, target) {
                         loadImage: true
                     });
                 }
+                if(target.commMsg)//remove post-div for community massage
+                   $('.post-box').remove();
                 if (isAmember === "true") {
                     $("#uploadImagePost,#loadCommore,#inviteMemBtn,#commViewMoreDesc").click(function() {
                         if (this.id === "uploadImagePost") {
@@ -1821,6 +1848,7 @@ function loadCommunity(response, statusText, target) {
                 $(target.target).html('<div class="posts"></div>');
             }
         } else {
+            //            alert(target.target);
             //this part load the major public communities for either a first user or when 'see all' is clicked;
             var commCount = response.length;
             $.each(response, function(i, response) {
@@ -1836,6 +1864,7 @@ function loadCommunity(response, statusText, target) {
             });
 
             //the user is not a new user which means the user belongs @least 1 community; attempt (1) determines the depicts the first loading loading of the community
+            //            alert(target.newuser);
             //            if(!target.newuser){
             if (target.more) {
                 if (htmlstr !== "") {
@@ -1951,6 +1980,7 @@ function leaveJoinCommunity(response, statusText, target) {
 
             var childDivs = $('#aside-community-list').children('div');
             var HrDivs = $('#aside-community-list').children('hr');
+//            alert(childDivs.length);
             if (childDivs.length > 0) {
                 $('#aside-community-list').prepend(hold1);
                 if (childDivs.length == 5) {
