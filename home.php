@@ -36,6 +36,7 @@ if (isset($_COOKIE['user_auth'])) {
         <?php
         include ("head.php");
         ?>
+        <script src="scripts/waypoints.min.js" type="text/javascript"></script>
         <script src="scripts/jquery.joyride-2.0.3.js"></script>
         <script src="scripts/jquery.timeago.js" type="text/javascript"></script>
         <script src="scripts/test_helpers.js" type="text/javascript"></script>

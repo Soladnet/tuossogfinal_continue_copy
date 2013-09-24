@@ -22,10 +22,31 @@ if (isset($_GET['f'])) {
         header("Content-Transfer-Encoding: binary");
         header("Content-Type: audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3");
         readfile($track);
-        
+    } else if ($_GET['f'] == "pnew") {
+        $track = "gossoutPidginNew.mp3";
+        header('Content-type: audio/mpeg');
+        header('Content-length: ' . filesize($track));
+        $name = time() . "_" . rand(0, 100000);
+        header("Content-Disposition: attachment; filename='$name.mp3'");
+        header('X-Pad: avoid browser bug');
+        header('Cache-Control: no-cache');
+        header("Content-Transfer-Encoding: binary");
+        header("Content-Type: audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3");
+        readfile($track);
+    } else if ($_GET['f'] == "enew") {
+        $track = "gossoutEnglishNew.mp3";
+        header('Content-type: audio/mpeg');
+        header('Content-length: ' . filesize($track));
+        $name = time() . "_" . rand(0, 100000);
+        header("Content-Disposition: attachment; filename='$name.mp3'");
+        header('X-Pad: avoid browser bug');
+        header('Cache-Control: no-cache');
+        header("Content-Transfer-Encoding: binary");
+        header("Content-Type: audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3");
+        readfile($track);
     }
 }
-if($track==""){
+if ($track == "") {
     echo "File name empty and cannot be loaded!";
 }
 ?>
