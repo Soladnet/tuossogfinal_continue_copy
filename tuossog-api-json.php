@@ -43,14 +43,15 @@ if (isset($_POST['param'])) {
                 include_once './Gossout_Community.php';
                 $c = new Community();
                 $table = 'p';
-                $r = $c->sendCommunityMessage($title, $message, $uid, $comId, $table);
+                $parent_id = 0;
+               
+                $r = $c->sendCommunityMessage($message, $uid, $comId, $table,$parent_id,$title);
                 $return = array('title' => $title, 'message' => $message);
                 if ($r['status']) {
                     echo json_encode($r);
                     exit();
                 } else {
                     echo json_encode($r);
-//                    displayError(400, "The request cannot be fulfilled due to bad syntax");
                 }
             } else {
                 displayError(400, "The request cannot be fulfilled due to bad syntax");
@@ -58,7 +59,7 @@ if (isset($_POST['param'])) {
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
-    } else if ($_POST['param'] == "CommMsgInbox" || $_POST['param'] == "CommMsgSent") {
+    } else if ($_POST['param'] == "CommMsgInbox") {
         if (isset($_POST['uid']) && isset($_POST['comId'])) {
             $start = (isset($_POST['start']) && is_numeric($_POST['start'])) ? $_POST['start'] : 0;
             $limit = (isset($_POST['limit']) && is_numeric($_POST['limit'])) ? $_POST['limit'] : 20;
@@ -78,76 +79,76 @@ if (isset($_POST['param'])) {
             $user = new GossoutUser($uid);
             $user->setTimezone($tz);
             $comm = new Community();
-            if ($_POST['param'] == "CommMsgInbox") {
-                $append = (isset($_POST['append']) && $_POST['append']=='false') ? FALSE : TRUE;
+                $append = (isset($_POST['append']) && $_POST['append'] == 'false') ? FALSE : TRUE;
 //                   $startAdminMsg;
                 if (!$append) {
 //                     $startAdminMsg = 0;
-                     $c = $comm->getAdminInbox($comId, $uid);
-                      if(!$c['status']){
+                    $c = $comm->getAdminInbox($comId, $uid);
+                    if (!$c['status']) {
                         echo json_encode($c);
                         exit();
-                     }
-                     $out['status'] = $c['status'];
-                     $_SESSION['AdminInboxMsg'] = $c;
+                    }
+                    $out['status'] = $c['status'];
+                    $out['unRead'] = $c['unRead'];
+                    $_SESSION['AdminInboxMsg'] = $c;
                     $out['inbox'] = array_slice($_SESSION['AdminInboxMsg']['inbox'], 0, $limit);
                     $out['start'] = 0;
                     $out['limit'] = $limit;
                     echo json_encode($out);
-                } else{
-                    $startAdminMsg =  $start;
+                } else {
+                    $startAdminMsg = $start;
                     $out['inbox'] = array_slice($_SESSION['AdminInboxMsg']['inbox'], $startAdminMsg, $limit);
                     $out['status'] = (empty($out['inbox'])) ? FALSE : TRUE;
                     $out['start'] = $startAdminMsg;
                     $out['limit'] = $limit;
                     echo json_encode($out);
                 }
-                
-            } else if ($_POST['param'] == "CommMsgSent") {
-                $c = $comm->getCommMsgSent($comId, 0, $limit);
-                echo json_encode($c);
-            }
+            
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
-    } else if ($_POST['param'] == 'EachCommInboxMsg') {
-        if (isset($_POST['msgId'])) {
-            include_once 'Gossout_Community.php';
-            $msgId = clean($_POST['msgId']);
-            $initiator = clean($_POST['initiator']);
-            $com = new Community();
-            $msg = $com->getEachCommInbox($msgId, $initiator);
-            echo json_encode($msg);
+    } 
+
+    else if ($_POST['param'] === 'loadChildren'){
+        if (isset($_POST['parentId'])){
+             include_once 'Gossout_Community.php';
+            $parentId = $_POST['parentId'];
+            $start = $_POST['start'];
+            $limit = $_POST['limit'];
+            $uid = decodeText($_POST['uid']);
+            $children = Community::getChildren($parentId, $start, $limit,$uid);
+            if ($children['status'])
+                echo json_encode($children);
+            else
+                  echo json_encode($children);
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
-    } else if ($_POST['param'] == 'sendMsgFromAdmin') {
-        if (isset($_POST['receiverId']) && isset($_POST['comId']) && isset($_POST['messageTitle']) && isset($_POST['realMessage']) && isset($_POST['uid']) && isset($_POST['parent'])) {
+    } else if ($_POST['param'] === 'sendMsgFromAdmin') {
+        if (isset($_POST['receiverId']) && isset($_POST['comId']) && isset($_POST['realMessage']) && isset($_POST['uid']) && isset($_POST['parent'])) {
             $receiverId = $_POST['receiverId'];
             $uid = decodeText($_POST['uid']);
             $comId = $_POST['comId'];
             $senderId = $uid;
             if (is_numeric($comId) && is_numeric($receiverId)) {
                 $message = clean($_POST['realMessage']);
-                $title = clean($_POST['messageTitle']);
                 $parent = clean($_POST['parent']);
                 include_once './Gossout_Community.php';
                 $c = new Community();
                 $table = 'c';
-                $r = $c->sendCommunityMessage($title, $message, $senderId, $receiverId, $table, $parent);
-                $return = array('title' => $title, 'message' => $message);
-
-                if ($r['status']) {
+                $r = $c->sendCommunityMessage($message, $senderId, $receiverId, $table, $parent,"");
+               if ($r['status']) {
+                   $out = Array('message'=>$message, 'time'=>$r['time']);
                     echo json_encode($r);
                     exit();
                 } else {
                     echo json_encode($r);
                 }
             } else {
-                displayError(400, "The request cannot be fulfilled due to bad syntax -1");
+                displayError(400, "The request cannot be fulfilled due to bad syntax");
             }
         } else {
-            displayError(400, "The request cannot be fulfilled due to bad syntax -2");
+            displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
     } else if ($_POST['param'] == "friends") {
         include_once './GossoutUser.php';
@@ -270,14 +271,13 @@ if (isset($_POST['param'])) {
                     if (isset($_POST['comType']) && $_POST['comType'] == 'allCom') {
                         $allcom = true;
                     }
-//                    if (isset($_POST['newuser']) && $_POST['newuser']) {
-//                        $comm->setNewUser();
-//                    }
+//                 
                     if (isset($allcom) && $allcom) {
                         $comm->setAllCom();
                     }
                     $user_comm = $comm->userComm($start, $limit, $_POST['max'], isset($_POST['comname']) ? ($_POST['comname'] == "" ? FALSE : $_POST['comname']) : FALSE, isset($_POST['p']) ? clean($_POST['p']) : "ALL");
                     if ($user_comm['status']) {
+                        $arrHit = array('Hit'=>20);
                         echo json_encode($user_comm['community_list']);
                     } else {
                         displayError(404, "Not Found");

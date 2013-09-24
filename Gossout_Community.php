@@ -76,6 +76,7 @@ class Community {
                     $sql = "SELECT cs.`community_id` as id,c.creator_id,c.unique_name,c.`name`,c.enableMemberPost FROM community_subscribers as cs JOIN community as c ON cs.community_id=c.id  WHERE cs.`user`=$this->uid AND cs.leave_status=0 $privacy order by c.name asc LIMIT $start,$limit";
                 }
             }
+
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $comInfo = new Community();
@@ -104,8 +105,10 @@ class Community {
                             }
                         }
                         $row['creator_id'] = $this->encodeData($row['creator_id']);
+                         $row['commUnRead'] = Community::getUnreadComMsg($row['id']);
                         $arr['community_list'][] = $row;
                     }
+                  
                     $arr['status'] = true;
                 } else {
                     $arr['status'] = false;
@@ -136,6 +139,7 @@ class Community {
         $mysql->close();
         return $arr;
     }
+
     public static function isAmember1($uid) {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         $arr = array('status' => FALSE);
@@ -363,92 +367,193 @@ class Community {
         return $arrFetch;
         $mysql->close();
     }
-//    public function isAmemberUid($uid) {
-//        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
-//        $arr = array('status' => 'False');
-//        if ($mysql->connect_errno > 0) {
-//            throw new Exception("Connection to server failed!");
-//        } else {
-//            $sql = "SELECT * FROM community_subscribers WHERE `user`=$uid AND leave_status=0 AND community_id=$this->id";
-//            if ($result = $mysql->query($sql)) {
-//                if ($result->num_rows > 0) {
-//                    $arr['status'] = TRUE;
-//                } else {
-//                    $arr['status'] = 'FALSE';
-//                }
-//                $result->free();
-//            }
-//        }
-//        $mysql->close();
-//        return $arr;
-//    }
-     public static function sendCommunityMessage($title, $message, $uid, $comId, $table,$parent_id = 0) {
+
+    public static function sendCommunityMessage($message, $uid, $comId, $table, $parent_id = 0, $title) {
         $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            if($table=='p')
+            if ($table == 'p')
                 $sql = "Insert Into community_message (sender_id, com_id, message_title, message, status) VALUES ('$uid', '$comId', '$title', '$message', 'D')";
-            elseif($table=='c')
-                 $sql = "Insert Into community_message_child (sender_id, parent_id, reply_title, reply, status) VALUES ('$uid', '$parent_id', '$title', '$message', 'D')";
-            else{}
+            elseif ($table == 'c')
+                $sql = "Insert Into community_message_child (sender_id, parent_id, reply, status) VALUES ('$uid', '$parent_id', '$message', 'D')";
+            else {
+                
+            }
             if ($result = $mysql->query($sql)) {
                 if ($mysql->affected_rows > 0) {
-                        $arrFetch['status'] = TRUE;
-               }
-            } else {
-                $arrFetch['sql_parent'] = $sql;
+                    if($table == 'c'){
+                        $latestId = $mysql->insert_id;
+                         $time = $mysql->query("Select time, reply as message, id From community_message_child WHERE id = $latestId");
+                         if($time){
+                             $row = $time->fetch_assoc();
+                             $arrFetch = $row;
+                         }
+                              
+                    }
+                       
+                    $arrFetch['status'] = TRUE;
+                }
+                $arrFetch['status'] = TRUE;
             }
         }
         $mysql->close();
         return $arrFetch;
     }
-    
-    public function getEachCommInbox($msgId,$initiator) {
+
+    public function getEachCommInbox($msgId, $initiator) {
         $arrFetch = array("status" => FALSE);
-        if(isset($initiator) && (strtolower($initiator)=='c' || strtolower($initiator)=='p')){
-        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
-        if ($mysql->connect_errno > 0) {
-            throw new Exception("Connection to server failed!");
-        } else {
-            ($initiator=='p') ? $sql = "SELECT message, sender_id FROM community_message WHERE id=$msgId Limit 1" : $sql = "SELECT reply as message, sender_id FROM community_message_child WHERE id=$msgId Limit 1";
-            if ($result = $mysql->query($sql)) {
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
-                    $row['sender_id'] = $this->encodeData($row['sender_id']);
-                    $arrFetch['message'] = $row;
-                    $run = $mysql->query("Update community_message SET `time` = `time`, status = 'R' WHERE id = '$msgId'");
-                    if ($run)
-                        $arrFetch['status'] = TRUE;
-                    else {
-                        $arrFetch['message'] = "";
+        if (isset($initiator) && (strtolower($initiator) == 'c' || strtolower($initiator) == 'p')) {
+            $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+            if ($mysql->connect_errno > 0) {
+                throw new Exception("Connection to server failed!");
+            } else {
+                ($initiator == 'p') ? $sql = "SELECT message, sender_id FROM community_message WHERE id=$msgId Limit 1" : $sql = "SELECT reply as message, sender_id FROM community_message_child WHERE id=$msgId Limit 1";
+                if ($result = $mysql->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $row = $result->fetch_assoc();
+                        $row['sender_id'] = $this->encodeData($row['sender_id']);
+                        $arrFetch['message'] = $row;
+                        $run = $mysql->query("Update community_message SET `time` = `time`, status = 'R' WHERE id = '$msgId'");
+                        if ($run)
+                            $arrFetch['status'] = TRUE;
+                        else {
+                            $arrFetch['message'] = "";
+                        }
                     }
                 }
             }
-        }
-        return $arrFetch;
-        }else{
-             return $arrFetch;
+            return $arrFetch;
+        } else {
+            return $arrFetch;
         }
     }
 
-    public static function getAdminInbox($comId, $uid, $start = 0, $limit = 20){
+//    public static function getAdminInbox1($comId, $uid, $start = 0, $limit = 20){
+//        $arrFetch = array("status" => FALSE);
+//        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+//        if ($mysql->connect_errno > 0) {
+//            throw new Exception("Connection to server failed!");
+//        } else {
+//            $sql = "Select cmc.id, cmc.sender_id, reply_title as message_title, cmc.status, cmc.time, CONCAT(firstname, ', ',lastname) as fullname, 
+//                     username, parent_id as parent_message FROM community_message_child as cmc, community_message as cm, user_personal_info 
+//                    WHERE user_personal_info .id = cmc.sender_id AND cmc.parent_id = cm.id AND cm.com_id = $comId
+//                    UNION
+//                    Select community_message.id as id, sender_id, message_title, status, community_message.`time`, CONCAT(firstname, ', ',lastname) 
+//                    as fullname, username, community_message.id as parent_message FROM community_message, user_personal_info WHERE 
+//                    user_personal_info.id  = sender_id AND com_id = $comId";
+//            if ($result = $mysql->query($sql)) {
+//                if ($result->num_rows > 0) {
+//                    while($row = $result->fetch_assoc()){
+//                        $row['fullname'] = ucwords($row['fullname']);
+//                        $user = new GossoutUser(0);
+//                        $user->setUserId($row['sender_id']);
+//                        $user->getProfile();
+//                        $pix = $user->getProfilePix();
+//                        if ($pix['status']) {
+//                            $row['photo'] = $pix['pix'];
+//                        } else {
+//                            $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
+//                        }
+//                        $arrFetch['inbox'][] = $row;
+//                    }
+//                    include_once 'sortArray_$.php';
+//                    $sort = new SortMultiArray($arrFetch['inbox'], 'time', 1);
+//                    $arrFetch['inbox'] = $sort->GetSortedArray();
+//                  $arrFetch['status'] = TRUE;
+//                }
+//            }
+//        }
+//        $mysql->close();
+//        return $arrFetch;
+//    }
+    public static function getParentMsg($msgId) {
         $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "Select cmc.id, cmc.sender_id, reply_title as message_title, cmc.status, cmc.time, CONCAT(firstname, ', ',lastname) as fullname, 
-                     username, parent_id as parent_message FROM community_message_child as cmc, community_message as cm, user_personal_info 
-                    WHERE user_personal_info .id = cmc.sender_id AND cmc.parent_id = cm.id AND cm.com_id = $comId AND cmc.sender_id <> $uid
-                    UNION
-                    Select community_message.id as id, sender_id, message_title, status, community_message.`time`, CONCAT(firstname, ', ',lastname) 
-                    as fullname, username, community_message.id as parent_message FROM community_message, user_personal_info WHERE 
-                    user_personal_info.id  = sender_id AND com_id = $comId";
+            $sql = "Select message, message_title, `time`, sender_id, cm.id, CONCAT(firstname, ', ', lastname) as fullname, username From community_message cm, user_personal_info as up WHERE sender_id = up.id AND cm.id = $msgId Limit 1";
+            $sql1 = "Update community_message SET status = 'R',  `time`= `time` WHERE id = $msgId Limit 1";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()){
+                    $row = $result->fetch_assoc();
+                    $row['fullname'] = ucwords($row['fullname']);
+                    $arrFetch['parentMsg'] = $row;
+                    $the = $mysql->query($sql1);
+                    if ($the)
+                        $arrFetch['status'] = TRUE;
+                }
+                $result->free();
+            }
+        }
+        return $arrFetch;
+    }
+    public static function setToRead($id){
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "Update community_message_child SET status = 'R', `time` = `time` WHERE id = $id Limit 1";
+            if ($result = $mysql->query($sql)) {
+                    $arrFetch['status'] = TRUE;
+                }
+        }
+        return $arrFetch;
+    }
+
+    public static function getChildren($parentId, $start, $limit, $uid) {
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "Select reply as message, cmc.id, `time`, CONCAT(firstname, ', ', lastname) as fullname, sender_id FROM community_message_child as cmc, user_personal_info as upf WHERE sender_id = upf.id AND  parent_id = $parentId ORDER BY time DESC Limit $start, $limit";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        ($row['sender_id'] === $uid) ? $row['fullname'] = 'You' : "";
+                        Community::setToRead($row['id']);
+                        $arrFetch['children'][] = $row;
+                    }
+                    $arrFetch['status'] = TRUE;
+                }
+                $result->free();
+            }
+        }
+        return $arrFetch;
+    }
+
+    public static function getUnreadComMsg($comId) {
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sqlUnread = "Select id From community_message WHERE status = 'D' AND com_id = $comId  UNION Select id From community_message_child WHERE status = 'D' AND parent_id IN (Select id From community_message WHERE com_id = $comId)";
+            $unRead = $mysql->query($sqlUnread);
+            if ($unRead) {
+                $num = $unRead->num_rows;
+//                $arrFetch['unRead'] = $num;
+            }
+        }
+        return $num;
+    }
+
+    public static function getAdminInbox($comId, $uid, $start = 0, $limit = 20) {
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "Select community_message.id as id, sender_id, message_title, status, community_message.`time`, CONCAT(firstname, ', ',lastname) 
+                    as fullname, username, community_message.id as parent_message, unique_name FROM community_message, user_personal_info, community WHERE 
+                    user_personal_info.id  = sender_id AND com_id = $comId AND community.id = $comId";
+             if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
                         $row['fullname'] = ucwords($row['fullname']);
                         $user = new GossoutUser(0);
                         $user->setUserId($row['sender_id']);
@@ -461,41 +566,10 @@ class Community {
                         }
                         $arrFetch['inbox'][] = $row;
                     }
+                    $arrFetch['unRead'] = Community::getUnreadComMsg($comId);
                     include_once 'sortArray_$.php';
                     $sort = new SortMultiArray($arrFetch['inbox'], 'time', 1);
                     $arrFetch['inbox'] = $sort->GetSortedArray();
-                  $arrFetch['status'] = TRUE;
-                }
-            }
-        }
-        $mysql->close();
-        return $arrFetch;
-    }
-
-    public static function getCommMsgSent($comId, $start = 0, $limit = 20) {
-        $arrFetch = array("status" => FALSE);
-        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
-        if ($mysql->connect_errno > 0) {
-            throw new Exception("Connection to server failed!");
-        } else {
-            $sql = "Select DISTINCT community_message.id as id, message_title, message status, community_message.`time`, receiver_id, CONCAT(firstname, ' ',lastname) as fullname, username FROM community_message, user_personal_info WHERE user_personal_info.id  = receiver_id AND sender_id = $comId ORDER BY `time` DESC Limit $start, $limit";
-
-            if ($result = $mysql->query($sql)) {
-                if ($result->num_rows > 0) {
-
-                    while ($row = $result->fetch_assoc()) {
-                        $row['fullname'] = ucwords($row['fullname']);
-                        $user = new GossoutUser(0);
-                        $user->setUserId($row['receiver_id']);
-                        $user->getProfile();
-                        $pix = $user->getProfilePix();
-                        if ($pix['status']) {
-                            $row['photo'] = $pix['pix'];
-                        } else {
-                            $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
-                        }
-                        $arrFetch['inbox'][] = $row;
-                    }
                     $arrFetch['status'] = TRUE;
                 }
             }
@@ -522,7 +596,7 @@ class Community {
         return $arrFetch;
         $mysql->close();
     }
-    
+
     public function setIsTimeline($isTimeline) {
         $this->isTimeline = $$isTimeline;
     }
