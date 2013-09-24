@@ -34,12 +34,12 @@ function sendData(callback, target) {
                 param: "CommMsgInbox",
                 start: target.start,
                 limit: target.limit,
-                comId:target.comId,
-                append:target.append
+                comId: target.comId,
+                append: target.append
             }
         };
-    //alert(0);
-    } 
+        //alert(0);
+    }
     else if (callback === "loadCommMsgSent") {
         option = {
             beforeSend: function() {
@@ -52,12 +52,12 @@ function sendData(callback, target) {
                 param: "CommMsgSent",
                 start: target.start,
                 limit: target.limit,
-                append:target.append,
-                comId:target.comId
+                append: target.append,
+                comId: target.comId
             }
         };
-    //alert(0);
-    } 
+        //alert(0);
+    }
     else if (callback === "loadEachCommInbox") {
         option = {
             beforeSend: function() {
@@ -70,11 +70,11 @@ function sendData(callback, target) {
                 param: "EachCommInboxMsg",
                 msgId: target.msgId,
                 initiator: target.initiator
-                
+
             }
         };
-    //alert(0);
-    }else if (callback === "loadSuggestCommunity") {
+        //alert(0);
+    } else if (callback === "loadSuggestCommunity") {
         option = {
             beforeSend: function() {
                 showuidfeedback(target);
@@ -445,73 +445,73 @@ function showuidfeedback(target) {
     }
     return true;
 }
-function loadEachCommInbox(response, statusText, target){
+function loadEachCommInbox(response, statusText, target) {
     if (response.status) {
         //        option = '<span style="float:right;margin-top:5px;"><a href class="profile-meta reply-message" style="font-size: 0.8em;color:#99C43D !important;">Reply</a>'+'&nbsp;&nbsp;'+'<a href class="profile-meta close_each_msg" style="font-size: 0.8em;color:#99C43D !important;">Hide message</a></span>'
         $(target.target).html(nl2br(response.message.message));
-        $('#message-options-'+target.msgId).show();
-        $('.close_each_msg').click(function(){
+        $('#message-options-' + target.msgId).show();
+        $('.close_each_msg').click(function() {
             $(this).parent().parent().hide();
             return false;
         });
         var trackReply = true;
-        $('.reply-message').on('click', function(){
-            if(trackReply){
+        $('.reply-message').on('click', function() {
+            if (trackReply) {
                 id = $(this).attr('id').split('-')[1];
                 receiver_id = $(this).attr('rel');
-                (parseInt($('.reply-message').attr('parent'))==0) ? parent = id : parent = $('.reply-message').attr('parent');
-                $('#messageTitle').val('RE: '+$('#message-head-'+id).text());
-                $('#replyReceiverId').attr('value',receiver_id);
-                $('#receiverName').val($('#sender-name-'+id).text()).prop('disabled',true);
+                (parseInt($('.reply-message').attr('parent')) == 0) ? parent = id : parent = $('.reply-message').attr('parent');
+                $('#messageTitle').val('RE: ' + $('#message-head-' + id).text());
+                $('#replyReceiverId').attr('value', receiver_id);
+                $('#receiverName').val($('#sender-name-' + id).text()).prop('disabled', true);
 //                                $('#realMessage').html('Original message as at '+$('#message-time-'+id).attr('title')+'\n\n'+ $('#commFullMsg-span-'+id).text()+'<p>');
                 $('#inboxCommMsgDiv, .gossbag-separation-icons, .hr, #welcomemsg').hide();
-                $('#initialMessage').html('<h4>Original message as at '+$('#message-time-'+id).attr('title')+'</h4><br>'+ (($('#commFullMsg-span-'+id).text().length > 250) ? $('#commFullMsg-span-'+id).text().substr(0, 250)+" . . ." : $('#commFullMsg-span-'+id).text())+'<p>').show();
+                $('#initialMessage').html('<h4>Original message as at ' + $('#message-time-' + id).attr('title') + '</h4><br>' + (($('#commFullMsg-span-' + id).text().length > 250) ? $('#commFullMsg-span-' + id).text().substr(0, 250) + " . . ." : $('#commFullMsg-span-' + id).text()) + '<p>').show();
                 $('#newCommMsg').show();
                 $('#realMessage').val("");
                 $("#replyMsgForm").ajaxForm({
-                    beforeSubmit: function(){
-                        if($.trim($('#messageTitle').val())=="" || $.trim($('#realMessage').val())==""){
+                    beforeSubmit: function() {
+                        if ($.trim($('#messageTitle').val()) == "" || $.trim($('#realMessage').val()) == "") {
                             $('#commMsgError').slideDown(300);
                             $('.commMsgInput').css('border-color', '#8A1F11');
-                            setTimeout(function(){
+                            setTimeout(function() {
                                 $('.commMsgInput').css('border-color', '#CCCCCC');
                                 $('#commMsgError').slideUp(300);
                             }, 10000);
                             return false;
-                        }else{
+                        } else {
                             $('#loadMoreImg').show();
                         }
                     },
                     success: function(responseText, statusText, xhr, $form) {
-                        if(responseText.error){
+                        if (responseText.error) {
                             //alert('Error!')
                         }
-                        else{
+                        else {
                             //alert('Success!')
                             $('#loadMoreImg').hide();
-                    
+
                         }
                     },
                     complete: function(xhr) {
-                           
+
                     },
                     data: {
                         uid: readCookie("user_auth"),
                         receiverId: receiver_id,
-                        parent:parent
+                        parent: parent
                     }
                 });
                 trackReply = false;
             }
             return false;
         });
-        $('#commMsgDiv').on('click',function(){
+        $('#commMsgDiv').on('click', function() {
             $('.mainCommCont,.gossbag-separation-icons, .hr, #welcomemsg').show();
             $('#newCommMsg,#initialMessage').hide();
             trackReply = true;
             return false;
         });
-        $('#commInboxShow').on('click',function(){
+        $('#commInboxShow').on('click', function() {
             $('#newCommMsg,#initialMessage').hide();
 //            $('#welcomemsg p').html("The messages in here are from your Community members. Be aware that messages sent through this panel in response to your Community members' messages or otherwise, go to the directed member's Inbox.")
             $('#inboxCommMsgDiv, .gossbag-separation-icons, .hr, #welcomemsg').show();
@@ -519,113 +519,114 @@ function loadEachCommInbox(response, statusText, target){
             return false;
         });
     }
-    else{
+    else {
         $(target.target).html('Oops! The message you requested could not be loaded at this time. Please try again later');
     }
 }
 
-function loadCommMsgInbox(response, statusText, target){
-   
+function loadCommMsgInbox(response, statusText, target) {
+
     if (response.status) {
         var htmlstr = "";
-        var countCommInbox  = response.inbox.length;
+        var countCommInbox = response.inbox.length;
         $.each(response.inbox, function(i, resp) {
-            htmlstr+= '<div class="individual-message-box commEachMsgDiv" initiator="'+((resp.parent_message===resp.id) ? "p" : "c") +'" id="commEachMsgDiv-'+resp.id+'" rel="'+resp.username+'" title="'+((resp.status=='D') ? "Unread" : "Read")+'"></p><div class="senderComm"><center><img class="all-messages-image" style="float:left;max-width:60px;" src="'+(!(resp.photo.nophoto) ? resp.photo.thumbnail45 : resp.photo.alt)+'"></center></div><p>'+
-            '<div class="all-messages-text"><span><h4 id="message-head-'+resp.id+'" class="message_head'+((resp.status=='D') ? " unread" : "")+'">'+(resp.message_title.length > 35 ? resp.message_title.substr(0,35) : resp.message_title)+'</h4></span>'+
-            '<a href=user/'+resp.username+'><h4 class="commMsgSender" id="sender-name-'+resp.id+'">'+resp.fullname+'</h4></a></div><p style="float:right;">'+
-            '<span class="timeago" title="'+resp.time+'" id="message-time-'+resp.id+'">'+resp.time+'</span></div>'+
-            '<div class="message_content" id="commFullMsg-'+resp.id+'"><span style="float:left;display:none;" id="message-options-'+resp.id+'">'+
-            ((!target.sentBox) ? ('<a href class="profile-meta reply-message" id="replymessage-'+resp.id+'"  parent="'+resp.parent_message+'" rel="'+resp.sender_id+'"  style="font-size: 0.8em;color:#99C43D !important;">[Reply]</a>') : "") +
-            '&nbsp;&nbsp;'+
-            '<a href class="profile-meta close_each_msg" style="font-size: 0.8em;color:#99C43D !important;">[Hide message]</a>'+
-            '&nbsp;&nbsp;'+
-            '<!--<a href="" parent="'+resp.parent_message+'" class="profile-meta" style="font-size: 0.8em;color:#99C43D !important;">[Show conversations]</a>-->'+
-            '</span><br><p><span id="commFullMsg-span-'+resp.id+'"></span>'+
-            '</div>';
+            htmlstr += '<div class="individual-message-box commEachMsgDiv" initiator="' + ((resp.parent_message === resp.id) ? "p" : "c") + '" id="commEachMsgDiv-' + resp.id + '" rel="' + resp.username + '" title="' + ((resp.status == 'D') ? "Unread" : "Read") + '"></p><div class="senderComm"><center><img class="all-messages-image" style="float:left;max-width:60px;" src="' + (!(resp.photo.nophoto) ? resp.photo.thumbnail45 : resp.photo.alt) + '"></center></div><p>' +
+                    '<div class="all-messages-text"><span><h4 id="message-head-' + resp.id + '" class="message_head' + ((resp.status == 'D') ? " unread" : "") + '">' + (resp.message_title.length > 35 ? resp.message_title.substr(0, 35) : resp.message_title) + '</h4></span>' +
+                    '<a href=user/' + resp.username + '><h4 class="commMsgSender" id="sender-name-' + resp.id + '">' + resp.fullname + '</h4></a></div><p style="float:right;">' +
+                    '<span class="timeago" title="' + resp.time + '" id="message-time-' + resp.id + '">' + resp.time + '</span></div>' +
+                    '<div class="message_content" id="commFullMsg-' + resp.id + '"><span style="float:left;display:none;" id="message-options-' + resp.id + '">' +
+                    ((!target.sentBox) ? ('<a href class="profile-meta reply-message" id="replymessage-' + resp.id + '"  parent="' + resp.parent_message + '" rel="' + resp.sender_id + '"  style="font-size: 0.8em;color:#99C43D !important;">[Reply]</a>') : "") +
+                    '&nbsp;&nbsp;' +
+                    '<a href class="profile-meta close_each_msg" style="font-size: 0.8em;color:#99C43D !important;">[Hide message]</a>' +
+                    '&nbsp;&nbsp;' +
+                    '<!--<a href="" parent="' + resp.parent_message + '" class="profile-meta" style="font-size: 0.8em;color:#99C43D !important;">[Show conversations]</a>-->' +
+                    '</span><br><p><span id="commFullMsg-span-' + resp.id + '"></span>' +
+                    '</div>';
         });
-        if((countCommInbox === target.limit)){
-            if($('#comm_more_inbox').is(':hidden')) 
+        if ((countCommInbox === target.limit)) {
+            if ($('#comm_more_inbox').is(':hidden'))
                 $('#comm_more_inbox').show()
-        }else if((countCommInbox < target.limit)){
+        } else if ((countCommInbox < target.limit)) {
             $('#comm_more_inbox').hide();
-        }else{}
-        if(!($('#comm_more_inbox').is(':hidden')) && !target.inboxInitiator){
+        } else {
+        }
+        if (!($('#comm_more_inbox').is(':hidden')) && !target.inboxInitiator) {
 //            $('#comm_more_inbox').attr('start', parseInt($('#comm_more_inbox').attr('start')) + target.limit)
         }
-         
-        (target.append) ? $(target.target).html($(target.target).html()+ htmlstr) : $(target.target).html(htmlstr);
-       
+
+        (target.append) ? $(target.target).html($(target.target).html() + htmlstr) : $(target.target).html(htmlstr);
+
         var mouseX;
         var mouseY;
-        $(document).mousemove( function(e) {
-            mouseX = (e.pageX-35)+'px'; 
-            mouseY = (e.pageY-10)+'px';
-        });  
-        var trackEachMsg,initiator;
-        $(".commEachMsgDiv").on('click', function(){
+        $(document).mousemove(function(e) {
+            mouseX = (e.pageX - 35) + 'px';
+            mouseY = (e.pageY - 10) + 'px';
+        });
+        var trackEachMsg, initiator;
+        $(".commEachMsgDiv").on('click', function() {
             trackEachMsg = true;
             var id = ($(this).attr('id').split('-'))[1];
             var username = $(this).attr('rel')
-           initiator = $(this).attr('initiator');
-            
-            
-            $('.read_message').attr('rel',id).addClass('current');
-            $('.real-profile-link').attr('href','user/'+username);
+            initiator = $(this).attr('initiator');
+
+
+            $('.read_message').attr('rel', id).addClass('current');
+            $('.real-profile-link').attr('href', 'user/' + username);
 //            $('.showClickOption').hide();
-            if(!($('#commFullMsg-'+id).is(':hidden'))){
+            if (!($('#commFullMsg-' + id).is(':hidden'))) {
                 $('.r_m').html('Hide message');
-            }  
-            else{
+            }
+            else {
                 $('.r_m').html('Show message');
             }
             $('.showClickOption').css({
-                'visibility':'visible',
-                'top':mouseY,
-                'left':mouseX
+                'visibility': 'visible',
+                'top': mouseY,
+                'left': mouseX
             }).fadeIn('fast');
-              
+
             return false;
         });
-        
-        $('.read_message').on('click',function(){
-            if(trackEachMsg){
+
+        $('.read_message').on('click', function() {
+            if (trackEachMsg) {
                 //                alert(0);
                 var id = $(this).attr('rel');
-                if(!$('#commFullMsg-'+id).is(":hidden")){
-                    $('#commFullMsg-'+id).hide();
+                if (!$('#commFullMsg-' + id).is(":hidden")) {
+                    $('#commFullMsg-' + id).hide();
                 }
-                else{
-                    $('#commFullMsg-'+id).show()
-                    sendData("loadEachCommInbox",{
-                        target: '#commFullMsg-span-'+id, 
+                else {
+                    $('#commFullMsg-' + id).show()
+                    sendData("loadEachCommInbox", {
+                        target: '#commFullMsg-span-' + id,
                         loadImage: true,
-                        msgId:id,
-                        initiator:initiator
+                        msgId: id,
+                        initiator: initiator
                     });
                 }
                 $('.showClickOption').hide();
                 trackEachMsg = false;
             }
-              $('.showClickOption').hide();
-            return false; 
+            $('.showClickOption').hide();
+            return false;
         });
         prepareDynamicDates();
         $(".timeago").timeago();
-    }else{
-        if(target.append)
+    } else {
+        if (target.append)
             humane.log("Opps! you've got it all!", {
-                            timeout: 3000,
-                            clickToClose: true,
-                            addnCls: 'humane-jackedup-success'
-                        });
-                    else
-    $(target.target).html('<br><center><p>Oops! you have no message in your community message inbox.<p></center><br>')
+                timeout: 3000,
+                clickToClose: true,
+                addnCls: 'humane-jackedup-success'
+            });
+        else
+            $(target.target).html('<br><center><p>Oops! you have no message in your community message inbox.<p></center><br>')
     }
-  
+
 }
 function loadTimeline(response, statusText, target) {
     if (!response.error) {
-        var htmlstr = "", toggleId = "";
+        var htmlstr = "", toggleId = "", watcherId = "";
         var TimeLineCount = response.length;
         $.each(response, function(i, response) {
             if (response.type === "post") {
@@ -651,13 +652,18 @@ function loadTimeline(response, statusText, target) {
                             '<!--<p class="post-meta"><span id="post-new-comment-show-' + response.id + '" class=""><span class="icon-16-comment"></span>Comment(20)</span>' +
                             '<span class="post-meta-gossout"><span class="icon-16-share"></span><a class="fancybox " id="inline" href="#share-123456">Share(20)</a></span></p>--><div class="clear"></div></div>';
                 }
-                if (response.post)
+                if (response.post) {
                     if (response.post.length > 200) {
                         if (toggleId !== "") {
                             toggleId += ",";
                         }
                         toggleId += "#continue-" + response.id;
                     }
+                    if (watcherId !== "") {
+                        watcherId += ",";
+                    }
+                    watcherId += "#post-" + response.id;
+                }
             } else if (response.type === "comcrea") {
                 htmlstr += '<div class="timeline-news-single">' +
                         '<a class= "fancybox " rel="profilePix" href="' + (response.photo.nophoto ? response.photo.alt : response.photo.original) + '">' +
@@ -677,6 +683,15 @@ function loadTimeline(response, statusText, target) {
                     toggleId += ".joinCom";
                 }
             }
+        });
+        $(watcherId).waypoint(function() {
+            alert(0);
+            $.ajax({
+                data: {param: "pview", p: this.id.substring(parseInt(this.id.indexOf("-")) + 1)}
+            });
+        }, {
+            triggerOnce: true,
+            offset: 'bottom-in-view'
         });
         if (target.loadMore) {
             if (htmlstr !== "") {
@@ -1588,40 +1603,41 @@ function loadCommunity(response, statusText, target) {
                 if (response.isAmember === "true" && !target.settings) {//prepare setting option for member of this community
                     if (response.creator_id === readCookie('user_auth')) {
                         $("#commMsgCompose").remove();
-                        $("#otherCommOption").html('<div class=" button profile-button" id="loadCommore">More '+' ['+'<span class="commUnreadMsgCount"></span>'+']'+'<span class="icon-16-arrow-down"></span>' +
-                            '<div class="more-container" id="pop-up-community-more"><div class="more"><ul>' +
-                            '<li id="inviteMemBtn"><a class="displayX" href="#inviteDisplay"><span class="icon-16-user-add"></span> Invite Members<div style="display:none">' +
-                            '<div id="inviteDisplay" class="registration" style="width: 800"><h3>Invite Friends</h3><hr/>' +
-                            '<form id="inviteForm" method="POST" action="tuossog-api-json.php"><ul>' +
-                            '<li><span id="toUserInput"></span></li>' +
-                            '</ul></form></div></div></a></li>' +
-                            '<hr>' +
-                            '<li><a href="community-settings/' + target.comname + '"><span class="icon-16-cog"></span> Settings</a></li>' +
-                            '<li><a href="community-message/' + target.comname + '""><span class="icon-16-mail"></span> Message Box '+' ['+'<span class="commUnreadMsgCount"></span>'+']'+'</a></li>' +
-                            '</ul></div></div></div>');
+                        $("#otherCommOption").html('<div class=" button profile-button" id="loadCommore">More ' + ' [' + '<span class="commUnreadMsgCount"></span>' + ']' + '<span class="icon-16-arrow-down"></span>' +
+                                '<div class="more-container" id="pop-up-community-more"><div class="more"><ul>' +
+                                '<li id="inviteMemBtn"><a class="displayX" href="#inviteDisplay"><span class="icon-16-user-add"></span> Invite Members<div style="display:none">' +
+                                '<div id="inviteDisplay" class="registration" style="width: 800"><h3>Invite Friends</h3><hr/>' +
+                                '<form id="inviteForm" method="POST" action="tuossog-api-json.php"><ul>' +
+                                '<li><span id="toUserInput"></span></li>' +
+                                '</ul></form></div></div></a></li>' +
+                                '<hr>' +
+                                '<li><a href="community-settings/' + target.comname + '"><span class="icon-16-cog"></span> Settings</a></li>' +
+                                '<li><a href="community-message/' + target.comname + '""><span class="icon-16-mail"></span> Message Box ' + ' [' + '<span class="commUnreadMsgCount"></span>' + ']' + '</a></li>' +
+                                '</ul></div></div></div>');
                     } else {
-                         $("#commMsgInbox").remove();
+                        $("#commMsgInbox").remove();
                         $("#otherCommOption").html('<div class=" button profile-button" id="loadCommore">More<span class="icon-16-arrow-down"></span>' +
-                            '<div class="more-container" id="pop-up-community-more"><div class="more"><ul>' +
-                            '<li id="inviteMemBtn"><a class="displayX" href="#inviteDisplay"><span class="icon-16-user-add"></span> Invite Friends<div style="display:none">' +
-                            '<div id="inviteDisplay" class="registration" style="width: 800"><h3>Invite Friends</h3><hr/>' +
-                            '<form id="inviteForm" method="POST" action="tuossog-api-json.php"><ul>' +
-                            '<li><span id="toUserInput"></span></li>' +
-                            '</ul></form></div></div></a></li>' +
-                          '<hr>' + '<li class="contactAdmin"><a class="contactAdmin" href="contactAdmin-' + response.id+'" id="contactAdmin-'+response.name+'" rel="'+response.name+' unique_name="'+response.unique_name+'"><span class="icon-16-mail"></span> Contact Admin</a></li>' +
-                            '</ul></div></div></div>');
-                        }
-                        $('.commUnreadMsgCount').text(3);
-                        $('.contactAdmin').on('click',function(){
-                             $('#commMsgSuc, #commMsgError').hide();
-                           $('.contactAdminMsg').show(); 
-                            $("#pop-up-community-more").hide();
-                            return false;
-                        });
-                        $('#closeMsg').on('click',function(){
-                            $('.contactAdminMsg').hide(); return false;
-                        });
-                        $
+                                '<div class="more-container" id="pop-up-community-more"><div class="more"><ul>' +
+                                '<li id="inviteMemBtn"><a class="displayX" href="#inviteDisplay"><span class="icon-16-user-add"></span> Invite Friends<div style="display:none">' +
+                                '<div id="inviteDisplay" class="registration" style="width: 800"><h3>Invite Friends</h3><hr/>' +
+                                '<form id="inviteForm" method="POST" action="tuossog-api-json.php"><ul>' +
+                                '<li><span id="toUserInput"></span></li>' +
+                                '</ul></form></div></div></a></li>' +
+                                '<hr>' + '<li class="contactAdmin"><a class="contactAdmin" href="contactAdmin-' + response.id + '" id="contactAdmin-' + response.name + '" rel="' + response.name + ' unique_name="' + response.unique_name + '"><span class="icon-16-mail"></span> Contact Admin</a></li>' +
+                                '</ul></div></div></div>');
+                    }
+                    $('.commUnreadMsgCount').text(3);
+                    $('.contactAdmin').on('click', function() {
+                        $('#commMsgSuc, #commMsgError').hide();
+                        $('.contactAdminMsg').show();
+                        $("#pop-up-community-more").hide();
+                        return false;
+                    });
+                    $('#closeMsg').on('click', function() {
+                        $('.contactAdminMsg').hide();
+                        return false;
+                    });
+                    $
                     $(".displayX").fancybox({
                         openEffect: 'none',
                         closeEffect: 'none',
@@ -1720,10 +1736,10 @@ function loadCommunity(response, statusText, target) {
                     }
                 }
                 else {
-                    
+
                     htmlstr += '<div class="posts"><h1>' + response.name + '</h1><hr/><span id="loadPost"></span>\n\<hr/><div class="button" style="float:left;display:none;" id ="commMorePostDiv"><a commPost="20"  class="commMorePost" id="commMorePost">Load more > ></a></div><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div></div>';
                 }
-                       
+
             });
 
             if (htmlstr !== "") {
@@ -1739,8 +1755,8 @@ function loadCommunity(response, statusText, target) {
                         loadImage: true
                     });
                 }
-                if(target.commMsg)//remove post-div for community massage
-                   $('.post-box').remove();
+                if (target.commMsg)//remove post-div for community massage
+                    $('.post-box').remove();
                 if (isAmember === "true") {
                     $("#uploadImagePost,#loadCommore,#inviteMemBtn,#commViewMoreDesc").click(function() {
                         if (this.id === "uploadImagePost") {
@@ -2230,10 +2246,7 @@ function loadPost(response, statusText, target) {
 
         $(watcherId).waypoint(function() {
             $.ajax({
-                type: "POST",
-                url: "tuossog-api-json.php",
-                data: {param: "pview", p: this.id.substring(parseInt(this.id.indexOf("-")) + 1)},
-                dataType: "json"
+                data: {param: "pview", p: this.id.substring(parseInt(this.id.indexOf("-")) + 1)}
             });
         }, {
             triggerOnce: true,
