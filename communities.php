@@ -18,8 +18,6 @@ if (trim($page) == "communities") {
         include_once './404.php';
         exit;
     }
-//    $isMember = Community::isAmember($comId, $uid);
-//    if($commExist['info']['type']=="Private" && )
 }
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
@@ -40,17 +38,16 @@ if (isset($_COOKIE['user_auth'])) {
     $user = new GossoutUser(0);
     $userProfile = $user->getProfile();
 }
-//print_r($isCreator);
 ?>
 <!doctype html>
 <html lang="en">
     <head>
-<?php
-include_once './webbase.php';
-if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
-    $comname = $_GET['page'] == "communities" ? $_GET['param'] : $_GET['page'];
-    $comInfo = Community::getCommunityInfo($comname);
-    ?>
+        <?php
+        include_once './webbase.php';
+        if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
+            $comname = $_GET['page'] == "communities" ? $_GET['param'] : $_GET['page'];
+            $comInfo = Community::getCommunityInfo($comname);
+            ?>
             <title><?php echo $comInfo['status'] ? $comInfo['comm']['name'] : "Gossout - Community" ?></title>
             <?php
         } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
@@ -70,17 +67,17 @@ if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($p
         <link rel="stylesheet" href="css/chosen.css" />
         <link rel="stylesheet" href="css/validationEngine.jquery.css">
         <link rel="stylesheet" type="text/css" href="css/chat.min.1.0.css" />
-<?php
-if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
-    ?>
+        <?php
+        if (isset($_GET['param']) ? $_GET['param'] != "" ? $_GET['param'] : FALSE  : FALSE) {
+            ?>
             <style>
                 .progress { position:relative; width:60%; border: 1px solid #ddd; padding: 1px; border-radius: 3px; }
                 .bar { background-color: #B4F5B4; width:0%; height:20px; border-radius: 3px; }
                 .percent { position:absolute; display:inline-block; top:3px; left:48%; }
             </style>
-    <?php
-}
-?>
+            <?php
+        }
+        ?>
         <?php
         include ("head.php");
         ?>
@@ -185,11 +182,12 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
     <?php
 } else {
     if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
-                    if(!$isCreator['status']){?>
-                        sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10});//do not load community message count (Only for admin)
-                    <?php }else {?>
-                         sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10,adminMsgCount:true,comId:<?php echo $comId; ?>});//load community message count for admin
-                    <?php } ?>
+        if (!$isCreator['status']) {
+            ?>
+                            sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10});//do not load community message count (Only for admin)
+        <?php } else { ?>
+                            sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10, adminMsgCount: true, comId:<?php echo $comId; ?>});//load community message count for admin
+        <?php } ?>
         <?php
     } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
         ?>
@@ -237,7 +235,9 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                         $('#loadMoreImg1').hide();
                     },
                     data: {
-                        uid: readCookie("user_auth")
+                        uid: readCookie("user_auth"),
+                        param: "Send-Community-Message",
+                        comId: "<?php echo isset($comInfo['comm']['id']) ? $comInfo['comm']['id'] : ""; ?>"
                     }
                 });
             });
@@ -245,15 +245,15 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
     </head>
     <body>
         <div class="page-wrapper">
-<?php
-include ("nav.php");
-include ("nav-user.php");
-?>
+            <?php
+            include ("nav.php");
+            include ("nav-user.php");
+            ?>
             <div class="logo" id="logo"><img alt=""></div>
 
             <div class="content">
                 <span id="rightcolumn" class="">
-<?php if ($_GET['page'] == "communities" && $_GET['param'] == "") { ?>
+                    <?php if ($_GET['page'] == "communities" && $_GET['param'] == "") { ?>
                         <div class="communities-list">
                             <div>
                                 <div style="float:left;background:#f8f8f8;padding:3px;width:94px;border:1px solid #c6c6c6;"><a href="create-community">Create new </a></div>
@@ -295,23 +295,23 @@ include ("nav-user.php");
                             </div>&nbsp;<img src='images/loading.gif' style='border:none;margin-top: -10px;display:none' id="loader1"/>
 
                         </div>
-<?php } ?>
+                    <?php } ?>
 
                 </span>
 
-<?php
-if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page == "communities" && trim($param) != "" && trim($param2) != "") || ($page != "communities" && trim($param) == "" && $param2 == "") || ($page != "communities" && trim($param) != "" && $param2 == "")) {
-    include("sample-community-aside.php");
-} else {
-    include("aside.php");
-}
-?>
+                <?php
+                if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page == "communities" && trim($param) != "" && trim($param2) != "") || ($page != "communities" && trim($param) == "" && $param2 == "") || ($page != "communities" && trim($param) != "" && $param2 == "")) {
+                    include("sample-community-aside.php");
+                } else {
+                    include("aside.php");
+                }
+                ?>
 
 
             </div>
-<?php
-include("footer.php");
-?>
+            <?php
+            include("footer.php");
+            ?>
             <style>
                 .commMsgInput{
                     border: 1px #ccc solid;
@@ -334,26 +334,21 @@ include("footer.php");
                 }
 
             </style>
-<?php if (!($page == "communities" && trim($param) == "" )) { ?>
+            <?php if (!($page == "communities" && trim($param) == "" )) { ?>
                 <div class="contactAdminMsg" id="contactAdminMsg-<?php echo $comInfo['status'] ? $comInfo['comm']['id'] : "" ?>" style='display:none;width:500px;max-width:90%; position: fixed;right:10px;bottom: 2px;background:white;padding:5px;border: 1px #ccc solid;border-radius:3px;'>
                     <div style='width:100%;cursor: pointer;'><h3>Send new message to <span id="fullCommName"><?php echo $comInfo['comm']['unique_name']; ?></span><span id='closeMsg' style='float:right;margin-right:5px;'><strong>x</strong></span></h3></div><hr>
                     <div id="sendMsgDiv">
-                        <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Error -empty fields!</strong> All fields must be filled before your message could be sent.  </div>
+                        <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgError" class="error"><strong>Empty fields!</strong> All fields must be filled.  </div>
                         <div style="font-size:0.9em;margin-bottom: 5px;display:none;" id="commMsgSuc" class="success"><strong>Success!</strong> Your message was sent successfully.  </div>
-                        <form name="commMsgForm" id="commMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
+                        <form id="commMsgForm" action="tuossog-api-json.php" method="POST" enctype="application/x-www-form-urlencoded">
                             <div class="words">Message Title:</div>
                             <hr/>
                             <input type="text" name="messageTitle" id="messageTitle" class="commMsgInput" placeholder="Type the title of you message here (compulsory)"/>
                             <p><div class="words" style="margin-top:5px;">Message:</div>
                             <hr/>
                             <textarea  name="message" style='height:250px;' id="message" placeholder="Type your message here. . ." class="commMsgInput inputt"></textarea>
-                            <!--<hr><input type="file" name="commMsgFile" id="commMsgFile" style="border-radius: 3px;border:1px solid #ebebeb;height:30px;width:100px;"/>-->
-                            <p></p>
                             <hr/>
-
-                            <input type="submit" id="sendMsg" name="sendMsg" class="button submit" value="Send Message" style="float: left;">
-                            <input type="hidden" name="param" value="Send-Community-Message"/><div id="loadMoreImg1" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div>
-                            <input type="hidden" name ="comId" value="<?php echo $comInfo['comm']['id']; ?>" />
+                            <input type="submit" id="sendMsg" class="button submit" value="Send Message" style="float: left;">
                         </form>
                         <br/><br/>
                     </div>
@@ -367,7 +362,7 @@ include("footer.php");
                     </div>
 
                 </div>
-<?php } ?>
+            <?php } ?>
         </div>
     </body>
 </html>

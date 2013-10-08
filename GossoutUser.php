@@ -112,6 +112,7 @@ class GossoutUser {
         }
         return $response;
     }
+
     public static function verifyUserByScreenName($screename) {
         $response['status'] = FALSE;
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
@@ -654,7 +655,7 @@ class GossoutUser {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['ministat'] = $user->getMiniStat();
-                        $row['id'] = $this->encodeData($row['id']);
+                        $row['id'] = GossoutUser::encodeData($row['id']);
                         $arrFetch['friends'][] = $row;
                     }
                     if ($shuffle) {
@@ -739,7 +740,7 @@ class GossoutUser {
             if ($my['status']) {
                 $user = new GossoutUser(0);
                 foreach ($my['friends'] as $friend) {
-                    $fid = $this->decodeData($friend['id']);
+                    $fid = GossoutUser::decodeData($friend['id']);
                     $user->setUserId($fid);
                     $userFriend = $user->getFriends(0, 1000);
                     if ($userFriend['status']) {
@@ -770,7 +771,7 @@ class GossoutUser {
                 }
             }
             if ($arrfetch['status']) {
-                unset($arr[$this->encodeData($this->id)]);
+                unset($arr[GossoutUser::encodeData($this->id)]);
 //                unset($arr[$this->id]);
                 if ($my['status']) {
                     foreach ($my['friends'] as $friend) {
@@ -808,7 +809,7 @@ class GossoutUser {
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,u.firstname,u.lastname, pm.`message`, pm.`time`, pm.`status` FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id $status order by pm.id ASC LIMIT $this->start,$this->limit";
+            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,u.firstname,u.lastname, pm.`message`, pm.`time`, pm.`status`,(SELECT 'M') as type FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id $status order by pm.id ASC LIMIT $this->start,$this->limit";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $user = new GossoutUser(0);
@@ -931,9 +932,9 @@ class GossoutUser {
                             $mysql->query("UPDATE `privatemessae` SET `status`='R' WHERE (sender_id='$row[sender_id]' AND receiver_id='$row[receiver_id]')");
                         }
                         $row['message'] = nl2br($row['message']);
-                        $row['id'] = $this->encodeData($row['id']);
-                        $row['sender_id'] = $this->encodeData($row['sender_id']);
-                        $row['receiver_id'] = $this->encodeData($row['receiver_id']);
+                        $row['id'] = GossoutUser::encodeData($row['id']);
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
+                        $row['receiver_id'] = GossoutUser::encodeData($row['receiver_id']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['message']['conversation'][] = $row;
                     }
@@ -987,7 +988,7 @@ class GossoutUser {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
-                        $row['sender_id'] = $this->encodeData($row['sender_id']);
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1076,8 +1077,8 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['id'] = $this->encodeData($row['id']);
-                        $row['sender_id'] = $this->encodeData($row['sender_id']);
+                        $row['id'] = GossoutUser::encodeData($row['id']);
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
@@ -1108,7 +1109,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['id'] = $this->encodeData($row['id']);
+                        $row['id'] = GossoutUser::encodeData($row['id']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
@@ -1133,7 +1134,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         $row['lastname'] = $this->toSentenceCase($row['lastname']);
                         $row['type'] = "frq";
                         $user->setUserId($row['username1']);
-                        $row['username1'] = $this->encodeData($row['username1']);
+                        $row['username1'] = GossoutUser::encodeData($row['username1']);
                         $pix = $user->getProfilePix();
                         if ($pix['status']) {
                             $row['photo'] = $pix['pix'];
@@ -1160,24 +1161,10 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
     public function getNotificationSummary() {
         $gb = $this->getGossbag(TRUE);
         $msg = $this->getMessages("AND status='N'", FALSE);
+        $comNoitif = Community::getComMsgNotif($this->id);
         $response['msg'] = $msg['status'] ? count($msg['message']) : 0;
         $response['gb'] = $gb['status'] ? count($gb['bag']) : 0;
-//        $tw = 0;
-//        $p = 0;
-//        $c = 0;
-//        $frq = 0;
-//        foreach ($gb['bag'] as $item) {
-//            if ($item['type'] == "post") {
-//                $p++;
-//            } else if ($item['type'] == "TW") {
-//                $tw++;
-//            } else if ($item['type'] == "comment") {
-//                $c++;
-//            } else if ($item['type'] == "frq") {
-//                $frq++;
-//            }
-//        }
-//        $response['dt'] = array("p" => $p, "c" => $c, "tw" => $tw, "frq" => $frq);
+        $response['cn'] = $comNoitif['status'] ? $comNoitif['count'] : 0;
         return $response;
     }
 
@@ -1220,7 +1207,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                             $row['post_photo'] = $post_image['photo'];
                         }
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
-                        $row['sender_id'] = $this->encodeData($row['sender_id']);
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $arrFetch['timeline'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1251,9 +1238,9 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $com->setCommunityId($row['id']);
-                        $isAmember = Community::isAmember($row['id'],$this->id);
+                        $isAmember = Community::isAmember($row['id'], $this->id);
                         $row['isAmember'] = $isAmember['status'];
-                        $row['creator_id'] = $this->encodeData($row['creator_id']);
+                        $row['creator_id'] = GossoutUser::encodeData($row['creator_id']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['timeline'][] = $row;
                     }
@@ -1327,8 +1314,8 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                     $mysql->query($sql);
                     if ($mysql->affected_rows > 0) {
                         $e = new Encryption();
-                        setcookie("user_auth", $this->encodeData($newUid), 0);
-                        setcookie("ro", $this->encodeData($e->encode(md5(sha1($this->encodeData($newUid))))), 0);
+                        setcookie("user_auth", GossoutUser::encodeData($newUid), 0);
+                        setcookie("ro", GossoutUser::encodeData($e->encode(md5(sha1(GossoutUser::encodeData($newUid))))), 0);
                         $this->setUserId($newUid);
                         $user = $this->getProfile();
                         $_SESSION['auth'] = $user['user'];
@@ -1637,7 +1624,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['dateJoined'] = $this->dateToString($row['dateJoined'], TRUE);
-                        $row['id'] = $this->encodeData($row['id']);
+                        $row['id'] = GossoutUser::encodeData($row['id']);
                         $arrFetch['people'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1679,8 +1666,8 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['id'] = $this->encodeData($row['id']);
-                        $row['sender_id'] = $this->encodeData($row['sender_id']);
+                        $row['id'] = GossoutUser::encodeData($row['id']);
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
@@ -1771,7 +1758,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['username1'] = $this->encodeData($row['username1']);
+                        $row['username1'] = GossoutUser::encodeData($row['username1']);
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
@@ -1812,7 +1799,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
-                        $row['sender_id'] = $this->encodeData($row['sender_id']);
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1828,7 +1815,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
         }
     }
 
-    function encodeData($param, $useBase64 = TRUE) {
+    public static function encodeData($param, $useBase64 = TRUE) {
         $encrypt = new Encryption();
         if ($useBase64) {
             return $encrypt->safe_b64encode($param);
@@ -1837,7 +1824,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
         }
     }
 
-    function decodeData($param, $useBase64 = TRUE) {
+    public static function decodeData($param, $useBase64 = TRUE) {
         $encrypt = new Encryption();
         if ($useBase64) {
             return $encrypt->safe_b64decode($param);

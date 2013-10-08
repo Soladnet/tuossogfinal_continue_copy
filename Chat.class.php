@@ -32,7 +32,7 @@ class Chat {
             $response['logged'] = true;
             include_once './GossoutUser.php';
             $user = new GossoutUser(0);
-            $id = $user->decodeData($uid);
+            $id = GossoutUser::decodeData($uid);
             if (!isset($_SESSION['auth']['id'])) {
                 include_once './LoginClass.php';
                 if (is_numeric($id)) {
@@ -105,7 +105,7 @@ class Chat {
         }
         include_once './GossoutUser.php';
         $g = new GossoutUser(0);
-        $id = $g->decodeData($uid);
+        $id = GossoutUser::decodeData($uid);
 
         $chat = new ChatLine(array(
             'text' => $chatText,
@@ -127,7 +127,7 @@ class Chat {
     public static function getUsers($uid, $comid) {
         include_once './GossoutUser.php';
         $u = new GossoutUser(0);
-        $id = $u->decodeData($uid);
+        $id = GossoutUser::decodeData($uid);
         $user = new ChatUser(array('user_id' => $id, 'com_id' => $comid));
         $user->update();
         DB::query("UPDATE community_chat_online set `isOnline`=0 WHERE time < SUBTIME(NOW(),'0:0:30')");

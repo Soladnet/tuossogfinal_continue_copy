@@ -35,17 +35,15 @@ if (isset($_POST['param'])) {
         }
     }if ($_POST['param'] == "Send-Community-Message") {
         if (isset($_POST['uid']) && isset($_POST['comId'])) {
-            $uid = decodeText($_POST['uid']);
-            $comId = $_POST['comId'];
+            include_once './Gossout_Community.php';
+            $uid = Community::decodeData(Community::clean($_POST['uid']));
+            $comId = Community::clean($_POST['comId']);
             if (is_numeric($uid) && is_numeric($comId)) {
-                $message = clean($_POST['message']);
-                $title = clean($_POST['messageTitle']);
-                include_once './Gossout_Community.php';
+                $message = Community::clean($_POST['message']);
+                $title = Community::clean($_POST['messageTitle']);
                 $c = new Community();
                 $table = 'p';
-                $parent_id = 0;
-               
-                $r = $c->sendCommunityMessage($message, $uid, $comId, $table,$parent_id,$title);
+                $r = $c->sendCommunityMessage($message, $uid, 0, $comId, $table, 0, $title);
                 $return = array('title' => $title, 'message' => $message);
                 if ($r['status']) {
                     echo json_encode($r);
@@ -61,84 +59,76 @@ if (isset($_POST['param'])) {
         }
     } else if ($_POST['param'] == "CommMsgInbox") {
         if (isset($_POST['uid']) && isset($_POST['comId'])) {
-            $start = (isset($_POST['start']) && is_numeric($_POST['start'])) ? $_POST['start'] : 0;
-            $limit = (isset($_POST['limit']) && is_numeric($_POST['limit'])) ? $_POST['limit'] : 20;
-
-            $uid = decodeText($_POST['uid']);
-            $comId = $_POST['comId'];
             include_once 'GossoutUser.php';
             include_once 'Gossout_Community.php';
+            $start = (isset($_POST['start']) && is_numeric($_POST['start'])) ? Community::clean($_POST['start']) : 0;
+            $limit = (isset($_POST['limit']) && is_numeric($_POST['limit'])) ? Community::clean($_POST['limit']) : 20;
+
+            $uid = GossoutUser::decodeData($_POST['uid']);
+            $comId = Community::clean($_POST['comId']);
             $gUser = new GossoutUser(0);
             if (isset($_COOKIE['tz'])) {
                 $tz = decodeText($_COOKIE['tz']);
             } else if (isset($_SESSION['auth']['tz'])) {
-                $tz = decodeText($_SESSION['auth']['tz']);
+                $tz = GossoutUser::decodeData($_SESSION['auth']['tz']);
             } else {
                 $tz = "Africa/Lagos";
             };
-            $user = new GossoutUser($uid);
-            $user->setTimezone($tz);
-            $comm = new Community();
+            if (is_numeric($uid) && is_numeric($comId)) {
+                $user = new GossoutUser($uid);
+                $user->setTimezone($tz);
+                $comm = new Community();
                 $append = (isset($_POST['append']) && $_POST['append'] == 'false') ? FALSE : TRUE;
-//                   $startAdminMsg;
                 if (!$append) {
-//                     $startAdminMsg = 0;
                     $c = $comm->getAdminInbox($comId, $uid);
-                    if (!$c['status']) {
-                        echo json_encode($c);
-                        exit();
+                    if ($c['status']) {
+                        $_SESSION['AdminInboxMsg'] = $c;
+                        $c['inbox'] = array_slice($_SESSION['AdminInboxMsg']['inbox'], $start, $limit);
                     }
-                    $out['status'] = $c['status'];
-                    $out['unRead'] = $c['unRead'];
-                    $_SESSION['AdminInboxMsg'] = $c;
-                    $out['inbox'] = array_slice($_SESSION['AdminInboxMsg']['inbox'], 0, $limit);
-                    $out['start'] = 0;
-                    $out['limit'] = $limit;
-                    echo json_encode($out);
+                    echo json_encode($c);
+                    exit();
                 } else {
-                    $startAdminMsg = $start;
-                    $out['inbox'] = array_slice($_SESSION['AdminInboxMsg']['inbox'], $startAdminMsg, $limit);
+                    $out['inbox'] = array_slice($_SESSION['AdminInboxMsg']['inbox'], $start, $limit);
                     $out['status'] = (empty($out['inbox'])) ? FALSE : TRUE;
-                    $out['start'] = $startAdminMsg;
-                    $out['limit'] = $limit;
                     echo json_encode($out);
+                    exit();
                 }
-            
+            } else {
+                displayError(400, "The request cannot be fulfilled due to bad syntax");
+            }
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
-    } 
-
-    else if ($_POST['param'] === 'loadChildren'){
-        if (isset($_POST['parentId'])){
-             include_once 'Gossout_Community.php';
+    } else if ($_POST['param'] === 'loadChildren') {
+        if (isset($_POST['parentId'])) {
+            include_once 'Gossout_Community.php';
             $parentId = $_POST['parentId'];
             $start = $_POST['start'];
             $limit = $_POST['limit'];
-            $uid = decodeText($_POST['uid']);
-            $children = Community::getChildren($parentId, $start, $limit,$uid);
+            $uid = Community::decodeData($_POST['uid']);
+            $comid = Community::decodeData($_POST['comid']);
+            $children = Community::getChildren($parentId,$comid, $start, $limit, $uid);
             if ($children['status'])
                 echo json_encode($children);
             else
-                  echo json_encode($children);
+                echo json_encode($children);
         } else {
             displayError(400, "The request cannot be fulfilled due to bad syntax");
         }
     } else if ($_POST['param'] === 'sendMsgFromAdmin') {
         if (isset($_POST['receiverId']) && isset($_POST['comId']) && isset($_POST['realMessage']) && isset($_POST['uid']) && isset($_POST['parent'])) {
-            $receiverId = $_POST['receiverId'];
-            $uid = decodeText($_POST['uid']);
-            $comId = $_POST['comId'];
-            $senderId = $uid;
-            if (is_numeric($comId) && is_numeric($receiverId)) {
-                $message = clean($_POST['realMessage']);
-                $parent = clean($_POST['parent']);
-                include_once './Gossout_Community.php';
+            include_once './Gossout_Community.php';
+            $receiverId = Community::decodeData(Community::clean($_POST['receiverId']));
+            $senderId = Community::decodeData(Community::clean($_POST['uid']));
+            $comId = Community::clean($_POST['comId']);
+            if (is_numeric($comId) && is_numeric($receiverId) && is_numeric($senderId)) {
+                $message = Community::clean($_POST['realMessage']);
+                $parent = Community::clean($_POST['parent']);
                 $c = new Community();
                 $table = 'c';
-                $r = $c->sendCommunityMessage($message, $senderId, $receiverId, $table, $parent,"");
-               if ($r['status']) {
-                   $out = Array('message'=>$message, 'time'=>$r['time']);
+                $r = $c->sendCommunityMessage($message, $senderId, $receiverId, $comId, $table, $parent, "");
+                if ($r['status']) {
+                    $out = Array('message' => $message, 'time' => $r['time']);
                     echo json_encode($r);
                     exit();
                 } else {
@@ -277,7 +267,7 @@ if (isset($_POST['param'])) {
                     }
                     $user_comm = $comm->userComm($start, $limit, $_POST['max'], isset($_POST['comname']) ? ($_POST['comname'] == "" ? FALSE : $_POST['comname']) : FALSE, isset($_POST['p']) ? clean($_POST['p']) : "ALL");
                     if ($user_comm['status']) {
-                        $arrHit = array('Hit'=>20);
+                        $arrHit = array('Hit' => 20);
                         echo json_encode($user_comm['community_list']);
                     } else {
                         displayError(404, "Not Found");

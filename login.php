@@ -33,7 +33,7 @@ if ($ipData['timezone']) {
             <link rel="stylesheet" href="css/bigbox.css">
             <script type="text/javascript" src="scripts/humane.min.js"></script>
             <script>
-                humane.log("Login failed", {timeout: 10000, clickToClose: true, addnCls: 'humane-bigbox-error'});
+                humane.log("Wrong username and/or password", {timeout: 10000, clickToClose: true, addnCls: 'humane-bigbox-error'});
             </script>
             <?php
         }

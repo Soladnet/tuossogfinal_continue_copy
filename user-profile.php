@@ -6,7 +6,7 @@ $user = new GossoutUser(0);
 $publicUser = TRUE;
 $userCommunity = new Community();
 if (isset($_COOKIE['user_auth'])) {
-    $uid = $user->decodeData($_COOKIE['user_auth']); //loged in user
+    $uid = GossoutUser::decodeData($_COOKIE['user_auth']); //loged in user
     if (is_numeric($uid)) {
         $user = new GossoutUser($uid);
 //        $userProfile = $user->getProfile();
@@ -27,7 +27,7 @@ if (isset($_COOKIE['user_auth'])) {
             $user->getProfile();
             if ($user->getId() != $uid) {
                 $isfriend = ($user->isAfriend($uid));
-                $isfriend['uid'] = $user->encodeData($user->getId());
+                $isfriend['uid'] = GossoutUser::encodeData($user->getId());
             } else {
                 $publicUser = FALSE;
             }
@@ -126,7 +126,7 @@ if (isset($isfriend)) {
                 var user = readCookie("user_auth");
                 if (user !== 0 && user !== "")
                     sendData("loadNotificationCount", {title: document.title});
-                sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true, postType: "pub", loadImage: true, start: 0, limit: 20});
+                sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo GossoutUser::encodeData($user->getId()) ?>", t: true, postType: "pub", loadImage: true, start: 0, limit: 20});
                 $(".chzn-select").chosen();
                 $(".fancybox").fancybox({
                     openEffect: 'none',
@@ -211,7 +211,7 @@ if (isset($isfriend)) {
                 $('#loadMoreNotifDiv').click(function() {
                     start = parseInt($('.loadMoreTimeLine').attr("timeLine"));
                     $('#loadMoreImg').show();
-                    sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo $user->encodeData($user->getId()) ?>", t: true, loadImage: false, start: start, limit: 10, loadMore: true});
+                    sendData("loadTimeline", {target: ".timeline-container", uid: "<?php echo GossoutUser::encodeData($user->getId()) ?>", t: true, loadImage: false, start: start, limit: 10, loadMore: true});
                 });
                 if (Modernizr.inlinesvg) {
                     $('#logo').html('<a href="index"><img src="images/gossout-logo-text-svg.png" alt="Gossout" /></a>');
@@ -236,7 +236,7 @@ if (isset($isfriend)) {
                     <hr>
                     <?php
                     if (isset($_COOKIE['user_auth'])) {
-                        if ($_COOKIE['user_auth'] == $user->encodeData($user->getId())) {
+                        if ($_COOKIE['user_auth'] == GossoutUser::encodeData($user->getId())) {
                             include("post-box.php");
                         }
                     }
@@ -255,7 +255,7 @@ if (isset($isfriend)) {
         </div>
         <?php
         if (isset($_COOKIE['user_auth'])) {
-            if ($_COOKIE['user_auth'] == $user->encodeData($user->getId())) {
+            if ($_COOKIE['user_auth'] == GossoutUser::encodeData($user->getId())) {
                 ?>
                 <script>
                     $(document).ready(function() {

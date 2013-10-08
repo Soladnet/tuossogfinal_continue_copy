@@ -75,7 +75,7 @@ if (isset($user)) {
                         <span><span class="icon-16-dot"></span><a href="communities">Show all</a></span>
                         <?php
                     }
-                    if (isset($_COOKIE['user_auth']) && $_COOKIE['user_auth'] == $user->encodeData($user->getId())) {
+                    if (isset($_COOKIE['user_auth']) && $_COOKIE['user_auth'] == GossoutUser::encodeData($user->getId())) {
                         ?>
                         <span><span class="icon-16-dot"></span><a id="show-suggested-community">Suggest Communities</a></span>
                     <?php } ?>
@@ -90,8 +90,8 @@ if (isset($user)) {
         <div class="aside-wrapper" id="aside-wrapper-frnd"><h3><a href="friends">Friends</a></h3>
             <script>
                     $(document).ready(function() {
-                        sendData("loadFriends", {target: "#aside-friends-list", uid: "<?php echo $user->encodeData($user->getId()) ?>", start: 0, limit: 12, loadImage: true <?php echo isset($_GET['page']) ? $_GET['page'] == "friends" ? ",friendPage:'#individual-friend-box'" : ""  : "" ?>});
-                        sendData("loadCommunity", {target: "#aside-community-list", uid: "<?php echo $user->encodeData($user->getId()) ?>", loadImage: true, p: "<?php echo $publicUser ? 0 : 1 ?>", max: "", start: 0, limit: 5});
+                        sendData("loadFriends", {target: "#aside-friends-list", uid: "<?php echo GossoutUser::encodeData($user->getId()) ?>", start: 0, limit: 12, loadImage: true <?php echo isset($_GET['page']) ? $_GET['page'] == "friends" ? ",friendPage:'#individual-friend-box'" : ""  : "" ?>});
+                        sendData("loadCommunity", {target: "#aside-community-list", uid: "<?php echo GossoutUser::encodeData($user->getId()) ?>", loadImage: true, p: "<?php echo $publicUser ? 0 : 1 ?>", max: "", start: 0, limit: 5});
                     });
             </script>
             <span id="aside-friends-list"></span>
@@ -104,7 +104,7 @@ if (isset($user)) {
                     <span><span class="icon-16-dot"></span><a href="friends">Show all</a></span>
                     <?php
                 }
-                if (isset($_COOKIE['user_auth']) && $_COOKIE['user_auth'] == $user->encodeData($user->getId())) {
+                if (isset($_COOKIE['user_auth']) && $_COOKIE['user_auth'] == GossoutUser::encodeData($user->getId())) {
                     ?>
                     <span><span class="icon-16-dot"></span><a id="show-suggested-friends">Suggest Friends</a></span>
                 <?php } ?>
