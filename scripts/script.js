@@ -240,24 +240,25 @@ function sendData(callback, target) {
             },
             data: {
                 param: "messages",
-                cw: target.cw ? target.cw : "",
+                cw: target.cw,
                 timestamp: target.timestamp
             }
         };
     } else if (callback === "loadNewMessage") {
-        option = {
-            beforeSend: function() {
-                return false;
-            },
-            success: function(response, statusText, xhr) {
-                loadNewMessage(response, statusText, target);
-            },
-            data: {
-                param: "messages",
-                cw: target.cw ? target.cw : "",
-                timestamp: target.timestamp
-            }
-        };
+//        option = {
+//            beforeSend: function() {
+//                return false;
+//            },
+//            success: function(response, statusText, xhr) {
+//        alert(response);
+////                loadNewMessage(response, statusText, target);
+//            },
+//            data: {
+//                param: "messages",
+//                cw: target.cw ? target.cw : "",
+//                timestamp: target.timestamp
+//            }
+//        };
     } else if (callback === "loadNewGossbag") {
         return;
         option = {
@@ -1206,8 +1207,16 @@ function loadNavMessages(response, statusText, target) {
                 if (!response.code) {
                     htmlstr += '<div class="individual-notification' + ((response.status === "R") ? " viewed-notification" : "") + '"><p><span class="float-right timeago" title="' + response.time + '"> ' + response.time + ' </span><div class="clear"></div>' +
                             '</p><img class= "notification-icon" src="' + (response.photo.nophoto ? response.photo.alt : response.photo.thumbnail50) + '"><div class="notification-text">' +
-                            '<p class="name">' + response.firstname.concat(' ', response.lastname) + '</p><p><!--<span class="icon-16-reply">--></span>' + response.message.substring(0, 30) + (response.message.lenght > 29 ? "..." : "") + '</p>' +
-                            '</div><div class="clear"></div><hr><a class="notification-actions" href="messages/' + response.username + '">View</a><div class="clear"></div></div>';
+                            '<p class="name">' + response.fullname + '</p><p><!--<span class="icon-16-reply">--></span>' + response.message.substring(0, 30) + (response.message.lenght > 29 ? "..." : "") + '</p></div><div class="clear"></div><hr>';
+                    if (response.type === 'M') {
+                        htmlstr += '<a class="notification-actions" href="messages/' + response.username + '">View</a><div class="clear"></div></div>';
+                    } else {
+                        if (response.creator === readCookie('user_auth')) {
+                            htmlstr += '<a class="notification-actions" href="community-message/' + response.username + '/'+response.id+'">View</a><div class="clear"></div></div>';
+                        } else {
+                            htmlstr += '<a class="notification-actions" href="messages/' + response.username + '">View</a><div class="clear"></div></div>';
+                        }
+                    }
                 } else {
                     htmlstr += '<div class="individual-notification"><p><span class="float-right"></span></p><div class="notification-text"><p>You don\'t have any messages yet.</p></div><div class="clear"></div><hr></div>';
                 }
@@ -1215,7 +1224,7 @@ function loadNavMessages(response, statusText, target) {
                 if (!response.code) {
                     htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span></p>' +
                             '<img class= "all-messages-image" src="' + (response.photo.nophoto ? response.photo.alt : response.photo.thumbnail50) + '"><div class="all-messages-text">' +
-                            '<a href=""><h3>' + response.firstname.concat(' ', response.lastname) + '</h3></a>' +
+                            '<a href=""><h3>' + response.fullname + '</h3></a>' +
                             '<div class="all-messages-message">' + response.message.substring(0, 250) + (response.message.lenght > 249 ? "..." : "") + '</div></div><hr><p>' +
                             '<!--<a class="all-messages-actions"><span class="icon-16-cross"></span>Delete</a>-->' +
                             '<a href="messages/' + response.username + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
@@ -1265,19 +1274,19 @@ function loadNotificationCount(response, statusText, target) {
     if (response.msg > 0 || response.cn > 0) {
         var content = $("#message-individual-notification").html();
         if (content !== "") {
-            if (content === '<div class="individual-message-box"><div class="all-messages-text"><h3>No messages</h3></div></div>') {
-                sendData("loadNewMessage", {
-                    target: "#message-individual-notification",
-                    status: "replace",
-                    mt: readCookie("m_t")
-                });
+            if (content === '<div class="individual-notification"><p><span class="float-right"></span></p><div class="notification-text"><p>You don\'t have any messages yet.</p></div><div class="clear"></div><hr></div>') {
+//                sendData("loadNewMessage", {
+//                    target: "#message-individual-notification",
+//                    status: "replace",
+//                    mt: readCookie("m_t")
+//                });
             }
             else if (content !== "<center><img src='images/loading.gif' style='border:none' /></center>") {
-                sendData("loadNewMessage", {
-                    target: "#message-individual-notification",
-                    status: "prepend",
-                    mt: readCookie("m_t")
-                });
+//                sendData("loadNewMessage", {
+//                    target: "#message-individual-notification",
+//                    status: "prepend",
+//                    mt: readCookie("m_t")
+//                });
             }
         }
         $("#msg-number").html(response.msg + response.cn);

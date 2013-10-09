@@ -4,7 +4,7 @@ if (session_id() == "") {
     session_name('GSID');
     session_start();
 }
-header('Content-type: text/html');
+header('Content-type: application/json');
 if (isset($_POST['param'])) {
     if ($_POST['param'] == "user") {
         include_once './GossoutUser.php';
@@ -107,7 +107,7 @@ if (isset($_POST['param'])) {
             $limit = $_POST['limit'];
             $uid = Community::decodeData($_POST['uid']);
             $comid = Community::decodeData($_POST['comid']);
-            $children = Community::getChildren($parentId,$comid, $start, $limit, $uid);
+            $children = Community::getChildren($parentId, $comid, $start, $limit, $uid);
             if ($children['status'])
                 echo json_encode($children);
             else
@@ -317,9 +317,11 @@ if (isset($_POST['param'])) {
                         $status .= $status == "" ? "AND `time`>$timestamp" : " AND `time`>'$timestamp'";
                     }
                 }
-                $print_status = trim(clean($_POST['cw'])) == "" ? TRUE : FALSE;
-                $user_msg = trim(clean($_POST['cw'])) == "" ? $msg->getMessages($status) : $msg->getConversation($msg->getScreenName(), trim(clean($_POST['cw'])));
+                $print_status = isset($_POST['cw']) ? FALSE : TRUE;
+                $user_msg = isset($_POST['cw']) ? $msg->getConversation($msg->getScreenName(), clean($_POST['cw'])) : $msg->getMessages();
                 isset($user_msg['m_t']) ? setcookie("m_t", encodeText($user_msg['m_t'])) : "";
+//                print_r($user_msg);
+//                exit;
                 if ($user_msg['status']) {
                     include_once("./sortArray_$.php");
                     if ($print_status) {

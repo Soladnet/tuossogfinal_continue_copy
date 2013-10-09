@@ -794,6 +794,25 @@ class GossoutUser {
         return $arrfetch;
     }
 
+    public function getPrivateMessageSummary() {
+        $arrFetch = array('status' => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT (SELECT count(id) FROM privatemessae WHERE status='N' AND receiver_id=$this->id) as undeli,(SELECT count(id) FROM privatemessae WHERE status='D' AND receiver_id=$this->id) as deli,(SELECT count(id) FROM privatemessae WHERE status='R' AND receiver_id=$this->id) as rd,(SELECT count(id) FROM privatemessae WHERE sender_id=$this->id) as sent,(SELECT count(id) FROM privatemessae WHERE receiver_id=$this->id) as rec";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    $arrFetch['summary'] = $result->fetch_assoc();
+                    $arrFetch['status'] = TRUE;
+                }
+                $result->free();
+            }
+        }
+        $mysql->close();
+        return $arrFetch;
+    }
+
     /**
      * 
      * @param int $start This specifies where the query starts from for pagination
@@ -802,20 +821,19 @@ class GossoutUser {
      * @return Array
      * @throws Exception is thrown when the connection to the server fails
      */
-    public function getMessages($status, $flag = TRUE) {
+    public function getMessages($flag = TRUE) {
         $arrFetch = array();
         $temp = array();
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,u.firstname,u.lastname, pm.`message`, pm.`time`, pm.`status`,(SELECT 'M') as type FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id $status order by pm.id ASC LIMIT $this->start,$this->limit";
+            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,CONCAT(u.firstname,' ',u.lastname) as fullname, MAX(pm.`message`) as message, MAX(pm.`time`) as time, MAX(pm.`status`) as status,(SELECT 'M') as type,(SELECT 'U') as creator FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id group by u.username UNION SELECT cm.id,cm.sender_id,c.unique_name as username,c.`name` as fullname,MAX(cm.message_title) as message,MAX(cm.`time`) as time,MAX(cm.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message  as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$this->id AND cm.status='D' group by c.unique_name UNION SELECT cmc.parent_id,cmc.sender_id,MAX(c.unique_name) as username,MAX(c.`name`) as fullname,MAX(cmc.reply) as message,MAX(cmc.`time`) as time,MAX(cmc.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=7 AND cmc.status='D' group by c.unique_name";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $user = new GossoutUser(0);
                     while ($row = $result->fetch_assoc()) {
-                        $row['firstname'] = $this->toSentenceCase($row['firstname']);
-                        $row['lastname'] = $this->toSentenceCase($row['lastname']);
+                        $row['fullname'] = ucwords($row['fullname']);
                         $user->setUserId($row['sender_id']);
                         $pix = $user->getProfilePix();
                         if ($pix['status']) {
@@ -824,12 +842,13 @@ class GossoutUser {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
-                        $temp[$row['sender_id']] = $row;
+                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
+                        $row['creator'] = $row['creator'] == 'U' ? $row['creator'] : GossoutUser::encodeData($row['creator']);
+                        $arrFetch['message'][] = $row;
                         if ($row['status'] == "N" && $flag) {
                             $mysql->query("UPDATE `privatemessae` SET `status`='D' WHERE `id`=$row[id]");
                         }
                     }
-                    $arrFetch['message'] = array_values($temp);
                     $arrFetch['status'] = TRUE;
                     $result = $mysql->query("SELECT NOW() as time");
                     $row = $result->fetch_assoc();
@@ -1160,9 +1179,9 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
 
     public function getNotificationSummary() {
         $gb = $this->getGossbag(TRUE);
-        $msg = $this->getMessages("AND status='N'", FALSE);
+        $msg = $this->getPrivateMessageSummary();
         $comNoitif = Community::getComMsgNotif($this->id);
-        $response['msg'] = $msg['status'] ? count($msg['message']) : 0;
+        $response['msg'] = $msg['status'] ? ((int) $msg['summary']['undeli']) : 0;
         $response['gb'] = $gb['status'] ? count($gb['bag']) : 0;
         $response['cn'] = $comNoitif['status'] ? $comNoitif['count'] : 0;
         return $response;
