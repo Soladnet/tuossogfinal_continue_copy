@@ -2916,6 +2916,11 @@ input[type=checkbox] {
     border: 1px solid #bbb;
     
 }
+#message-individual-notification,#gossbag-individual-notification{
+    max-height: 300px;
+    display: block;
+    overflow: scroll;
+}
 @media only screen and (max-width: 300px) {
      /*line 521, style.scss*/ 
     .chatContainer,.openChatButton{

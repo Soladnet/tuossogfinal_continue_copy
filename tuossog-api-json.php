@@ -318,10 +318,9 @@ if (isset($_POST['param'])) {
                     }
                 }
                 $print_status = isset($_POST['cw']) ? FALSE : TRUE;
-                $user_msg = isset($_POST['cw']) ? $msg->getConversation($msg->getScreenName(), clean($_POST['cw'])) : $msg->getMessages();
+                $user_msg = isset($_POST['cw']) ? $msg->getConversation(isset($_POST['c']) ? Community::clean($_POST['c']) : $msg->getScreenName(), clean($_POST['cw']), isset($_POST['c'])) : $msg->getMessages();
                 isset($user_msg['m_t']) ? setcookie("m_t", encodeText($user_msg['m_t'])) : "";
-//                print_r($user_msg);
-//                exit;
+
                 if ($user_msg['status']) {
                     include_once("./sortArray_$.php");
                     if ($print_status) {

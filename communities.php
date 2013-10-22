@@ -285,10 +285,6 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                                 <div id="all-communities-list">
 
                                 </div>
-
-
-
-
                             </div>
                             <div class="button" style="float:left;margin-top: -10px;display:none" id="loadMoreComm" allcomm="10" mycomm="10" sugcomm="10">
                                 <a href="">Load more > ></a>

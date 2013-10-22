@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="css/hint.min.css">
 <link rel="stylesheet" href="css/jackedup.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.css" />
-<link rel="stylesheet" media="screen" href="css/style.min.1.0.3.css">
+<link rel="stylesheet" media="screen" href="css/style.css">
 <link rel="stylesheet" href="css/jackedup.css">
 
 <script type="text/javascript" src="scripts/jquery-1.9.1.min.js"></script>

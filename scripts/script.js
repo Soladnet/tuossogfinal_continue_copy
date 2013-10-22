@@ -241,7 +241,8 @@ function sendData(callback, target) {
             data: {
                 param: "messages",
                 cw: target.cw,
-                timestamp: target.timestamp
+                timestamp: target.timestamp,
+                c: target.c
             }
         };
     } else if (callback === "loadNewMessage") {
@@ -1038,7 +1039,7 @@ function loadGossbag(response, statusText, target) {
         });
         prepareDynamicDates();
         $(".timeago").timeago();
-        $('.notifications').jScrollPane({
+        $('#gossbag-individual-notification').jScrollPane({
             verticalDragMinHeight: 12,
             verticalDragMaxHeight: 12
         });
@@ -1179,12 +1180,10 @@ function sendFriendRequest(response, statusText, target) {
 }
 function loadNavMessages(response, statusText, target) {
     var htmlstr = "";
-    var converPhoto;
     if (target.cw !== undefined) {
         $("#messageTitle").html('<a href="messages/' + target.cw + '">' + response.cwn + ' <span class="icon-16-chat"></span></a><hr>');
         var element = document.getElementById("new-message-btn");
         element.parentNode.removeChild(element);
-        converPhoto = response.photo;
         $("#msgHeader").html('<div class="compose-box"><form method="POST" action="tuossog-api-json.php" id="conForm"><textarea required placeholder="Compose a message" name="message" id="msg"></textarea>' +
                 '<input type="submit" class="submit button float-right" name="param" value="Send Message">' +
                 '<!--<button class="button float-right hint hint--left" data-hint ="Upload Image"><span class="icon-16-camera"></span></button>-->' +
@@ -1194,10 +1193,22 @@ function loadNavMessages(response, statusText, target) {
                 '</form><div class="clear"></div></div><div class="float-right"><span class="icon-16-arrow-left"></span><a href="messages" class="back">Back to messages</a></div>');
         if (response.conversation) {
             $.each(response.conversation, function(i, response) {
-                htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span>' +
-                        '</p><img class= "all-messages-image" src="' + (converPhoto.nophoto ? converPhoto.alt : (response.s_username === target.cw ? converPhoto[response.s_username].thumbnail50 : converPhoto[response.s_username].thumbnail50)) + '"><div class="all-messages-text">' +
-                        '<a href=""><h3>' + (response.s_username === target.cw ? response.s_firstname.concat(' ', response.s_lastname) : response.s_firstname.concat(' ', response.s_lastname)) + ' </h3></a>' +
-                        '<div class="all-messages-message">' + (target.uid === response.sender_id ? '<span class="icon-16-reply"></span>' : '') + ' <p>' + response.message + '</p><!--<br><span class="post-meta-delete"><span class="icon-16-trash"></span><span>Delete</span></span>--></div></div></div>';
+                if (target.c) {
+                    htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span></p>';
+                    if (response.sender_id === readCookie('user_auth')) {
+                        htmlstr += '<img class= "all-messages-image" src="' + (response.s_pix === null ? "images/user-no-pic.png" : response.s_pix) + '">';
+                        htmlstr += '<div class="all-messages-text"><a><h3>Me</h3></a>';
+                    } else {
+                        htmlstr += '<img class= "all-messages-image" src="' + response.thumbnail150 + '">';
+                        htmlstr += '<div class="all-messages-text"><a><h3>' + response.name + ' </h3></a>';
+                    }
+                    htmlstr += '<div class="all-messages-message">' + (target.uid === response.sender_id ? '<span class="icon-16-reply"></span>' : '') + ' <p>' + response.message + '</p></div></div></div>';
+                } else {
+                    htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span>' +
+                            '</p><img class= "all-messages-image" src="' + (response.photo === null ? "images/user-no-pic.png" : response.photo) + '"><div class="all-messages-text">' +
+                            '<a href=""><h3>' + (response.s_username === target.cw ? response.s_firstname.concat(' ', response.s_lastname) : response.s_firstname.concat(' ', response.s_lastname)) + ' </h3></a>' +
+                            '<div class="all-messages-message">' + (target.uid === response.sender_id ? '<span class="icon-16-reply"></span>' : '') + ' <p>' + response.message + '</p><!--<br><span class="post-meta-delete"><span class="icon-16-trash"></span><span>Delete</span></span>--></div></div></div>';
+                }
 
             });
         }
@@ -1205,16 +1216,16 @@ function loadNavMessages(response, statusText, target) {
         $.each(response, function(i, response) {
             if (target.target === "#message-individual-notification") {
                 if (!response.code) {
-                    htmlstr += '<div class="individual-notification' + ((response.status === "R") ? " viewed-notification" : "") + '"><p><span class="float-right timeago" title="' + response.time + '"> ' + response.time + ' </span><div class="clear"></div>' +
-                            '</p><img class= "notification-icon" src="' + (response.photo.nophoto ? response.photo.alt : response.photo.thumbnail50) + '"><div class="notification-text">' +
+                    htmlstr += '<div class="individual-notification' + ((response.status === "R") ? " viewed-notification" : "") + '"><p>' + (response.type === "C" || response.type === "CR" ? '<span class="icon-16-earth"></span>' : "") + '<span class="float-right timeago" title="' + response.time + '"> ' + response.time + ' </span><div class="clear"></div>' +
+                            '</p><img class= "notification-icon" src="' + (response.photo === null ? "images/user-no-pic.png" : response.photo) + '"><div class="notification-text">' +
                             '<p class="name">' + response.fullname + '</p><p><!--<span class="icon-16-reply">--></span>' + response.message.substring(0, 30) + (response.message.lenght > 29 ? "..." : "") + '</p></div><div class="clear"></div><hr>';
                     if (response.type === 'M') {
                         htmlstr += '<a class="notification-actions" href="messages/' + response.username + '">View</a><div class="clear"></div></div>';
                     } else {
                         if (response.creator === readCookie('user_auth')) {
-                            htmlstr += '<a class="notification-actions" href="community-message/' + response.username + '/'+response.id+'">View</a><div class="clear"></div></div>';
+                            htmlstr += '<a class="notification-actions" href="community-message/' + response.username + '/' + response.id + '">View</a><div class="clear"></div></div>';
                         } else {
-                            htmlstr += '<a class="notification-actions" href="messages/' + response.username + '">View</a><div class="clear"></div></div>';
+                            htmlstr += '<a class="notification-actions" href="messages/' + response.username + '/' + response.id + '">View</a><div class="clear"></div></div>';
                         }
                     }
                 } else {
@@ -1222,12 +1233,20 @@ function loadNavMessages(response, statusText, target) {
                 }
             } else {
                 if (!response.code) {
-                    htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span></p>' +
-                            '<img class= "all-messages-image" src="' + (response.photo.nophoto ? response.photo.alt : response.photo.thumbnail50) + '"><div class="all-messages-text">' +
-                            '<a href=""><h3>' + response.fullname + '</h3></a>' +
+                    htmlstr += '<div class="individual-message-box"><p>' + (response.type === "CR" || response.type === "C" ? '<span title="Community message" class="icon-16-earth"></span>' : "") + '<span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span></p>' +
+                            '<img class= "all-messages-image" src="' + (response.photo === null ? "images/user-no-pic.png" : response.photo) + '"><div class="all-messages-text">' +
+                            '<a><h3>' + response.fullname + '</h3></a>' +
                             '<div class="all-messages-message">' + response.message.substring(0, 250) + (response.message.lenght > 249 ? "..." : "") + '</div></div><hr><p>' +
-                            '<!--<a class="all-messages-actions"><span class="icon-16-cross"></span>Delete</a>-->' +
-                            '<a href="messages/' + response.username + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                            '<!--<a class="all-messages-actions"><span class="icon-16-cross"></span>Delete</a>-->';
+                    if (response.creator === readCookie('user_auth')) {
+                        htmlstr += '<a href="community-message/' + response.username + '/' + response.id + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                    } else {
+                        if (response.type === "M") {
+                            htmlstr += '<a href="messages/' + response.username + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                        } else {
+                            htmlstr += '<a href="messages/' + response.username + '/' + response.id + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                        }
+                    }
                 } else {
                     htmlstr += '<div class="individual-message-box"><div class="all-messages-text"><h3>No messages</h3></div></div>';
                 }
@@ -1238,6 +1257,10 @@ function loadNavMessages(response, statusText, target) {
     $(target.target).html(htmlstr);
     prepareDynamicDates();
     $(".timeago").timeago();
+    $('#message-individual-notification').jScrollPane({
+        verticalDragMinHeight: 12,
+        verticalDragMaxHeight: 12
+    });
 }
 function htmlencode(str) {
     return str.replace(/[&<>"']/g, function($0) {

@@ -823,24 +823,36 @@ class GossoutUser {
      */
     public function getMessages($flag = TRUE) {
         $arrFetch = array();
-        $temp = array();
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,CONCAT(u.firstname,' ',u.lastname) as fullname, MAX(pm.`message`) as message, MAX(pm.`time`) as time, MAX(pm.`status`) as status,(SELECT 'M') as type,(SELECT 'U') as creator FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id group by u.username UNION SELECT cm.id,cm.sender_id,c.unique_name as username,c.`name` as fullname,MAX(cm.message_title) as message,MAX(cm.`time`) as time,MAX(cm.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message  as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$this->id AND cm.status='D' group by c.unique_name UNION SELECT cmc.parent_id,cmc.sender_id,MAX(c.unique_name) as username,MAX(c.`name`) as fullname,MAX(cmc.reply) as message,MAX(cmc.`time`) as time,MAX(cmc.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=7 AND cmc.status='D' group by c.unique_name";
+            $sql = "SELECT MAX(pm.`id`) as id, MAX(pm.`sender_id`) as sender_id,MAX(u.username) as username,
+MAX(CONCAT(u.firstname,' ',u.lastname)) as fullname, 
+MAX(pm.`message`) as message, MAX(pm.`time`) as time,
+MAX(pm.`status`) as status,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=$this->id) as photo,(SELECT 'M') as type,
+(SELECT 'U') as creator FROM `privatemessae` as pm 
+JOIN user_personal_info as u ON pm.sender_id=u.id 
+WHERE pm.`receiver_id` = $this->id group by pm.sender_id
+UNION SELECT MAX(cm.id) as id,MAX(cm.sender_id) as sender_id,MAX(c.unique_name) as username,
+MAX(c.`name`) as fullname,MAX(cm.message_title) as message,
+MAX(cm.`time`) as time,MAX(cm.status) as status,c.thumbnail150 as photo,
+(SELECT 'C') as type,MAX(c.creator_id) as creator 
+FROM community_message  as cm JOIN community as c 
+ON cm.com_id=c.id WHERE c.creator_id=$this->id group by c.`name`
+UNION SELECT MAX(cmc.parent_id) as id,MAX(cmc.sender_id) as sender_id,MAX(c.unique_name) as username,
+MAX(c.`name`) as fullname,MAX(cmc.reply) as message,
+MAX(cmc.`time`) as time,MAX(cmc.status) as status,c.thumbnail150 as photo,
+(SELECT 'CR') as type,MAX(c.creator_id) as creator 
+FROM community_message_child as cmc JOIN 
+community_message as cm ON cmc.parent_id=cm.id 
+JOIN community as c ON cm.com_id=c.id 
+WHERE cmc.receiver_id=$this->id group by c.`name`";
+//            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,CONCAT(u.firstname,' ',u.lastname) as fullname, MAX(pm.`message`) as message, MAX(pm.`time`) as time, MAX(pm.`status`) as status,(SELECT 'M') as type,(SELECT 'U') as creator FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id group by u.username UNION SELECT cm.id,cm.sender_id,c.unique_name as username,c.`name` as fullname,MAX(cm.message_title) as message,MAX(cm.`time`) as time,MAX(cm.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message  as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$this->id group by c.unique_name UNION SELECT cmc.parent_id,cmc.sender_id,MAX(c.unique_name) as username,MAX(c.`name`) as fullname,MAX(cmc.reply) as message,MAX(cmc.`time`) as time,MAX(cmc.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=$this->id group by c.unique_name";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
-                    $user = new GossoutUser(0);
                     while ($row = $result->fetch_assoc()) {
                         $row['fullname'] = ucwords($row['fullname']);
-                        $user->setUserId($row['sender_id']);
-                        $pix = $user->getProfilePix();
-                        if ($pix['status']) {
-                            $row['photo'] = $pix['pix'];
-                        } else {
-                            $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
-                        }
                         $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $row['creator'] = $row['creator'] == 'U' ? $row['creator'] : GossoutUser::encodeData($row['creator']);
@@ -907,64 +919,80 @@ class GossoutUser {
         return $arrFetch;
     }
 
-    public function getConversation($me, $userCon) {
-        $arrFetch = array();
+    public function getConversation($me, $userCon, $fetchfromCommunity = FALSE) {
+        $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $user = new GossoutUser(0);
-            $user->setScreenName($userCon);
-            $user->getProfile();
-            $arrFetch['message']["cwn"] = $this->toSentenceCase(trim($user->getFullname()));
-            $sql = "SELECT p.id, p.sender_id, p.receiver_id, p.message, p.time, p.status,u.username as s_username, u.firstname as s_firstname, u.lastname as s_lastname,r.username as r_username, r.firstname as r_firstname, r.lastname as r_lastname FROM `privatemessae` as p JOIN user_personal_info as u ON u.id=p.sender_id JOIN user_personal_info as r ON r.id=p.receiver_id WHERE u.username ='$me' AND r.username='$userCon' OR u.username='$userCon' AND r.username='$me' LIMIT $this->start,$this->limit";
-            if ($result = $mysql->query($sql)) {
-                if ($result->num_rows > 0) {
-                    $user->setScreenName("");
-                    $i = 0;
-                    while ($row = $result->fetch_assoc()) {
-                        $row['s_firstname'] = $this->toSentenceCase($row['s_firstname']);
-                        $row['s_lastname'] = $this->toSentenceCase($row['s_lastname']);
-                        $row['r_firstname'] = $this->toSentenceCase($row['r_firstname']);
-                        $row['r_lastname'] = $this->toSentenceCase($row['r_lastname']);
-                        if ($i == 0) {
-                            $user->setUserId($row['sender_id']);
-                            $user->getProfile();
-                            $pix = $user->getProfilePix();
-                            if ($pix['status']) {
-                                $arrFetch['message']['photo'][$user->getScreenName()] = $pix['pix'];
-                            } else {
-                                $arrFetch['message']['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
+            if ($fetchfromCommunity) {
+                $comm = Community::getCommunityInfo($userCon);
+                if ($comm['status']) {
+                    $arrFetch['message']["cwn"] = $comm['comm']['name'];
+                    $sql = "SELECT cmc.parent_id as id,cmc.sender_id,c.unique_name,c.`name`,c.thumbnail150,cmc.reply as message,cmc.`time`,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=$this->id) as s_pix,cmc.status FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE (cmc.receiver_id=$this->id OR cmc.sender_id=$this->id) AND cmc.parent_id=$me";
+                    
+                    if ($result = $mysql->query($sql)) {
+                        if ($result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
+                                $arrFetch['message']['conversation'][] = $row;
                             }
-                            $user->setScreenName("");
-                            $user->setUserId($row['receiver_id']);
-                            $user->getProfile();
-                            $pix2 = $user->getProfilePix();
-                            if ($pix2['status']) {
-                                $arrFetch['message']['photo'][$user->getScreenName()] = $pix2['pix'];
-                            } else {
-                                $arrFetch['message']['photo'] = array("nophoto" => TRUE, "alt" => $pix2['alt']);
-                            }
-                            $i++;
+                            $arrFetch['status'] = TRUE;
                         }
-                        if ($row['status'] == "N" || $row['status'] == "D") {
-                            $mysql->query("UPDATE `privatemessae` SET `status`='R' WHERE (sender_id='$row[sender_id]' AND receiver_id='$row[receiver_id]')");
-                        }
-                        $row['message'] = nl2br($row['message']);
-                        $row['id'] = GossoutUser::encodeData($row['id']);
-                        $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
-                        $row['receiver_id'] = GossoutUser::encodeData($row['receiver_id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
-                        $arrFetch['message']['conversation'][] = $row;
                     }
-                    $arrFetch['status'] = TRUE;
-                } else {
-                    $arrFetch['status'] = TRUE;
                 }
-                $result->free();
             } else {
-                $arrFetch['status'] = FALSE;
+                $user = new GossoutUser(0);
+                $user->setScreenName($userCon);
+                $user->getProfile();
+                $arrFetch['message']["cwn"] = $this->toSentenceCase(trim($user->getFullname()));
+                $sql = "SELECT p.id, p.sender_id, p.receiver_id, p.message, p.time, p.status,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=p.sender_id) as s_photo,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=p.receiver_id) as r_photo,u.username as s_username, u.firstname as s_firstname, u.lastname as s_lastname,r.username as r_username, r.firstname as r_firstname, r.lastname as r_lastname FROM `privatemessae` as p JOIN user_personal_info as u ON u.id=p.sender_id JOIN user_personal_info as r ON r.id=p.receiver_id WHERE u.username ='$me' AND r.username='$userCon' OR u.username='$userCon' AND r.username='$me' LIMIT $this->start,$this->limit";
+                if ($result = $mysql->query($sql)) {
+                    if ($result->num_rows > 0) {
+                        $user->setScreenName("");
+                        $i = 0;
+                        while ($row = $result->fetch_assoc()) {
+                            $row['s_firstname'] = $this->toSentenceCase($row['s_firstname']);
+                            $row['s_lastname'] = $this->toSentenceCase($row['s_lastname']);
+                            $row['r_firstname'] = $this->toSentenceCase($row['r_firstname']);
+                            $row['r_lastname'] = $this->toSentenceCase($row['r_lastname']);
+                            if ($i == 0) {
+                                $user->setUserId($row['sender_id']);
+                                $user->getProfile();
+                                $pix = $user->getProfilePix();
+                                if ($pix['status']) {
+                                    $arrFetch['message']['photo'][$user->getScreenName()] = $pix['pix'];
+                                } else {
+                                    $arrFetch['message']['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
+                                }
+                                $user->setScreenName("");
+                                $user->setUserId($row['receiver_id']);
+                                $user->getProfile();
+                                $pix2 = $user->getProfilePix();
+                                if ($pix2['status']) {
+                                    $arrFetch['message']['photo'][$user->getScreenName()] = $pix2['pix'];
+                                } else {
+                                    $arrFetch['message']['photo'] = array("nophoto" => TRUE, "alt" => $pix2['alt']);
+                                }
+                                $i++;
+                            }
+                            if ($row['status'] == "N" || $row['status'] == "D") {
+                                $mysql->query("UPDATE `privatemessae` SET `status`='R' WHERE (sender_id='$row[sender_id]' AND receiver_id='$row[receiver_id]')");
+                            }
+                            $row['message'] = nl2br($row['message']);
+                            $row['id'] = GossoutUser::encodeData($row['id']);
+                            $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
+                            $row['receiver_id'] = GossoutUser::encodeData($row['receiver_id']);
+                            $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                            $arrFetch['message']['conversation'][] = $row;
+                        }
+                        $arrFetch['status'] = TRUE;
+                    } else {
+                        $arrFetch['status'] = TRUE;
+                    }
+                }
             }
+            $result->free();
             $result = $mysql->query("SELECT NOW() as time");
             $row = $result->fetch_assoc();
             $result->free();

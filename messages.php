@@ -36,7 +36,7 @@ if (isset($_COOKIE['user_auth'])) {
         <script type="text/javascript">
             $(document).ready(function() {
                 sendData("loadNotificationCount", {title: document.title});
-                sendData("loadNavMessages", {target: "#individual-message-box", loadImage: true <?php echo isset($_GET['param']) ? $_GET['param'] != "" ? ",cw:'" . $_GET['param'] . "'" : ""  : "" ?>});
+                sendData("loadNavMessages", {target: "#individual-message-box", loadImage: true <?php echo (isset($_GET['param']) && $_GET['param'] != "" ? ",cw:'" . $_GET['param'] . "'" : "");echo (isset($_GET['param2']) && $_GET['param2'] != "" ? ",c:'" . $_GET['param2'] . "'" : ""); ?>});
                 $(".fancybox").fancybox({
                     openEffect: 'none',
                     closeEffect: 'none',

@@ -284,7 +284,7 @@ class Community {
 
     public static function getCommunityInfo($param) {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
-        $arr = array();
+        $arr = array("status" => FALSE);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
@@ -298,12 +298,8 @@ class Community {
                     $row = $result->fetch_assoc();
                     $arr['comm'] = $row;
                     $arr['status'] = TRUE;
-                } else {
-                    $arr['status'] = FALSE;
                 }
                 $result->free();
-            } else {
-                $arr['status'] = FALSE;
             }
         }
         $mysql->close();
@@ -460,16 +456,16 @@ class Community {
     }
 
     public static function getComMsgNotif($uid) {
-        $response = array('status'=>FALSE);
+        $response = array('status' => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT (count(cm.id)+(SELECT count(id) FROM community_message_child as cmc WHERE cmc.receiver_id=$uid AND cmc.status='D')) as count FROM community_message as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$uid AND cm.status='D'";
+            $sql = "SELECT (count(cm.id)+(SELECT count(cm.com_id) FROM community_message_child as cmc JOIN community_message as cm ON cm.id=cmc.parent_id WHERE cmc.receiver_id=$uid AND cmc.status='D')) as count FROM community_message as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$uid AND cm.status='D'";
             $result = $mysql->query($sql);
             if ($result) {
                 $row = $result->fetch_assoc();
-                $response['count'] = (int)$row['count'];
+                $response['count'] = (int) $row['count'];
                 $response['status'] = TRUE;
             }
         }
