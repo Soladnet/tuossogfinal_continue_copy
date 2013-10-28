@@ -417,7 +417,7 @@ class GossoutUser {
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
-                    $arrFetch['time'] = $this->convert_time_zone($row['lastupdate'], $this->tz);
+                    $arrFetch['time'] = GossoutUser::convert_time_zone($row['lastupdate'], $this->tz);
                     $arrFetch['status'] = TRUE;
                 } else {
                     $sql = "SELECT NOW() as lastupdate";
@@ -425,7 +425,7 @@ class GossoutUser {
                         if ($result->num_rows > 0) {
                             $arrFetch['status'] = TRUE;
                             $row = $result->fetch_assoc();
-                            $arrFetch['time'] = $this->convert_time_zone($row['lastupdate'], $this->tz);
+                            $arrFetch['time'] = GossoutUser::convert_time_zone($row['lastupdate'], $this->tz);
                             $arrFetch['status'] = TRUE;
                         } else {
                             $arrFetch['status'] = FALSE;
@@ -827,44 +827,55 @@ class GossoutUser {
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT MAX(pm.`id`) as id, MAX(pm.`sender_id`) as sender_id,MAX(u.username) as username,
-MAX(CONCAT(u.firstname,' ',u.lastname)) as fullname, 
-MAX(pm.`message`) as message, MAX(pm.`time`) as time,
-MAX(pm.`status`) as status,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=$this->id) as photo,(SELECT 'M') as type,
+            $sql = "(SELECT pm.`id`, pm.`sender_id`,u.username,
+CONCAT(u.firstname,' ',u.lastname) as fullname, 
+pm.`message`, pm.`time`,
+pm.`status`,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=pm.`sender_id`) as photo,(SELECT 'M') as type,
 (SELECT 'U') as creator FROM `privatemessae` as pm 
 JOIN user_personal_info as u ON pm.sender_id=u.id 
-WHERE pm.`receiver_id` = $this->id group by pm.sender_id
-UNION SELECT MAX(cm.id) as id,MAX(cm.sender_id) as sender_id,MAX(c.unique_name) as username,
-MAX(c.`name`) as fullname,MAX(cm.message_title) as message,
-MAX(cm.`time`) as time,MAX(cm.status) as status,c.thumbnail150 as photo,
-(SELECT 'C') as type,MAX(c.creator_id) as creator 
+WHERE pm.`receiver_id` = $this->id OR pm.sender_id=$this->id ORDER BY pm.id DESC LIMIT 1) 
+UNION (SELECT cm.id,cm.sender_id,c.unique_name,
+c.`name` fullname,cm.message_title as message,
+cm.`time`,cm.status,c.thumbnail150 as photo,
+(SELECT 'C') as type,c.creator_id as creator 
 FROM community_message  as cm JOIN community as c 
-ON cm.com_id=c.id WHERE c.creator_id=$this->id group by c.`name`
-UNION SELECT MAX(cmc.parent_id) as id,MAX(cmc.sender_id) as sender_id,MAX(c.unique_name) as username,
-MAX(c.`name`) as fullname,MAX(cmc.reply) as message,
-MAX(cmc.`time`) as time,MAX(cmc.status) as status,c.thumbnail150 as photo,
-(SELECT 'CR') as type,MAX(c.creator_id) as creator 
-FROM community_message_child as cmc JOIN 
-community_message as cm ON cmc.parent_id=cm.id 
-JOIN community as c ON cm.com_id=c.id 
-WHERE cmc.receiver_id=$this->id group by c.`name`";
+ON cm.com_id=c.id WHERE c.creator_id=$this->id ORDER by cm.id DESC LIMIT 1)
+UNION (SELECT cmc.parent_id as id,cmc.sender_id ,c.unique_name as username,c.`name` as fullname,cmc.reply as message,cmc.`time` ,cmc.status,c.thumbnail150 as photo,(SELECT 'CR') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=$this->id group by c.`name` ORDER by cmc.id DESC LIMIT 1)";
 //            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,CONCAT(u.firstname,' ',u.lastname) as fullname, MAX(pm.`message`) as message, MAX(pm.`time`) as time, MAX(pm.`status`) as status,(SELECT 'M') as type,(SELECT 'U') as creator FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id group by u.username UNION SELECT cm.id,cm.sender_id,c.unique_name as username,c.`name` as fullname,MAX(cm.message_title) as message,MAX(cm.`time`) as time,MAX(cm.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message  as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$this->id group by c.unique_name UNION SELECT cmc.parent_id,cmc.sender_id,MAX(c.unique_name) as username,MAX(c.`name`) as fullname,MAX(cmc.reply) as message,MAX(cmc.`time`) as time,MAX(cmc.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=$this->id group by c.unique_name";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
+                    $temp = array();
                     while ($row = $result->fetch_assoc()) {
-                        $row['fullname'] = ucwords($row['fullname']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $row['creator'] = $row['creator'] == 'U' ? $row['creator'] : GossoutUser::encodeData($row['creator']);
-                        $arrFetch['message'][] = $row;
+                        if ($row['type'] == "M") {
+                            if ($this->id == $row['sender_id']) {
+                                $temp[$row['receiver_id']] = $row;
+                            } else {
+                                $temp[$row['sender_id']] = $row;
+                            }
+                        } else if ($row['type'] == "C") {
+                            $temp[$row['username']] = $row;
+                        } else if ($row['type'] == "CR") {
+                            if (GossoutUser::decodeData($row['creator']) == $this->id) {
+                                $temp[$row['username']] = $row;
+                            } else {
+                                $temp[$row['username'] . "_" . $row['creator']] = $row;
+                            }
+                        }
                         if ($row['status'] == "N" && $flag) {
                             $mysql->query("UPDATE `privatemessae` SET `status`='D' WHERE `id`=$row[id]");
                         }
                     }
+                    foreach ($temp as $turple) {
+                        $arrFetch['message'][] = $turple;
+                    }
+                    print_r($arrFetch['message']);
                     $arrFetch['status'] = TRUE;
                     $result = $mysql->query("SELECT NOW() as time");
                     $row = $result->fetch_assoc();
-                    $arrFetch['m_t'] = $this->convert_time_zone($row['time'], $this->tz);
+                    $arrFetch['m_t'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                 } else {
                     $arrFetch['status'] = FALSE;
                 }
@@ -889,27 +900,22 @@ WHERE cmc.receiver_id=$this->id group by c.`name`";
                 if ($mysql->affected_rows > 0) {
                     $arrFetch['status'] = TRUE;
                     $arrFetch['response']['msg_id'] = $mysql->insert_id;
-                    $arrFetch['response']['sender_id'] = $sender_id;
-                    $arrFetch['response']['receiver_id'] = $this->id;
-                    $this->getProfile();
-                    $arrFetch['response']['receiver_name'] = $this->getFullname();
                     $arrFetch['response']['status'] = TRUE;
-                    $user = new GossoutUser($sender_id);
-                    $user->getProfile();
-                    $pix = $user->getProfilePix();
-                    if ($pix['status']) {
-                        $arrFetch['response']['photo'] = $pix['pix'];
+                    $sql = "SELECT MAX(thumbnail50) as photo,NOW() as time FROM pictureuploads WHERE user_id=$sender_id";
+                    if ($result = $mysql->query($sql)) {
+                        if ($mysql->affected_rows > 0) {
+                            $row = $result->fetch_assoc();
+                            $arrFetch['response']['photo'] = $row['photo'] == NULL ? "images/user-no-pic.png" : $row['photo'];
+                            $arrFetch['response']['m_t'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
+                            $result->free();
+                        } else {
+                            $arrFetch['response']['photo'] = "images/user-no-pic.png";
+                        }
                     } else {
-                        $arrFetch['response']['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
+                        $arrFetch['response']['photo'] = "images/user-no-pic.png";
                     }
-                    $arrFetch['response']['sender_name'] = $user->getFullname();
-                    $result = $mysql->query("SELECT NOW() as time");
-                    $row = $result->fetch_assoc();
-                    $result->free();
-                    $arrFetch['response']['m_t'] = $this->convert_time_zone($row['time'], $this->tz);
                 } else {
                     $arrFetch['status'] = FALSE;
-                    $arrFetch['sql'] = $sql;
                 }
                 $mysql->close();
             } else {
@@ -929,8 +935,8 @@ WHERE cmc.receiver_id=$this->id group by c.`name`";
                 $comm = Community::getCommunityInfo($userCon);
                 if ($comm['status']) {
                     $arrFetch['message']["cwn"] = $comm['comm']['name'];
-                    $sql = "SELECT cmc.parent_id as id,cmc.sender_id,c.unique_name,c.`name`,c.thumbnail150,cmc.reply as message,cmc.`time`,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=$this->id) as s_pix,cmc.status FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE (cmc.receiver_id=$this->id OR cmc.sender_id=$this->id) AND cmc.parent_id=$me";
-                    
+                    $sql = "SELECT cmc.parent_id as id,cmc.id as cid,cmc.sender_id,c.unique_name,c.`name`,c.thumbnail150,cmc.reply as message,cmc.`time`,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=$this->id) as s_pix,cmc.status FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE (cmc.receiver_id=$this->id OR cmc.sender_id=$this->id) AND cmc.parent_id=$me";
+
                     if ($result = $mysql->query($sql)) {
                         if ($result->num_rows > 0) {
                             while ($row = $result->fetch_assoc()) {
@@ -957,25 +963,12 @@ WHERE cmc.receiver_id=$this->id group by c.`name`";
                             $row['r_firstname'] = $this->toSentenceCase($row['r_firstname']);
                             $row['r_lastname'] = $this->toSentenceCase($row['r_lastname']);
                             if ($i == 0) {
-                                $user->setUserId($row['sender_id']);
-                                $user->getProfile();
-                                $pix = $user->getProfilePix();
-                                if ($pix['status']) {
-                                    $arrFetch['message']['photo'][$user->getScreenName()] = $pix['pix'];
-                                } else {
-                                    $arrFetch['message']['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
-                                }
-                                $user->setScreenName("");
-                                $user->setUserId($row['receiver_id']);
-                                $user->getProfile();
-                                $pix2 = $user->getProfilePix();
-                                if ($pix2['status']) {
-                                    $arrFetch['message']['photo'][$user->getScreenName()] = $pix2['pix'];
-                                } else {
-                                    $arrFetch['message']['photo'] = array("nophoto" => TRUE, "alt" => $pix2['alt']);
-                                }
+                                $arrFetch['message']['photo'][$row['s_username']] = $row['s_photo'];
+                                $arrFetch['message']['photo'][$row['r_username']] = $row['r_photo'];
                                 $i++;
                             }
+                            unset($row['s_photo']);
+                            unset($row['r_photo']);
                             if ($row['status'] == "N" || $row['status'] == "D") {
                                 $mysql->query("UPDATE `privatemessae` SET `status`='R' WHERE (sender_id='$row[sender_id]' AND receiver_id='$row[receiver_id]')");
                             }
@@ -983,7 +976,7 @@ WHERE cmc.receiver_id=$this->id group by c.`name`";
                             $row['id'] = GossoutUser::encodeData($row['id']);
                             $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                             $row['receiver_id'] = GossoutUser::encodeData($row['receiver_id']);
-                            $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                            $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                             $arrFetch['message']['conversation'][] = $row;
                         }
                         $arrFetch['status'] = TRUE;
@@ -996,9 +989,11 @@ WHERE cmc.receiver_id=$this->id group by c.`name`";
             $result = $mysql->query("SELECT NOW() as time");
             $row = $result->fetch_assoc();
             $result->free();
-            $arrFetch['m_t'] = $this->convert_time_zone($row['time'], $this->tz);
+            $arrFetch['m_t'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
         }
         $mysql->close();
+        print_r(array($me, $userCon));
+        exit;
         return $arrFetch;
     }
 
@@ -1034,7 +1029,7 @@ WHERE cmc.receiver_id=$this->id group by c.`name`";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $arrFetch['bag'][] = $row;
                     }
@@ -1094,7 +1089,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1126,7 +1121,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         }
                         $row['id'] = GossoutUser::encodeData($row['id']);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1157,7 +1152,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['id'] = GossoutUser::encodeData($row['id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1188,7 +1183,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1253,7 +1248,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         if ($post_image['status']) {
                             $row['post_photo'] = $post_image['photo'];
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $arrFetch['timeline'][] = $row;
                     }
@@ -1288,7 +1283,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         $isAmember = Community::isAmember($row['id'], $this->id);
                         $row['isAmember'] = $isAmember['status'];
                         $row['creator_id'] = GossoutUser::encodeData($row['creator_id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['timeline'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1318,7 +1313,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['timeline'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1617,7 +1612,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
         return implode(' ', $exp);
     }
 
-    private function convert_time_zone($timeFromDatabase_time, $tz) {
+    public static function convert_time_zone($timeFromDatabase_time, $tz) {
         $date = new DateTime($timeFromDatabase_time, new DateTimeZone(date_default_timezone_get()));
         $date->setTimezone(new DateTimeZone($tz));
         return $date->format('Y-m-d H:i:s');
@@ -1715,7 +1710,7 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
                         }
                         $row['id'] = GossoutUser::encodeData($row['id']);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1768,7 +1763,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1806,7 +1801,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
                         $row['username1'] = GossoutUser::encodeData($row['username1']);
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $arrFetch['bag'][] = $row;
                     }
                     $arrFetch['status'] = TRUE;
@@ -1845,7 +1840,7 @@ ORDER by `time` DESC LIMIT $this->start, $this->limit";
                         } else {
                             $row['photo'] = array("nophoto" => TRUE, "alt" => $pix['alt']);
                         }
-                        $row['time'] = $this->convert_time_zone($row['time'], $this->tz);
+                        $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
                         $arrFetch['bag'][] = $row;
                     }

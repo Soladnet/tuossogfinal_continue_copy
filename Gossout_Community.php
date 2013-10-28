@@ -364,7 +364,7 @@ class Community {
         $mysql->close();
     }
 
-    public static function sendCommunityMessage($message, $uid, $receiverId, $comId, $table, $parent_id, $title) {
+    public static function sendCommunityMessage($message, $uid, $receiverId, $comId, $table, $parent_id, $title, $msgInfo = NULL) {
         $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
@@ -377,12 +377,28 @@ class Community {
 
             if ($result = $mysql->query($sql)) {
                 if ($mysql->affected_rows > 0) {
+                    $arrFetch['status'] = TRUE;
+                    $latestId = $mysql->insert_id;
+                    $arrFetch['response']['msg_id'] = $latestId;
+                    $arrFetch['response']['status'] = TRUE;
+                    $sql = "SELECT MAX(thumbnail50) as photo,NOW() as time FROM pictureuploads WHERE user_id=$uid";
+                    if ($result = $mysql->query($sql)) {
+                        if ($mysql->affected_rows > 0) {
+                            $row = $result->fetch_assoc();
+                            $arrFetch['response']['photo'] = $row['photo'] == NULL ? "images/user-no-pic.png" : $row['photo'];
+                            $arrFetch['response']['m_t'] = GossoutUser::convert_time_zone($row['time'], $msgInfo['local_timezone']);
+                            $result->free();
+                        } else {
+                            $arrFetch['response']['photo'] = "images/user-no-pic.png";
+                        }
+                    } else {
+                        $arrFetch['response']['photo'] = "images/user-no-pic.png";
+                    }
                     if ($table == 'c') {
-                        $latestId = $mysql->insert_id;
-                        $time = $mysql->query("SELECT time FROM community_message_child WHERE id = $latestId");
+                        $time = $mysql->query("SELECT NOW() as time");
                         if ($time) {
                             $row = $time->fetch_assoc();
-                            $arrFetch = $row;
+                            $arrFetch['time'] = GossoutUser::convert_time_zone($row['time'], $msgInfo['local_timezone']);
                         }
                     }
                     $arrFetch['status'] = TRUE;
@@ -399,13 +415,35 @@ class Community {
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT cm.id,cm.com_id,cm.message, cm.message_title, cm.`time`, cm.sender_id, CONCAT(u.firstname, ', ', u.lastname) as fullname, u.username,(SELECT COUNT(cmc.id) FROM community_message_child as cmc WHERE cmc.parent_id=cm.id AND cmc.status='D') as c_count,(SELECT COUNT(cmc.id) FROM community_message_child as cmc WHERE cmc.parent_id=cm.id AND cm.sender_id<>cmc.receiver_id AND cmc.status='D') as aunr_count From community_message as cm JOIN user_personal_info as u ON cm.sender_id=u.id WHERE cm.id = $msgId";
+            $sql = "SELECT cm.id,cm.com_id,cm.message, cm.message_title, cm.`time`, cm.sender_id, CONCAT(u.firstname, ', ', u.lastname) as fullname, u.username,(SELECT MAX(thumbnail75) FROM pictureuploads WHERE user_id=cm.sender_id) as photo,(SELECT COUNT(cmc.id) FROM community_message_child as cmc WHERE cmc.parent_id=cm.id AND cmc.status='D') as c_count,(SELECT COUNT(cmc.id) FROM community_message_child as cmc WHERE cmc.parent_id=cm.id AND cm.sender_id<>cmc.receiver_id AND cmc.status='D') as aunr_count From community_message as cm JOIN user_personal_info as u ON cm.sender_id=u.id WHERE cm.id = $msgId";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
                     $row['fullname'] = ucwords($row['fullname']);
                     $row['sender_id'] = Community::encodeData($row['sender_id']);
                     $arrFetch['info'] = $row;
+                    $arrFetch['status'] = TRUE;
+                }
+                $result->free();
+            }
+        }
+        return $arrFetch;
+    }
+
+    public static function getMessageInfo($msg_id, $table) {
+        $arrFetch = array("status" => FALSE);
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            if ($table == "p") {
+                $sql = "SELECT * FROM community_message WHERE id=$msg_id";
+            } else {
+                $sql = "SELECT cmc.id,cmc.sender_id,(SELECT concat(firstname,' ',lastname) FROM user_personal_info WHERE id=cmc.sender_id) as s_fullname,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=cmc.`sender_id`) as s_photo,cm.com_id,c.unique_name,c.`name`,c.creator_id,cmc.parent_id,cmc.receiver_id,(SELECT concat(firstname,' ',lastname) FROM user_personal_info WHERE id=cmc.receiver_id) as r_fullname,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=cmc.receiver_id) as r_photo,cmc.reply,cmc.`time`,cmc.status FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.parent_id=$msg_id LIMIT 1";
+            }
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows > 0) {
+                    $arrFetch['info'][] = $result->fetch_assoc();
                     $arrFetch['status'] = TRUE;
                 }
                 $result->free();

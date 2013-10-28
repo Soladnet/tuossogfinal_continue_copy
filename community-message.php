@@ -386,7 +386,7 @@ $limitChild = 20;
                             ?>
                             <!--<h3 class="inboxCommMsgDiv">Title: <?php echo $pmsg['info']['message_title']?></h3><hr class="mainCommCont">-->
                             <div>
-                                <a href="user/<?php echo $pmsg['info']['username']; ?>"><img src="<?php echo $pix['pix']['thumbnail75']; ?>" style="float:left;margin:2px;height:50px;"/></a>
+                                <a href="user/<?php echo $pmsg['info']['username']; ?>"><img src="<?php echo ($pmsg['info']['photo']?$pmsg['info']['photo']:"images/user-no-pic.png"); ?>" style="float:left;margin:2px;height:50px;"/></a>
                                 <span><h3 style="margin-bottom: -18px;"><?php echo $pmsg['info']['message_title']; ?></h3></span><br>
                                 <a href="user/<?php echo $pmsg['info']['username']; ?>"><?php echo $pmsg['info']['fullname'] . ' [' . $pmsg['info']['username'] . ']'; ?></a>
                                 <a href="community-message/<?php echo $param; ?>" style="float:right;font-size:12px;" id="commInboxShow"> [Back]</a> 

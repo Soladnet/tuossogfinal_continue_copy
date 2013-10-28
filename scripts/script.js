@@ -1181,16 +1181,38 @@ function sendFriendRequest(response, statusText, target) {
 function loadNavMessages(response, statusText, target) {
     var htmlstr = "";
     if (target.cw !== undefined) {
+        var photos = response.photo;
+        var userKeys = [];
+        var i = 0;
+        for (x in photos) {
+            userKeys[i++] = x;
+        }
         $("#messageTitle").html('<a href="messages/' + target.cw + '">' + response.cwn + ' <span class="icon-16-chat"></span></a><hr>');
         var element = document.getElementById("new-message-btn");
         element.parentNode.removeChild(element);
         $("#msgHeader").html('<div class="compose-box"><form method="POST" action="tuossog-api-json.php" id="conForm"><textarea required placeholder="Compose a message" name="message" id="msg"></textarea>' +
                 '<input type="submit" class="submit button float-right" name="param" value="Send Message">' +
-                '<!--<button class="button float-right hint hint--left" data-hint ="Upload Image"><span class="icon-16-camera"></span></button>-->' +
-                '<script>$("#conForm").ajaxForm({beforeSubmit: function() {},success: function(responseText, statusText, xhr, $form) {' +
-                '$(\'' + target.target + '\').html(\'<div class="individual-message-box"><p><span class="all-messages-time timeago" title="\' + responseText.m_t + \'"> \' + responseText.m_t + \' </span></p><img class= "all-messages-image" src="\' + (responseText.photo.nophoto ? responseText.photo.alt : responseText.photo.thumbnail50)+\'"><div class="all-messages-text"><a href=""><h3>\' + responseText.sender_name + \' </h3></a><div class="all-messages-message"><span class="icon-16-reply"></span> <p>\' + nl2br(htmlencode($("#msg").val())) + \'</p><!--<br><span class="post-meta-delete"><span class="icon-16-trash"></span><span>Delete</span></span>--></div></div></div>\'+$(\'' + target.target + '\').html());$("#msg").val("");prepareDynamicDates();$(".timeago").timeago();},' +
-                'complete: function(response, statusText, xhr, $form) {if (response.error) {$("#messageStatus").html(response.error.message);} else {$("#messageStatus").html("");}},data: {uid: "' + readCookie("user_auth") + '",user:"' + target.cw + '"}});</script>' +
                 '</form><div class="clear"></div></div><div class="float-right"><span class="icon-16-arrow-left"></span><a href="messages" class="back">Back to messages</a></div>');
+        $("#conForm").ajaxForm({
+            beforeSubmit: function() {
+            },
+            success: function(responseText, statusText, xhr, $form) {
+                $(target.target).prepend('<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + responseText.m_t + '">' + responseText.m_t + ' </span></p><img class= "all-messages-image" src="' + (responseText.photo) + '"><div class="all-messages-text"><a><h3>Me</h3></a><div class="all-messages-message"><span class="icon-16-reply"></span> <p>' + nl2br(htmlencode($("#msg").val())) + '</p></div></div></div>');
+                $("#msg").val("");
+                prepareDynamicDates();
+                $(".timeago").timeago();
+            },
+            complete: function(response, statusText, xhr, $form) {
+                if (response.error) {
+                    $("#messageStatus").html(response.error.message);
+                } else {
+                    $("#messageStatus").html("");
+                }
+            }, data: {
+                uid: readCookie("user_auth"),
+                user: target.cw,
+                c: target.c
+            }});
         if (response.conversation) {
             $.each(response.conversation, function(i, response) {
                 if (target.c) {
@@ -1205,7 +1227,7 @@ function loadNavMessages(response, statusText, target) {
                     htmlstr += '<div class="all-messages-message">' + (target.uid === response.sender_id ? '<span class="icon-16-reply"></span>' : '') + ' <p>' + response.message + '</p></div></div></div>';
                 } else {
                     htmlstr += '<div class="individual-message-box"><p><span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span>' +
-                            '</p><img class= "all-messages-image" src="' + (response.photo === null ? "images/user-no-pic.png" : response.photo) + '"><div class="all-messages-text">' +
+                            '</p><img class= "all-messages-image" src="' + (userKeys[0] === response.s_username ? (photos[userKeys[0]] === null ? "images/user-no-pic.png" : photos[userKeys[0]]) : (photos[userKeys[1]] === null ? "images/user-no-pic.png" : photos[userKeys[1]])) + '"><div class="all-messages-text">' +
                             '<a href=""><h3>' + (response.s_username === target.cw ? response.s_firstname.concat(' ', response.s_lastname) : response.s_firstname.concat(' ', response.s_lastname)) + ' </h3></a>' +
                             '<div class="all-messages-message">' + (target.uid === response.sender_id ? '<span class="icon-16-reply"></span>' : '') + ' <p>' + response.message + '</p><!--<br><span class="post-meta-delete"><span class="icon-16-trash"></span><span>Delete</span></span>--></div></div></div>';
                 }

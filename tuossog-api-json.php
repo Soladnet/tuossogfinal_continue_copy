@@ -43,8 +43,16 @@ if (isset($_POST['param'])) {
                 $title = Community::clean($_POST['messageTitle']);
                 $c = new Community();
                 $table = 'p';
-                $r = $c->sendCommunityMessage($message, $uid, 0, $comId, $table, 0, $title);
-                $return = array('title' => $title, 'message' => $message);
+                if (isset($_COOKIE['tz'])) {
+                    $tz = decodeText($_COOKIE['tz']);
+                } else if (isset($_SESSION['auth']['tz'])) {
+                    $tz = decodeText($_SESSION['auth']['tz']);
+                } else {
+                    $tz = "Africa/Lagos";
+                }
+                $arr = array('local_timezone' => $tz);
+                $r = $c->sendCommunityMessage($message, $uid, 0, $comId, $table, 0, $title, $arr);
+//                $return = array('title' => $title, 'message' => $message);
                 if ($r['status']) {
                     echo json_encode($r);
                     exit();
@@ -121,12 +129,20 @@ if (isset($_POST['param'])) {
             $receiverId = Community::decodeData(Community::clean($_POST['receiverId']));
             $senderId = Community::decodeData(Community::clean($_POST['uid']));
             $comId = Community::clean($_POST['comId']);
+            if (isset($_COOKIE['tz'])) {
+                $tz = decodeText($_COOKIE['tz']);
+            } else if (isset($_SESSION['auth']['tz'])) {
+                $tz = GossoutUser::decodeData($_SESSION['auth']['tz']);
+            } else {
+                $tz = "Africa/Lagos";
+            }
+            $msgInfo['local_timezone'] = $tz;
             if (is_numeric($comId) && is_numeric($receiverId) && is_numeric($senderId)) {
                 $message = Community::clean($_POST['realMessage']);
                 $parent = Community::clean($_POST['parent']);
                 $c = new Community();
                 $table = 'c';
-                $r = $c->sendCommunityMessage($message, $senderId, $receiverId, $comId, $table, $parent, "");
+                $r = $c->sendCommunityMessage($message, $senderId, $receiverId, $comId, $table, $parent, "", $msgInfo);
                 if ($r['status']) {
                     $out = Array('message' => $message, 'time' => $r['time']);
                     echo json_encode($r);
@@ -1269,19 +1285,34 @@ if (isset($_POST['param'])) {
                     }
                     echo json_encode($response);
                 } else {
-                    $gUser->setScreenName($user);
-                    $rid = $gUser->getId();
-                    if ($rid != "") {
-                        $gUser->setUserId($rid);
-                        $res = $gUser->sendMessage($id, clean(htmlentities($msg)));
-                        if ($res['status']) {
+                    if (isset($_POST['c'])) {
+                        $msgInfo = Community::getMessageInfo(Community::clean($_POST['c']), "c");
 
-                            echo json_encode($res['response']);
+                        if ($msgInfo['status']) {
+                            $msgInfo['local_timezone'] = $tz;
+                            $res = Community::sendCommunityMessage($msg, $id, $msgInfo['info'][0]['creator_id'], 0, 'c', $msgInfo['info'][0]['parent_id'], "", $msgInfo);
+                            if ($res['status']) {
+                                echo json_encode($res['response']);
+                            } else {
+                                echo json_encode(array("status" => FALSE));
+                            }
                         } else {
-                            $response['status'] = FALSE;
+                            displayError(400, "Bad message linking");
                         }
                     } else {
-                        displayError(400, "Sorry you are not logged in");
+                        $gUser->setScreenName($user);
+                        $rid = $gUser->getId();
+                        if ($rid != "") {
+                            $gUser->setUserId($rid);
+                            $res = $gUser->sendMessage($id, clean(htmlentities($msg)));
+                            if ($res['status']) {
+                                echo json_encode($res['response']);
+                            } else {
+                                $response['status'] = FALSE;
+                            }
+                        } else {
+                            displayError(400, "Sorry you are not logged in");
+                        }
                     }
                 }
             } else {
