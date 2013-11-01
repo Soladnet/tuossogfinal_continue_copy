@@ -1240,14 +1240,14 @@ function loadNavMessages(response, statusText, target) {
                 if (!response.code) {
                     htmlstr += '<div class="individual-notification' + ((response.status === "R") ? " viewed-notification" : "") + '"><p>' + (response.type === "C" || response.type === "CR" ? '<span class="icon-16-earth"></span>' : "") + '<span class="float-right timeago" title="' + response.time + '"> ' + response.time + ' </span><div class="clear"></div>' +
                             '</p><img class= "notification-icon" src="' + (response.photo === null ? "images/user-no-pic.png" : response.photo) + '"><div class="notification-text">' +
-                            '<p class="name">' + response.fullname + '</p><p><!--<span class="icon-16-reply">--></span>' + response.message.substring(0, 30) + (response.message.lenght > 29 ? "..." : "") + '</p></div><div class="clear"></div><hr>';
+                            '<p class="name">' + (response.sender_id === readCookie('user_auth') ? response.type === "C" || response.type === "CR" ? response.fullname : response.r_fullname : response.s_fullname) + '</p><p><!--<span class="icon-16-reply">--></span>' + response.message.substring(0, 30) + (response.message.lenght > 29 ? "..." : "") + '</p></div><div class="clear"></div><hr>';
                     if (response.type === 'M') {
-                        htmlstr += '<a class="notification-actions" href="messages/' + response.username + '">View</a><div class="clear"></div></div>';
+                        htmlstr += '<a class="notification-actions" href="messages/' + (response.sender_id === readCookie('user_auth') ? response.r_username : response.s_username) + '">View</a><div class="clear"></div></div>';
                     } else {
                         if (response.creator === readCookie('user_auth')) {
-                            htmlstr += '<a class="notification-actions" href="community-message/' + response.username + '/' + response.id + '">View</a><div class="clear"></div></div>';
+                            htmlstr += '<a class="notification-actions" href="community-message/' + response.r_username + '/' + response.id + '">View</a><div class="clear"></div></div>';
                         } else {
-                            htmlstr += '<a class="notification-actions" href="messages/' + response.username + '/' + response.id + '">View</a><div class="clear"></div></div>';
+                            htmlstr += '<a class="notification-actions" href="messages/' + response.r_username + '/' + response.id + '">View</a><div class="clear"></div></div>';
                         }
                     }
                 } else {
@@ -1255,18 +1255,19 @@ function loadNavMessages(response, statusText, target) {
                 }
             } else {
                 if (!response.code) {
+                    //alert((response.sender_id === readCookie('user_auth') ? response.r_fullname + " NOT " + response.s_fullname : response.s_fullname + " NOT " + response.r_fullname));
                     htmlstr += '<div class="individual-message-box"><p>' + (response.type === "CR" || response.type === "C" ? '<span title="Community message" class="icon-16-earth"></span>' : "") + '<span class="all-messages-time timeago" title="' + response.time + '"> ' + response.time + ' </span></p>' +
                             '<img class= "all-messages-image" src="' + (response.photo === null ? "images/user-no-pic.png" : response.photo) + '"><div class="all-messages-text">' +
-                            '<a><h3>' + response.fullname + '</h3></a>' +
+                            '<a><h3>' + (response.s_fullname === "Me" ? response.r_fullname : response.s_fullname) + '</h3></a>' +
                             '<div class="all-messages-message">' + response.message.substring(0, 250) + (response.message.lenght > 249 ? "..." : "") + '</div></div><hr><p>' +
                             '<!--<a class="all-messages-actions"><span class="icon-16-cross"></span>Delete</a>-->';
                     if (response.creator === readCookie('user_auth')) {
-                        htmlstr += '<a href="community-message/' + response.username + '/' + response.id + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                        htmlstr += '<a href="community-message/' + response.r_username + '/' + response.id + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
                     } else {
                         if (response.type === "M") {
-                            htmlstr += '<a href="messages/' + response.username + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                            htmlstr += '<a href="messages/' + response.r_username + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
                         } else {
-                            htmlstr += '<a href="messages/' + response.username + '/' + response.id + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
+                            htmlstr += '<a href="messages/' + response.r_username + '/' + response.id + '" class="all-messages-actions"><span class="icon-16-reply"></span>Reply</a></p></div>';
                         }
                     }
                 } else {

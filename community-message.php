@@ -97,7 +97,7 @@ if (isset($_COOKIE['user_auth'])) {
         <script type="text/javascript">
             var current;
 <?php
-$limitChild = 20;
+$limitChild = 10;
 ?>
             var start = 0, limit = 2, comId = "<?php echo $comId; ?>", helve = "<?php echo $param ?>";
             $(document).ready(function() {

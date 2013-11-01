@@ -827,51 +827,61 @@ class GossoutUser {
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "(SELECT pm.`id`, pm.`sender_id`,u.username,
-CONCAT(u.firstname,' ',u.lastname) as fullname, 
-pm.`message`, pm.`time`,
-pm.`status`,(SELECT MAX(thumbnail50) FROM pictureuploads WHERE user_id=pm.`sender_id`) as photo,(SELECT 'M') as type,
-(SELECT 'U') as creator FROM `privatemessae` as pm 
-JOIN user_personal_info as u ON pm.sender_id=u.id 
-WHERE pm.`receiver_id` = $this->id OR pm.sender_id=$this->id ORDER BY pm.id DESC LIMIT 1) 
-UNION (SELECT cm.id,cm.sender_id,c.unique_name,
-c.`name` fullname,cm.message_title as message,
+            $sql = "(SELECT pm.`id`, pm.`sender_id`,pm.receiver_id,
+(SELECT username FROM user_personal_info WHERE id=pm.sender_id) as s_username,
+(SELECT username FROM user_personal_info WHERE id=pm.receiver_id) as r_username,
+(SELECT CONCAT(firstname,' ',lastname) FROM user_personal_info WHERE id=pm.sender_id) as s_fullname,
+(SELECT CONCAT(firstname,' ',lastname) FROM user_personal_info WHERE id=pm.receiver_id) as r_fullname,(SELECT ' ') as fullname,pm.`message`, pm.`time`,
+pm.`status`,(SELECT thumbnail50 FROM pictureuploads WHERE user_id=(if(pm.`sender_id`=$this->id,pm.`receiver_id`,pm.`sender_id`)) ORDER BY id DESC LIMIT 1) as photo,(SELECT 'M') as type,
+(SELECT 'U') as creator FROM `privatemessae` as pm
+WHERE pm.`receiver_id` = $this->id OR pm.sender_id=$this->id) 
+UNION (SELECT cm.id,cm.sender_id,cm.com_id,
+(SELECT username FROM user_personal_info WHERE id=cm.sender_id) as s_username,
+c.unique_name as r_username,
+(SELECT CONCAT(firstname,' ',lastname) FROM user_personal_info WHERE id=cm.sender_id) as s_fullname,c.`name` as r_fullname,(SELECT ' ') as fullname,cm.message_title as message,
 cm.`time`,cm.status,c.thumbnail150 as photo,
 (SELECT 'C') as type,c.creator_id as creator 
 FROM community_message  as cm JOIN community as c 
-ON cm.com_id=c.id WHERE c.creator_id=$this->id ORDER by cm.id DESC LIMIT 1)
-UNION (SELECT cmc.parent_id as id,cmc.sender_id ,c.unique_name as username,c.`name` as fullname,cmc.reply as message,cmc.`time` ,cmc.status,c.thumbnail150 as photo,(SELECT 'CR') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=$this->id group by c.`name` ORDER by cmc.id DESC LIMIT 1)";
-//            $sql = "SELECT pm.`id`, pm.`sender_id`,u.username,CONCAT(u.firstname,' ',u.lastname) as fullname, MAX(pm.`message`) as message, MAX(pm.`time`) as time, MAX(pm.`status`) as status,(SELECT 'M') as type,(SELECT 'U') as creator FROM `privatemessae` as pm JOIN user_personal_info as u ON pm.sender_id=u.id WHERE pm.`receiver_id` = $this->id group by u.username UNION SELECT cm.id,cm.sender_id,c.unique_name as username,c.`name` as fullname,MAX(cm.message_title) as message,MAX(cm.`time`) as time,MAX(cm.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message  as cm JOIN community as c ON cm.com_id=c.id WHERE c.creator_id=$this->id group by c.unique_name UNION SELECT cmc.parent_id,cmc.sender_id,MAX(c.unique_name) as username,MAX(c.`name`) as fullname,MAX(cmc.reply) as message,MAX(cmc.`time`) as time,MAX(cmc.status) as status,(SELECT 'C') as type,c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=$this->id group by c.unique_name";
+ON cm.com_id=c.id WHERE c.creator_id=$this->id)
+UNION (SELECT cmc.parent_id as id,cmc.sender_id,cm.com_id,
+(SELECT username FROM user_personal_info WHERE id=cmc.sender_id) as s_username,
+c.unique_name as r_username,
+(SELECT CONCAT(firstname,' ',lastname) FROM user_personal_info WHERE id=cmc.sender_id) as s_fullname,
+(SELECT CONCAT(firstname,' ',lastname) FROM user_personal_info WHERE id=cmc.receiver_id) as r_fullname,
+c.`name` as fullname,cmc.reply as message,cmc.`time`,cmc.status,c.thumbnail150 as photo,(SELECT 'CR') as type,
+c.creator_id as creator FROM community_message_child as cmc JOIN community_message as cm ON cmc.parent_id=cm.id 
+JOIN community as c ON cm.com_id=c.id WHERE cmc.receiver_id=$this->id OR cmc.sender_id=$this->id)";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows > 0) {
                     $temp = array();
+                    $cor = array();
                     while ($row = $result->fetch_assoc()) {
                         $row['time'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
                         $row['sender_id'] = GossoutUser::encodeData($row['sender_id']);
+                        $row['receiver_id'] = GossoutUser::encodeData($row['receiver_id']);
                         $row['creator'] = $row['creator'] == 'U' ? $row['creator'] : GossoutUser::encodeData($row['creator']);
                         if ($row['type'] == "M") {
                             if ($this->id == $row['sender_id']) {
+                                $row['s_fullname'] = "Me";
                                 $temp[$row['receiver_id']] = $row;
                             } else {
+                                $row['r_fullname'] = "Me";
                                 $temp[$row['sender_id']] = $row;
                             }
-                        } else if ($row['type'] == "C") {
-                            $temp[$row['username']] = $row;
-                        } else if ($row['type'] == "CR") {
-                            if (GossoutUser::decodeData($row['creator']) == $this->id) {
-                                $temp[$row['username']] = $row;
-                            } else {
-                                $temp[$row['username'] . "_" . $row['creator']] = $row;
+                            if ($row['status'] == "N" && $flag) {
+                                $mysql->query("UPDATE `privatemessae` SET `status`='D' WHERE `id`=$row[id]");
                             }
-                        }
-                        if ($row['status'] == "N" && $flag) {
-                            $mysql->query("UPDATE `privatemessae` SET `status`='D' WHERE `id`=$row[id]");
+                        } else if ($row['type'] == "C") {
+                            $row['s_fullname'] = "Me";
+                            $temp[$row['r_username']] = $row;
+                        } else if ($row['type'] == "CR") {
+                            $row['s_fullname'] = "Me";
+                            $temp[$row['r_username']] = $row;
                         }
                     }
                     foreach ($temp as $turple) {
                         $arrFetch['message'][] = $turple;
                     }
-                    print_r($arrFetch['message']);
                     $arrFetch['status'] = TRUE;
                     $result = $mysql->query("SELECT NOW() as time");
                     $row = $result->fetch_assoc();
@@ -885,6 +895,7 @@ UNION (SELECT cmc.parent_id as id,cmc.sender_id ,c.unique_name as username,c.`na
                 $arrFetch['status'] = FALSE;
             }
         }
+//        print_r($arrFetch['message']);exit;
         $mysql->close();
         return $arrFetch;
     }
@@ -992,8 +1003,6 @@ UNION (SELECT cmc.parent_id as id,cmc.sender_id ,c.unique_name as username,c.`na
             $arrFetch['m_t'] = GossoutUser::convert_time_zone($row['time'], $this->tz);
         }
         $mysql->close();
-        print_r(array($me, $userCon));
-        exit;
         return $arrFetch;
     }
 
