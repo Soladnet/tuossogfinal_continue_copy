@@ -102,12 +102,12 @@ if (isset($_COOKIE['user_auth'])) {
         <div class="index-page-wrapper">	
             <div class="index-nav">
                 <span class="index-login" id="name-login-cont"><?php
-                    echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-                            'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-                    ?> | <a href onclick='javascript:callTour();
-                return false;'>Take a Tour</a></span>
+echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+        'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+?> | <a href onclick='javascript:callTour();
+                        return false;'>Take a Tour</a></span>
                 <div class="clear"></div>
-            </div>
+            </div><br>
             <div class="index-banner">
                 <div class="logo" id="logo"><img alt=""></span></div>
             </div>
@@ -117,43 +117,50 @@ if (isset($_COOKIE['user_auth'])) {
                         <h1>Join communities, share stories, photos, and opinions with people!
                         </h1>
 
-                        <input class="main-search" type="text" placeholder="..." name="g" autocomplete="off" id="searchField">
+                        <center>
+                            <input class="main-search" type="text" placeholder="..." name="g" autocomplete="off" id="searchField" style="width:90%;">
+                        </center>
 
-                        <span><center><input class="button-big" id="search-field-submit" type="submit" value="Search" /> <!--<button class="button-big"><a href="">Sign up</a></button>--></center></span>
+                        <span><center>
+                                <input type="submit" id="search-field-submit" class="submit button" value="Get result!" id="postBtn" style="font-size:20px;padding-right:20px;padding-left:20px;">
                         <div class="clear"></div>
 
                     </div>
                 </form>
-                <div class="index-intro-2-container">
-                    <div class="index-intro-2" id='index-three-icon'>	
+                <br><br>
+                <center>
+                    <div class="index-intro-2-container" style="width:600px;">
+                        <div>	
+                            <center>
+                                <div class="index-functions" id="index-search-icon">
+                                    <div style="margin: 0 auto;">
+                                        <img src="images/search1.png" alt="Search"/>
+                                    </div>
+                                    <h3>Search</h3>
+                                    <p>Communities and Friends</p>
+                                </div> 
 
-                        <div class="index-functions" id="index-search-icon">
-                            <div style="margin: 0 auto; width: 24px;">
-                                <span class="icon-search"></span>
-                            </div>
-                            <h3>Search</h3>
-                            <p>Communities and Friends</p>
-                        </div> 
+                                <div class="index-functions" id="index-discover-icon">
+                                    <div style="margin: 0 auto;">
+                                        <img src="images/discover.png" alt="Discover"/>
+                                    </div>
+                                    <h3>Discover</h3>
+                                    <p>Communities &amp; Friends</p>
+                                </div>
 
-                        <div class="index-functions" id="index-discover-icon">
-                            <div style="margin: 0 auto; width: 24px;">
-                                <span class="icon-globe"></span>
-                            </div>
-                            <h3>Discover</h3>
-                            <p>Communities &amp; Friends</p>
+                                <div class="index-functions" id="index-connect-icon">
+                                    <div style="margin: 0 auto;">
+                                        <img src="images/share1.png" alt="Search"/>
+                                    </div>
+                                    <h3>Connect</h3>
+                                    <p>Meet People, Share Interests</p>
+                                </div>
+
+                                <div class="clear"></div>
+                            </center>
                         </div>
-
-                        <div class="index-functions" id="index-connect-icon">
-                            <div style="margin: 0 auto; width: 24px;">
-                                <span class="icon-share"></span>
-                            </div>
-                            <h3>Connect</h3>
-                            <p>Meet People, Share Interests</p>
-                        </div>
-
-                        <div class="clear"></div>
                     </div>
-                </div>		
+                </center>
             </div>
             <div class="index-shadow-bottom"></div>
             <div class="index-content-wrapper">

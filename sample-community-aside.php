@@ -1,4 +1,5 @@
 <div class="aside">
+  
     <div class="aside-wrapper">
         <div class="profile-pic"><img onload="OnImageLoad(event);" class="holdam" src="images/no-pic.png" id="commPix"></div>
         <table >

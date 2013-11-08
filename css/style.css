@@ -1,4 +1,10 @@
 /* line 1, _sprites.scss */
+.comm-timeline-options{
+padding:6px;border:1px solid #dadada;
+}
+.noactive{
+background:#f8f8f8;
+}
 .icon-globe, .icon-house, .icon-search, .icon-share {
     margin-right: .15em;
     display: inline-block;
@@ -2919,7 +2925,7 @@ input[type=checkbox] {
 #message-individual-notification,#gossbag-individual-notification{
     max-height: 300px;
     display: block;
-    overflow: scroll;
+    overflow: auto;
 }
 @media only screen and (max-width: 300px) {
      /*line 521, style.scss*/ 

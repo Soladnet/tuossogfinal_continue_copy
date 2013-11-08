@@ -117,7 +117,10 @@ if (isset($_GET['s']) && trim($_GET['s']) != "") {
                     <h1>Search Results</h1>
                     <form method="GET" action="index-search-results.php" autocomplete="off" onsubmit="return validate()">
                         <input class="main-search" name="g" id="searchField" type="text" <?php echo isset($_GET['g']) ? "value='" . $_GET['g'] . "'" : 'placeholder="Search term here"' ?>>
-                        <span><center><input class="button-big" type="submit" value="Search" /> <!--<button class="button-big"><a href="">Sign up</a></button>--></center></span>
+                        <span><center>
+                            <input type="submit" id="search-field-submit" class="submit button" value="Get result!" id="postBtn" style="font-size:20px;padding-right:20px;padding-left:20px;">    
+                            </center>
+                        </span>
                     </form>
                     <div class="clear"></div>
 
@@ -151,7 +154,7 @@ if (isset($_GET['s']) && trim($_GET['s']) != "") {
                                                         </div>-->
                         </div>
                         <div class="clear"></div>
-                    </div>
+                    </div><br>
                 </div>		
             </div>
             <div class="index-shadow-bottom"></div>

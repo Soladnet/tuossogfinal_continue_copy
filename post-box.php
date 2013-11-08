@@ -1,6 +1,6 @@
 <div class="post-box" id="post-box">
     <form method="POST" action="tuossog-api-json.php" id="timelineForm">
-        <textarea placeholder="Share your interest here" name="post" id="postText"></textarea>
+        <textarea placeholder="Share your interest here" name="post" id="postText" class="animateInput"></textarea>
         <div class="button"><span class="icon-globe" id="community-select-list"></span>	
             <select data-placeholder="Select Community" class="chzn-select" multiple name="comid[]"> 
                 <option></option>

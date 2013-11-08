@@ -4,7 +4,7 @@ include_once './LoginClass.php';
 
 $confirm = new Login();
 $confirm->isLoggedIn();
-$pageName = array("index", "home", "communities", "messages", "friends", "login", "login_exec", "settings", "notifications", "signup-personal", "signup-login", "signup-photo", "signup-agreement", "create-community", "community-settings", "password-recovery", "password-recovery-confirm", "password-reset", "tos", "rights", "privacy", "terms", "validate-email","user");
+$pageName = array("index", "home", "communities", "messages", "friends", "login", "login_exec", "settings", "notifications", "signup-personal", "signup-login", "signup-photo", "signup-agreement", "create-community", "community-settings", "password-recovery", "password-recovery-confirm","user-upload-report", "password-reset", "tos", "rights", "privacy", "terms", "validate-email","user");
 if (isset($_GET['page'])) {
     if ($_GET['page'] == "index") {
         include_once './searchIndex.php';
@@ -75,6 +75,11 @@ if (isset($_GET['page'])) {
         include_once 'index-search-results.php';
     }else if ($_GET['page'] == "community-message") {
         include_once 'community-message.php';
+    }else if ($_GET['page'] == "user-upload-report") {
+//         include  'userUpldRep.php';
+        include_once 'phpExcelReader/dompdf/www/demo.php';
+       
+       
     } else {
         include_once './communities.php';
     }

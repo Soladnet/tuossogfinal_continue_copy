@@ -13,7 +13,7 @@ if (isset($_COOKIE['user_auth'])) {
         $userCommunity->setUser($uid);
     }
 } else {
-    header("Location: login");
+    header("Location: login");//
 }
 ?>
 <!doctype html>

@@ -169,10 +169,11 @@ if (isset($_COOKIE['user_auth'])) {
                             ?>" id="user-img">
                         </div>
                         <hr>
-                        <form id="imageUploadForm" method="Post" action="files-raw.php">
-                            <p></p>
+                        <form id="imageUploadForm" method="Post" action="files-raw.php"><p></p> 
                             <center>
-                                <input type="file" onchange="$('#selectedImage').html('<br/>File Name: ' + showImageName(this.value))" name="myfile" class="input-fields validate[required]" id="uploadField" style="position: absolute;left: -9999px;"><div class="button" id="clickToFileUpload"><span class="icon-16-camera"></span> Click to choose image</div><input type="submit" class="button" value="Upload photo">
+                                <input type="file" onchange="$('#selectedImage').html('<br/>File Name: ' + showImageName(this.value))" name="myfile" class="input-fields validate[required]" id="uploadField" style="position: absolute;left: -9999px;">
+                                <div class="button" id="clickToFileUpload"><span class="icon-16-camera"></span> Click to choose image</div>
+                                <input type="submit" class="button" value="Upload photo">
                                 <div id="selectedImage" style="font-size: 12px;color: #99c53d"></div>
                                 <div class="progress" id="photoProgress" style="display: none">
                                     <div class="bar"></div >

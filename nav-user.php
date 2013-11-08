@@ -42,10 +42,8 @@
                 if ($_GET['page'] == "home") {
                     ?>
                     <li>
-                        <a id="messages-text" >
-
-                            <span><a href onclick='javascript:callTour();
-                                                return false;'>Take a Tour</a></span>
+                        <a>
+                            <span onclick='javascript:callTour();return false;'>Take a Tour</span>
                         </a>
 
                     </li>
@@ -54,19 +52,16 @@
             } else {
                 ?>
                 <li>
-                    <a id="messages-text" >
-
-                        <span><a href onclick='javascript:callTour();
-                                            return false;'>Take a Tour</a></span>
+                    <a>
+                        <span onclick='javascript:callTour();return false;'>Take a Tour</span>
                     </a>
-
                 </li>
                 <?php
             }
             ?>
             <!--<div id='settings_profile'></div>-->
             <li class="nav-user-profile last hint hint--left  float-right" data-hint="Profile Settings"  id="user-actions">
-
+                <a><span>[<?php echo $user->getFullname()?>]</span></a>
                 <a><span class="icon-16-user"></span></a>
                 <div class="user-actions-container" id="pop-up-user-actions">
                     <div class="user-actions">

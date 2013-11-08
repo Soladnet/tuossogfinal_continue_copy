@@ -384,6 +384,7 @@ $limitChild = 10;
                             $user = new GossoutUser(GossoutUser::decodeData($pmsg['info']['sender_id']));
                             $pix = $user->getProfilePix();
                             ?>
+                            <hr>
                             <!--<h3 class="inboxCommMsgDiv">Title: <?php echo $pmsg['info']['message_title']?></h3><hr class="mainCommCont">-->
                             <div>
                                 <a href="user/<?php echo $pmsg['info']['username']; ?>"><img src="<?php echo ($pmsg['info']['photo']?$pmsg['info']['photo']:"images/user-no-pic.png"); ?>" style="float:left;margin:2px;height:50px;"/></a>
