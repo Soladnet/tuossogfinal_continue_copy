@@ -86,7 +86,7 @@ if ($ipData['timezone']) {
                                 </li>
                                 <li><input type="checkbox" name="remember" value="TRUE"> Remember me</li>
                             </ul>
-                            <input class="button-big" type="submit" value="Login">
+                            <input type="submit" class="submit button" value="Get me in!" id="postBtn" style="font-size:20px;">
                             <p class="float-right"><a href="password-recovery">Forgot Password?...</a></p>
                             <div class="clear"></div>						
                         </form>

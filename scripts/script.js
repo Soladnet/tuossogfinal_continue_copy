@@ -1851,7 +1851,7 @@ function loadCommunity(response, statusText, target) {
         $('.animateInput').focusout(function(){
             $(this).animate({
                 "height": '60px'
-            }, 140);
+            }, 200);
         });
         
     } else {
