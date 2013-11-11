@@ -519,7 +519,7 @@ function loadTimeline(response, statusText, target) {
                 if (response.post_photo) {
                     htmlstr += '<p class="timeline-photo-upload">';
                     $.each(response.post_photo, function(k, photo) {
-                        htmlstr += '<a class="fancybox" rel="gallery' + response.id + '"  href="' + photo.original + '" rel="group"><img src="' + ((response.post_photo.length > 1) ? photo.thumbnail : photo.original) + '" '+((response.post_photo.length > 1) ?  'class="multiple-post-pic"' : 'class="single-post-pic"') +'></a>';
+                        htmlstr += '<a class="fancybox" rel="gallery' + response.id + '"  href="' + photo.original + '" rel="group"><img src="' + ((response.post_photo.length > 1) ? photo.thumbnail : photo.thumbnail) + '" '+((response.post_photo.length > 1) ?  'class="multiple-post-pic"' : '') +'></a>';
                     });
                     htmlstr += '</p><div class="clear"></div>';
                 }
@@ -1704,7 +1704,7 @@ function loadCommunity(response, statusText, target){
                                     var str = '<div class="post"><div class="post-content">';
                                     if (responseText.post_photo) {
                                         $.each(responseText.post_photo, function(k, photo) {
-                                            str += '<a class="fancybox" rel="gallery' + responseText.id + '"  href="' + photo.original + '" rel="group"><img src="' + ((responseText.post_photo.length > 1) ? photo.thumbnail : photo.original) + '" '+((responseText.post_photo.length > 1) ?  'class="multiple-post-pic"' : 'class="single-post-pic"') +'></a>';
+                                            str += '<a class="fancybox" rel="gallery' + responseText.id + '"  href="' + photo.original + '" rel="group"><img src="' + ((responseText.post_photo.length > 1) ? photo.thumbnail : photo.thumbnail) + '" '+((responseText.post_photo.length > 1) ?  'class="multiple-post-pic"' : '') +'></a>';
                                         });
                                     }
                                     
@@ -2062,7 +2062,7 @@ function loadPost(response, statusText, target) {
 
             if (responseItem.post_photo) {
                 $.each(responseItem.post_photo, function(k, photo) {
-                    htmlstr += '<a class="fancybox" rel="gallery' + responseItem.id + '"  href="' +  photo.original + '" rel="group"><img src="' + ((responseItem.post_photo.length > 1) ? photo.thumbnail : photo.original) + '" '+((responseItem.post_photo.length > 1) ?  'class="multiple-post-pic"' : 'class="single-post-pic"') +'></a>';
+                    htmlstr += '<a class="fancybox" rel="gallery' + responseItem.id + '"  href="' +  photo.original + '" rel="group"><img src="' + ((responseItem.post_photo.length > 1) ? photo.thumbnail : photo.thumbnail) + '" '+((responseItem.post_photo.length > 1) ?  'class="multiple-post-pic"' : '') +'></a>';
                 });
                 
             }
