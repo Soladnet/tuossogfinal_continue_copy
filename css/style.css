@@ -1,9 +1,9 @@
 /* line 1, _sprites.scss */
 .comm-timeline-options{
-padding:6px;border:1px solid #dadada;
+    padding:6px;border:1px solid #dadada;
 }
 .noactive{
-background:#f8f8f8;
+    background:#f8f8f8;
 }
 .icon-globe, .icon-house, .icon-search, .icon-share {
     margin-right: .15em;
@@ -2199,7 +2199,7 @@ body {
 /* line 44, _timeline.scss */
 .timeline-photo-upload img {
     border: 1px solid #ddd;
-    max-height: 75px;
+    /*max-height: 75px;*/
     max-width: 100%;
     margin: .2em auto;
 }
@@ -2920,7 +2920,7 @@ input[type=checkbox] {
     width: 25em;
     top: 15px;
     border: 1px solid #bbb;
-    
+
 }
 #message-individual-notification,#gossbag-individual-notification{
     max-height: 300px;
@@ -2928,7 +2928,7 @@ input[type=checkbox] {
     overflow: auto;
 }
 @media only screen and (max-width: 300px) {
-     /*line 521, style.scss*/ 
+    /*line 521, style.scss*/ 
     .chatContainer,.openChatButton{
         display: none;
     }
@@ -2939,7 +2939,7 @@ input[type=checkbox] {
     }
 }
 @media only screen and (max-width: 640px) {
-     /*line 521, style.scss*/ 
+    /*line 521, style.scss*/ 
     .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
         width: 20em;
         overflow: auto;
@@ -2947,7 +2947,7 @@ input[type=checkbox] {
     }
 }
 @media only screen and (max-width: 800px) {
-     /*line 521, style.scss*/ 
+    /*line 521, style.scss*/ 
     .notifications-container .notifications, .notifications-container .messages, .messages-container .notifications, .messages-container .messages {
         width: 22em;
         overflow: auto;
@@ -3261,9 +3261,14 @@ input[type=checkbox] {
     background-color: #eee;
 }
 /* line 787, style.scss */
+.single-post-pic{
+    width:580px;max-width:90% !important;height: auto;
+}
+.multiple-post-pic{
+    max-height: 100px;
+}
 .post img {
     border: 1px solid #ddd;
-    max-height: 100px;
     max-width: 100%;
     margin: .4em auto;
 }

@@ -519,7 +519,7 @@ function loadTimeline(response, statusText, target) {
                 if (response.post_photo) {
                     htmlstr += '<p class="timeline-photo-upload">';
                     $.each(response.post_photo, function(k, photo) {
-                        htmlstr += '<a class="fancybox" rel="gallery' + response.id + '"  href="' + photo.original + '" rel="group"><img src="' + photo.thumbnail + '"></a>';
+                        htmlstr += '<a class="fancybox" rel="gallery' + response.id + '"  href="' + photo.original + '" rel="group"><img src="' + ((response.post_photo.length > 1) ? photo.thumbnail : photo.original) + '" '+((response.post_photo.length > 1) ?  'class="multiple-post-pic"' : 'class="single-post-pic"') +'></a>';
                     });
                     htmlstr += '</p><div class="clear"></div>';
                 }
@@ -1402,7 +1402,7 @@ function loadCommunityMembers(response, statusText, target) {
         $(target.target).html("0 Member");
     }
 }
-function loadCommunity(response, statusText, target) {
+function loadCommunity(response, statusText, target){
     if (!response.error) {
         var comid = "", htmlstr = "", isAmember;
         if (target.loadAside) {
@@ -1560,9 +1560,9 @@ function loadCommunity(response, statusText, target) {
                     if (response.creator_id === readCookie('user_auth')) {
                         htmlstr += '<div class="posts">'+
                         '<div style="float:left;height:32px;padding-top:5px;color:#444 !important;font-size:16px;">' + response.name + '</div><div class="timeline-filter" style="width:auto;height:auto;padding:2px;float:right;"><ul>'+
-                        '<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>'+
+                        '<!--<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>'+
                         '<li id="comm-members" class="comm-timeline-options"><div><span><img src="images/members.png"/></span> <a>Upload Members</a>'+
-                        '</li></ul>'+
+                        '</li>--></ul>'+
                         '</div>'+
                         '<hr>' +
                         '<span id="member-content" style="display:none;"><div class="post">'+
@@ -1588,10 +1588,10 @@ function loadCommunity(response, statusText, target) {
                         '</div></span>'+
                         '<span id="timelime-content"><div class="post-box"><form method="POST" action="tuossog-api-json.php" id="com-' + response.id + '" enctype="multipart/form-data">' +
                         '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="animateInput"></textarea>' +
-                        '<input type="submit" class="submit button float-right" value="Post" id="postBtn">' +
+                        '<input type="submit" class="submit button float-right post-gadgets" value="Post" id="postBtn">' +
                         '<input type="file" onchange="$(\'#filesSelected\').html(this.files.length + (this.files.length > 1 ? \' files selected\' : \' file selected\'))" name="photo[]" multiple style="position: absolute;left: -9999px;" id="uploadInput"/>' +
                         '<input type="hidden" name="comid[]" value="' + comid + '"/>' +
-                        '<div class="button hint hint--left  float-right" data-hint="Upload image" id="uploadImagePost"><span class="icon-16-camera"></span></div>' +
+                        '<div class="button hint hint--left  float-right post-gadgets" data-hint="Upload image" id="uploadImagePost"><span class="icon-16-camera"></span></div>' +
                         '<div class="progress" style="display:none"><div class="bar"></div ><div class="percent">0%</div></div><div id="filesSelected" class="float-right" style="font-size: 12px; color: #99c53d"></div>' +
                         '</form><div class="clear"></div></div><span id="loadPost"></span><hr/><div class="button" style="float:left;display:none;" id ="commMorePostDiv"><a commPost="20"  class="commMorePost" id="commMorePost">Load more > ></a></div><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div></div></span>';
                     } else {
@@ -1653,10 +1653,7 @@ function loadCommunity(response, statusText, target) {
                     },
                     complete: function(xhr) {
                     }
-                //                    data: {
-                //                        uid: readCookie("user_auth")
-                ////                        comId: "<?php echo isset($comInfo['comm']['id']) ? $comInfo['comm']['id'] : ""; ?>"
-                //                    }
+               
                 });
                
                 if (!target.settings && !target.commMsg) {
@@ -1704,13 +1701,14 @@ function loadCommunity(response, statusText, target) {
                                 percent.html(percentVal);
                                 if (responseText.id !== 0) {
                                     var msg = $('#post' + comid).val();
-                                    var str = '<div class="post"><div class="post-content"><p>' + linkify(nl2br(htmlencode(msg))) + '</p>';
+                                    var str = '<div class="post"><div class="post-content">';
                                     if (responseText.post_photo) {
                                         $.each(responseText.post_photo, function(k, photo) {
-                                            str += '<a class="fancybox" rel="gallery' + responseText.id + '"  href="' + photo.original + '" rel="group"><img src="' + photo.thumbnail + '"></a>';
+                                            str += '<a class="fancybox" rel="gallery' + responseText.id + '"  href="' + photo.original + '" rel="group"><img src="' + ((responseText.post_photo.length > 1) ? photo.thumbnail : photo.original) + '" '+((responseText.post_photo.length > 1) ?  'class="multiple-post-pic"' : 'class="single-post-pic"') +'></a>';
                                         });
                                     }
-                                    str += '<hr><h3 class="name"><img onload="OnImageLoad(event);" class="post-profile-pic" src="' + (responseText.photo) + '"><a href="user/">' + responseText.name + '</a>' +
+                                    
+                                    str += '<p>' + linkify(nl2br(htmlencode(msg))) + '</p><hr><h3 class="name"><img onload="OnImageLoad(event);" class="post-profile-pic" src="' + (responseText.photo) + '"><a href="user/">' + responseText.name + '</a>' +
                                     '<div class="float-right"><span class="post-time"><span class="icon-16-comment"></span><span id="numComnt-' + responseText.id + '">0</span> </span>' +
                                     //                    '<span class="post-time"><span class="icon-16-share"></span>24</span>' +
                                     '<span class="post-time"><span class="icon-16-clock"></span><span class="timeago" title="' + responseText.time + '">' + responseText.time + '</span></span>' +
@@ -1843,18 +1841,31 @@ function loadCommunity(response, statusText, target) {
         }
 
 
+        //        $('.animateInput').focusin(function(){
+        //            $('.animateInput').animate({
+        //                "height": '300px'
+        //            }, 500);
+        //        });
+        //        //        $('.post-box').focusout(function(){
+        //        //            $('.animateInput').animate({
+        //        //                "height": '60px'
+        //        //            }, 500);
+        //        //            
+        //        //        });
+        
         $('.animateInput').focusin(function(){
-            $(this).animate({
-                "height": '380px'
+            $('.animateInput').animate({
+                "height": '140px'
             }, 500);
         });
         $('.animateInput').focusout(function(){
-            $(this).animate({
-                "height": '60px'
-            }, 200);
+                $('.animateInput').animate({
+                    "height": '100px'
+                }, 100);
         });
-        
-    } else {
+    
+    }
+    else {
 
         if (target.loadAside) {//this means specific community is being loaded 
             if (response.error.code) {
@@ -2040,7 +2051,7 @@ function loadPost(response, statusText, target) {
         var count = response.length;
         $.each(response, function(i, responseItem) {
             if (responseItem.post) {
-                htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content"><p>' + (responseItem.post.length > 200 ? nl2br(linkify(responseItem.post.substring(0, 200))) + '<span style="display:none" id="continuereading-' + responseItem.id + '">' + nl2br(linkify(responseItem.post.substring(200))) + '</span> <a id="continue-' + responseItem.id + '">...show more</a>' : nl2br(linkify(responseItem.post))) + '</p>';
+                htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content">';
             } else {
                 htmlstr += '<div class="post" id="post-' + responseItem.id + '"><div class="post-content"><p></p>';
             }
@@ -2051,10 +2062,12 @@ function loadPost(response, statusText, target) {
 
             if (responseItem.post_photo) {
                 $.each(responseItem.post_photo, function(k, photo) {
-
-                    htmlstr += '<a class="fancybox" rel="gallery' + responseItem.id + '"  href="' + photo.original + '" rel="group"><img src="' + photo.thumbnail + '"></a>';
+                    htmlstr += '<a class="fancybox" rel="gallery' + responseItem.id + '"  href="' +  photo.original + '" rel="group"><img src="' + ((responseItem.post_photo.length > 1) ? photo.thumbnail : photo.original) + '" '+((responseItem.post_photo.length > 1) ?  'class="multiple-post-pic"' : 'class="single-post-pic"') +'></a>';
                 });
+                
             }
+            if (responseItem.post)
+                htmlstr+='<p>' + (responseItem.post.length > 200 ? nl2br(linkify(responseItem.post.substring(0, 200))) + '<span style="display:none" id="continuereading-' + responseItem.id + '">' + nl2br(linkify(responseItem.post.substring(200))) + '</span> <a id="continue-' + responseItem.id + '">...show more</a>' : nl2br(linkify(responseItem.post))) + '</p>';
             htmlstr += '<hr><h3 class="name"><img onload="OnImageLoad(event);" class="post-profile-pic" src="' + (responseItem.photo.nophoto ? responseItem.photo.alt : responseItem.photo.thumbnail45) + '"><a href="user/' + responseItem.username + '">' + responseItem.firstname.concat(' ', responseItem.lastname) + '</a>' +
             '<div class="float-right">';
             if (responseItem.likeCount.count === 0) {
@@ -2090,15 +2103,12 @@ function loadPost(response, statusText, target) {
             }
             htmlstr += '<span class="post-time"><span class="icon-16-comment" title="comment"></span><span id="numComnt-' + responseItem.id + '">' + responseItem.numComnt + '</span> </span>&nbsp;' +
             '<span class="post-time"><span class="icon-16-eye" title="seen this"></span>' + responseItem.vc + '</span> ' +
-            //                    '<span class="post-time"><span class="icon-16-share"></span>24</span>' +
             '<span class="post-time"><span class="icon-16-clock" title="time"></span><span class="timeago" title="' + responseItem.time + '">' + responseItem.time + '</span></span>' +
             '</div></h3></div><hr><div class="post-meta">';
             if (target.uid !== 0) {
                 htmlstr += '<span class="post-meta-delete like-icon"><span class="icon-16-heart like-item" post=' + responseItem.id + '></span><hold class="likeAction" id="likeAction-' + responseItem.id + '">' + (responseItem.isLike ? 'Unlike' : 'Like') + '</hold></span>&nbsp';
             }
-            //            (target.uid !== 0) ? '<span class="post-meta-delete"><span class="icon-16-heart"></span>Like </span>&nbsp' : "" +
             htmlstr += '<span id="post-new-comment-show-' + responseItem.id + '" class=""><span class="icon-16-comment"></span>Comment </span>';
-            //                    '<span class="post-meta-gossout"><span class="icon-16-share"></span><a class="fancybox " id="inline" href="#share-123456">Share</a></span>' +
             if (target.uid === 0) {
                 htmlstr += '<span class="post-meta-gossout"><span class="icon-16-dot"></span><a href="login">Login</a> or <a href="signup-personal">sign-up</a> to add posts or comments</span>';
             }
