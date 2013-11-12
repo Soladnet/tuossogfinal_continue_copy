@@ -48,6 +48,7 @@ if (isset($_COOKIE['user_auth'])) {
 } else {
     include_once './GossoutUser.php';
     $user = new GossoutUser(0);
+    $isCreator['status'] = 0;
     $userProfile = $user->getProfile();
 }
 ?>
@@ -115,92 +116,94 @@ if (isset($_COOKIE['user_auth'])) {
 <?php
 if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load all community, user communities and suggested community
     ?>
-                sendData("loadCommunity", {target: "#my-communities-list", comType: 'myCom', loadImage: true, max: true, start: 0, limit: limit});
-                $('.clicked').click(function() {
-                    $('#loadMoreComm').show();
-                });
-                $('#my-communities').addClass('active');
-                $("#my-communities").click(function() {
-                    $('#loadMoreComm').hide();
-                    currentCom = 'myCom';
-                    $('#all-communities-list,#suggestion-list').hide();
-                    $('#suggestions,#all').removeClass('active');
-                    $('#my-communities').addClass('active');
-                    $('#my-communities-list').show();
-                    //                         if (!($(this).hasClass('clicked'))) {
                     sendData("loadCommunity", {target: "#my-communities-list", comType: 'myCom', loadImage: true, max: true, start: 0, limit: limit});
-                    //                            $(this).addClass('clicked');
-                    //                        }
-
-                });
-                $("#all").click(function() {
-                    currentCom = 'allCom';
-                    start = 0;
-                    //                        $('#loadMoreComm').show();
-                    $('#suggestion-list,#my-communities-list').hide();
-                    $('#all-communities-list').show();
-                    $('#suggestions,#my-communities').removeClass('active');
-                    $('#all').addClass('active');
-                    if (!($(this).hasClass('clicked'))) {
-                        sendData("loadCommunity", {target: "#all-communities-list", comType: 'allCom', loadImage: true, max: true, start: start, limit: limit});
-                        $(this).addClass('clicked');
-                    }
-
-                });
-                $("#suggestions").click(function() {
-                    currentCom = 'sugCom';
-                    start = 0;
-                    $('#all-communities-list,#my-communities-list').hide();
-                    $('#suggestion-list').show();
-                    //		   
-                    $('#my-communities,#all').removeClass('active');
-                    $('#suggestions').addClass('active');
-                    sendData("loadSuggestCommunity", {
-                        target: "#suggestion-list",
-                        loadImage: true,
-                        max: true,
-                        start: start,
-                        Limit: limit
+                    $('.clicked').click(function() {
+                        $('#loadMoreComm').show();
                     });
-                });
-                var theTraget;
-                $('#loadMoreComm').click(function() {
-                    $('#loader1').show();
-                    if (currentCom === 'allCom') {
-                        theTraget = '#all-communities-list';
-                        start = parseInt($('#loadMoreComm').attr('allcomm'));
-                    }
-                    else if (currentCom === 'myCom') {
-                        theTraget = '#my-communities-list';
-                        start = parseInt($('#loadMoreComm').attr('mycomm'));
-                    }
-                    else if (currentCom === 'sugCom') {
-                        theTraget = '#suggestion-list';
-                        start = parseInt($('#loadMoreComm').attr('sugcomm'));
-                    } else {
+                    $('#my-communities').addClass('active');
+                    $("#my-communities").click(function() {
+                        $('#loadMoreComm').hide();
+                        currentCom = 'myCom';
+                        $('#all-communities-list,#suggestion-list').hide();
+                        $('#suggestions,#all').removeClass('active');
+                        $('#my-communities').addClass('active');
+                        $('#my-communities-list').show();
+                        //                         if (!($(this).hasClass('clicked'))) {
+                        sendData("loadCommunity", {target: "#my-communities-list", comType: 'myCom', loadImage: true, max: true, start: 0, limit: limit});
+                        //                            $(this).addClass('clicked');
+                        //                        }
 
-                    }
-                    if (currentCom === 'allCom' || currentCom === 'myCom') {
-                        sendData("loadCommunity", {target: theTraget, comType: currentCom, loadImage: false, max: true, start: start, limit: limit, more: true});
-                        return false;
-                    } else if (currentCom === 'sugCom') {
-                        sendData("loadSuggestCommunity", {target: theTraget, loadImage: true, max: true, start: start, Limit: limit, more: true});
-                        return false;
-                    } else {
+                    });
+                    $("#all").click(function() {
+                        currentCom = 'allCom';
+                        start = 0;
+                        //                        $('#loadMoreComm').show();
+                        $('#suggestion-list,#my-communities-list').hide();
+                        $('#all-communities-list').show();
+                        $('#suggestions,#my-communities').removeClass('active');
+                        $('#all').addClass('active');
+                        if (!($(this).hasClass('clicked'))) {
+                            sendData("loadCommunity", {target: "#all-communities-list", comType: 'allCom', loadImage: true, max: true, start: start, limit: limit});
+                            $(this).addClass('clicked');
+                        }
 
-                    }
+                    });
+                    $("#suggestions").click(function() {
+                        currentCom = 'sugCom';
+                        start = 0;
+                        $('#all-communities-list,#my-communities-list').hide();
+                        $('#suggestion-list').show();
+                        //		   
+                        $('#my-communities,#all').removeClass('active');
+                        $('#suggestions').addClass('active');
+                        sendData("loadSuggestCommunity", {
+                            target: "#suggestion-list",
+                            loadImage: true,
+                            max: true,
+                            start: start,
+                            Limit: limit
+                        });
+                    });
+                    var theTraget;
+                    $('#loadMoreComm').click(function() {
+                        $('#loader1').show();
+                        if (currentCom === 'allCom') {
+                            theTraget = '#all-communities-list';
+                            start = parseInt($('#loadMoreComm').attr('allcomm'));
+                        }
+                        else if (currentCom === 'myCom') {
+                            theTraget = '#my-communities-list';
+                            start = parseInt($('#loadMoreComm').attr('mycomm'));
+                        }
+                        else if (currentCom === 'sugCom') {
+                            theTraget = '#suggestion-list';
+                            start = parseInt($('#loadMoreComm').attr('sugcomm'));
+                        } else {
 
-                });
+                        }
+                        if (currentCom === 'allCom' || currentCom === 'myCom') {
+                            sendData("loadCommunity", {target: theTraget, comType: currentCom, loadImage: false, max: true, start: start, limit: limit, more: true});
+                            return false;
+                        } else if (currentCom === 'sugCom') {
+                            sendData("loadSuggestCommunity", {target: theTraget, loadImage: true, max: true, start: start, Limit: limit, more: true});
+                            return false;
+                        } else {
+
+                        }
+
+                    });
     <?php
 } else {
     if (($page == "communities" && trim($param) != "" && trim($param2) == "") || ($page != "communities" && trim($param) == "" && $param2 == "")) {//load community timeline
         if (!$isCreator['status']) {
             ?>
-                                sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10});//do not load community message count (Only for admin)
-        <?php } else { ?>
+                            sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10});//do not load community message count (Only for admin)
+            <?php
+        } else {
+            ?>
                             sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, comname: "<?php echo trim($param) == "" ? $page : $param ?>", start: 0, limit: 10, adminMsgCount: true, comId:<?php echo $comId; ?>});//load community message count for admin
-        <?php } ?>
-        <?php
+            <?php
+        }
     } else if (($page != "communities" && trim($param) != "" && trim($param2) == "" && is_numeric($param)) || ($page == "communities" && trim($param) != "" && trim($param2) != "" && is_numeric($param2))) {//load single post
         ?>
                         sendData("loadCommunity", {target: "#rightcolumn", loadImage: true, max: true, loadAside: true, loadPost: "<?php echo trim($param2) == "" ? $param : $param2 ?>", comname: "<?php echo trim($param2) == "" ? $page : $param ?>", start: 0, limit: 10});
@@ -209,55 +212,55 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
     }
 }
 ?>
-        var user = readCookie('user_auth');
-        if (user !== 0) {
-            sendData("loadNotificationCount", {title: document.title});
-        } else if (user === 0) {
-            $('.nouser').hide();
-        }
-        $(".fancybox").fancybox({
-            openEffect: 'none',
-            closeEffect: 'none',
-            minWidth: 250
-        });
-        $("#commMsgForm").ajaxForm({
-            beforeSubmit: function() {
-                if ($.trim($('#messageTitle').val()) === "" || $.trim($('#message').val()) === "") {
-                    $('#commMsgSuc').hide();
-                    $('#commMsgError').slideDown(300);
-                    $('.commMsgInput').css('border-color', '#8A1F11');
-                    setTimeout(function() {
-                        $('.commMsgInput').css('border-color', '#CCCCCC');
-                        $('#commMsgError').slideUp(300);
-                    }, 10000);
-                    return false;
-                } else {
-                    $('#loadMoreImg1').show();
+                var user = readCookie('user_auth');
+                if (user !== 0) {
+                    sendData("loadNotificationCount", {title: document.title});
+                } else if (user === 0) {
+                    $('.nouser').hide();
                 }
-            },
-            success: function(responseText, statusText, xhr, $form) {
-                $('#commMsgError').hide();
-                $('#commMsgSuc').show();
-                $('.commMsgInput').val("");
-                setTimeout(function() {
-                    $('#commMsgSuc').slideUp(300);
-                }, 80000);
-            },
-            complete: function(xhr) {
-                $('#loadMoreImg1').hide();
-            },
-            data: {
-                uid: readCookie("user_auth"),
-                param: "Send-Community-Message",
-                comId: "<?php echo isset($comInfo['comm']['id']) ? $comInfo['comm']['id'] : ""; ?>"
+                $(".fancybox").fancybox({
+                    openEffect: 'none',
+                    closeEffect: 'none',
+                    minWidth: 250
+                });
+                $("#commMsgForm").ajaxForm({
+                    beforeSubmit: function() {
+                        if ($.trim($('#messageTitle').val()) === "" || $.trim($('#message').val()) === "") {
+                            $('#commMsgSuc').hide();
+                            $('#commMsgError').slideDown(300);
+                            $('.commMsgInput').css('border-color', '#8A1F11');
+                            setTimeout(function() {
+                                $('.commMsgInput').css('border-color', '#CCCCCC');
+                                $('#commMsgError').slideUp(300);
+                            }, 10000);
+                            return false;
+                        } else {
+                            $('#loadMoreImg1').show();
+                        }
+                    },
+                    success: function(responseText, statusText, xhr, $form) {
+                        $('#commMsgError').hide();
+                        $('#commMsgSuc').show();
+                        $('.commMsgInput').val("");
+                        setTimeout(function() {
+                            $('#commMsgSuc').slideUp(300);
+                        }, 80000);
+                    },
+                    complete: function(xhr) {
+                        $('#loadMoreImg1').hide();
+                    },
+                    data: {
+                        uid: readCookie("user_auth"),
+                        param: "Send-Community-Message",
+                        comId: "<?php echo isset($comInfo['comm']['id']) ? $comInfo['comm']['id'] : ""; ?>"
+                    }
+                });
+
+            });
+            function showUpFile() {
+                var s = ($('#userUploadField').val()).split('\\');
+                $('#clickToUserUpload').html('<b>File name:</b> ' + s[s.length - 1]);
             }
-        });
-    
-    });
-    function showUpFile(){
-    var s = ($('#userUploadField').val()).split('\\');
-        $('#clickToUserUpload').html('<b>File name:</b> '+s[s.length-1]);
-    }
         </script>
     </head>
     <body>

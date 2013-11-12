@@ -239,7 +239,7 @@ if (isset($_POST['param'])) {
     else if ($_POST['param'] == "community") {
         include_once './Gossout_Community.php';
         if (isset($_POST['uid'])) {
-            $id = decodeText($_POST['uid']);
+            $id = is_numeric($_POST['uid']) ? $_POST['uid'] : decodeText($_POST['uid']);
             if (is_numeric($id) || $_POST['uid'] == 0) {
                 if (isset($_POST['m'])) {
                     $comm = new Community();
