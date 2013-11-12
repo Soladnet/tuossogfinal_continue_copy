@@ -63,7 +63,7 @@ if (isset($_GET['page'])) {
         include_once './password-reset.php';
     } else if ($_GET['page'] == "tos") {
         include_once './toservice.php';
-    } else if ($_GET['page'] == "privacy") {
+    } else if ($_GET['page'] == "privacy") {        
         include_once './privacy.php';
     } else if ($_GET['page'] == "rights") {
         include_once './rights.php';
@@ -76,7 +76,6 @@ if (isset($_GET['page'])) {
     }else if ($_GET['page'] == "community-message") {
         include_once 'community-message.php';
     }else if ($_GET['page'] == "user-upload-report") {
-//         include  'userUpldRep.php';
         include_once 'phpExcelReader/dompdf/www/demo.php';
        
        

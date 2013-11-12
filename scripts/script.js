@@ -1560,9 +1560,9 @@ function loadCommunity(response, statusText, target){
                     if (response.creator_id === readCookie('user_auth')) {
                         htmlstr += '<div class="posts">'+
                         '<div style="float:left;height:32px;padding-top:5px;color:#444 !important;font-size:16px;">' + response.name + '</div><div class="timeline-filter" style="width:auto;height:auto;padding:2px;float:right;"><ul>'+
-                        '<!--<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>'+
+                        '<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>'+
                         '<li id="comm-members" class="comm-timeline-options"><div><span><img src="images/members.png"/></span> <a>Upload Members</a>'+
-                        '</li>--></ul>'+
+                        '</li></ul>'+
                         '</div>'+
                         '<hr>' +
                         '<span id="member-content" style="display:none;"><div class="post">'+
@@ -1580,7 +1580,7 @@ function loadCommunity(response, statusText, target){
                         '<div style="margin:10px;margin-top:5px;">&nbsp;&nbsp;'+
                         '<span id="userUpSuc" style="display:none;font-size:12px;">Upload successful. <a target="_blank" href="user-upload-report" id="downloadRep">Click here for report</a></span>'+
                         '<span id="userUpFail" style="display:none;font-size:12px;color:red;"></span>'+
-                        '<span id="userUpFail" style="font-size:12px;">Only .xls and .xlsx files are allowed</span>'+
+                        '<span id="user-upload-instructn" style="font-size:12px;">Only .xls and .xlsx files are allowed</span>'+
                         '<span id="usersUpload" style="color:#99C43D;font-size:12px;display:none;">Uploading . . . <img src="images/loading.gif" style="border:none;margin-top:-2px;"></span>'+
                         '</div>'+
                         '</form>'+
@@ -1641,14 +1641,16 @@ function loadCommunity(response, statusText, target){
                 });
                 $("#usersUploadForm").ajaxForm({
                     beforeSubmit: function() {
+                        $('#user-upload-instructn').hide();
                         $('#usersUpload').show();
                     },
                     success: function(responseText, statusText, xhr, $form) {
-                        $('#usersUpload,#userUpFail,#userUpFail').hide();
-                        if(responseText.status){
-                            $('#userUpSuc').fadeIn();
+                        $('#usersUpload,#userUpSuc,#userUpFail').hide();
+                        if(responseText.status ){
+                            $('#downloadRep').attr('href',  'user-upload-report/'+responseText.report);
+                                $('#userUpSuc').fadeIn();
                         }else{
-                            $('#userUpFail').html(responseText.Error).fadeIn();
+                            $('#userUpFail').html(responseText.Error).show();
                         }
                     },
                     complete: function(xhr) {
@@ -1859,9 +1861,9 @@ function loadCommunity(response, statusText, target){
             }, 500);
         });
         $('.animateInput').focusout(function(){
-                $('.animateInput').animate({
-                    "height": '100px'
-                }, 100);
+            $('.animateInput').animate({
+                "height": '100px'
+            }, 100);
         });
     
     }

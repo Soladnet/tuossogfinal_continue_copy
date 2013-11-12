@@ -18,6 +18,7 @@ if (isset($_COOKIE['user_auth'])) {
 <!doctype html>
 <html lang="en">
     <head>
+      <?php  include_once './webbase.php'; ?>
         <title>Gossout - Privacy</title>
         <script src="scripts/jquery-1.9.1.min.js"></script>
         <link rel="shortcut icon" href="favicon.ico">

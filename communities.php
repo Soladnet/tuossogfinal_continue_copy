@@ -1,5 +1,4 @@
 <?php
-setcookie("url", 'niyi.com');
 header('Content-type: text/html; charset=UTF-8');
 include_once './Gossout_Community.php';
 $page = trim($_GET['page']);
@@ -256,8 +255,8 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
     
     });
     function showUpFile(){
-        $('#clickToUserUpload').html('Selected file: sample.xml');
-       
+    var s = ($('#userUploadField').val()).split('\\');
+        $('#clickToUserUpload').html('<b>File name:</b> '+s[s.length-1]);
     }
         </script>
     </head>
