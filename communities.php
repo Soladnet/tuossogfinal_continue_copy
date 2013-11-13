@@ -275,11 +275,8 @@ if (trim($param) == "" && trim($param2) == "" && $page == "communities") {//load
                 <span id="rightcolumn" class="">
                     <?php if ($_GET['page'] == "communities" && $_GET['param'] == "") { ?>
                         <div class="communities-list">
-                            <div>
-                                <div style="float:left;background:#f8f8f8;padding:3px;width:94px;border:1px solid #c6c6c6;"><a href="create-community">Create new </a></div>
-                                <div><h3>&nbsp;Communities of your own World! It's pretty easy!</h3></div>
-                            </div>
                             <div class="clear"></div>      
+                            <span class="button" style="float: right"><a href="create-community">Create New</a></span>
                             <h1>Communities</h1>
                             <div class="clear"></div>
 

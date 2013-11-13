@@ -43,7 +43,8 @@
                     ?>
                     <li>
                         <a>
-                            <span onclick='javascript:callTour();return false;'>Take a Tour</span>
+                            <span onclick='javascript:callTour();
+                                                return false;'>Take a Tour</span>
                         </a>
 
                     </li>
@@ -53,7 +54,8 @@
                 ?>
                 <li>
                     <a>
-                        <span onclick='javascript:callTour();return false;'>Take a Tour</span>
+                        <span onclick='javascript:callTour();
+                                            return false;'>Take a Tour</span>
                     </a>
                 </li>
                 <?php
@@ -61,7 +63,7 @@
             ?>
             <!--<div id='settings_profile'></div>-->
             <li class="nav-user-profile last hint hint--left  float-right" data-hint="Profile Settings"  id="user-actions">
-                <a><span>[<?php echo $user->getFullname()?>]</span></a>
+                <a><span>[<?php echo $user->getFullname() ?>]</span></a>
                 <a><span class="icon-16-user"></span></a>
                 <div class="user-actions-container" id="pop-up-user-actions">
                     <div class="user-actions">
@@ -78,7 +80,14 @@
         </ul>
         <?php
     } else {
-        echo "<p>&nbsp;<br/></p>";
+        ?>
+        <ul>
+            <li class="nav-user-profile last hint hint--left  float-right" data-hint="Click to login"  id="user-actions">
+                <a href="login">Login <span class="icon-16-logout"></span></a>
+
+            </li>
+        </ul>
+        <?php
     }
     ?>
     <div class="clear"></div>
