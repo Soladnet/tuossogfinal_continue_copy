@@ -17,7 +17,7 @@ if (isset($_POST['us'])) {
             $target = $uploadDir . $_FILES['user-file']['name'];
             if (in_array($ext, $fileTypes)) {
                 if (@move_uploaded_file($tempFile, $target)) {
-                   include_once '../Config.php';
+                    include_once '../Config.php';
                     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
                     $arrValues = array(); //to hold all uploaded values as a 2-dimensional array with a row representing a full user's record irrespective of the input status (valid or not valid)
                     $emails = array(); //will  hold all emails to be uploaded as a array
@@ -148,7 +148,7 @@ if (isset($_POST['us'])) {
                                             $mailStatus = hasHost($em);
                                             if ($mailStatus['status']) {//email has a valid host, proceed to check the date
                                                 $isDate = isDate($date);
-                                                if ($isDate['status']) {//date is in acceptable format and figures
+                                                if ($isDate['status']) {
                                                     $emails[$em] = $em;
                                                     $f_emails[] = "'" . $em . "'";
                                                 } else {//date is not in acceptable format and figures
@@ -226,7 +226,7 @@ if (isset($_POST['us'])) {
                     $arrIds = array();
                     $stmtUpldInfo = $pdo->prepare($UploadInforQ);
                     $runUploadInfo = $stmtUpldInfo->execute(array("$filename", "$commId", "$report"));
-                    if ($runUploadInfo){
+                    if ($runUploadInfo) {
                         if ($countVal >= $minimumRows) {
                             $emails_str = implode(",", $f_emails);
                             if ($mysql->connect_errno > 0) {
@@ -269,7 +269,12 @@ if (isset($_POST['us'])) {
                                     $arrSex = array('f', 'm');
                                     if (in_array($g, $arrSex)) {
                                         $stmt = $pdo->prepare($insert_string);
-                                        $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . $arrValues[$j]['Gender'] . "", "" . formatDate($arrValues[$j]['DoB']) . "", "", "", "", "", "", "", "", "", "", "");
+                                        if ($ext === 'xls') {
+                                            $date1 = new DateTime(formatDate($arrValues[$j]['DoB']));
+                                            $date1->sub(new DateInterval('P1D'));
+                                            $arrValues[$j]['DoB'] = $date1->format('Y-m-d');
+                                        }
+                                        $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . $arrValues[$j]['Gender'] . "", "" . $arrValues[$j]['DoB'] . "", "", "", "", "", "", "", "", "", "", "");
                                         try {
                                             $runner = $stmt->execute($arrv);
                                             if ($runner) {
@@ -331,7 +336,7 @@ if (isset($_POST['us'])) {
     }
 
     $registered = count($arrSuccess);
-    if (empty($errors) && $registered > 0){
+    if (empty($errors) && $registered > 0) {
         $countVal = count($arrValues);
         $rejected = count($emailProblems);
 //        $data__table1 = "";
@@ -364,14 +369,13 @@ if (isset($_POST['us'])) {
         $arrRes['registered'] = $registered;
         file_put_contents("../bulkRegReport/$report.txt", $data__table);
     } else {
-        if (empty($errors)) 
+        if (empty($errors))
             $arrRes['Error'] = "No valid rows found";
-        else 
-          $arrRes['Error'] = $errors[0];  
-        
+        else
+            $arrRes['Error'] = $errors[0];
+
         $arrRes['data'] = "";
         $arrRes['status'] = FALSE;
-        
     }
     echo json_encode($arrRes);
 } else {

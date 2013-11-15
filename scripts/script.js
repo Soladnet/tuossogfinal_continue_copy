@@ -1640,6 +1640,7 @@ function loadCommunity(response, statusText, target){
                 });
                 $("#usersUploadForm").ajaxForm({
                     beforeSubmit: function() {
+                        if($('#userUploadField').val()=="") return false;
                         $('#user-upload-instructn').hide();
                         $('#usersUpload').show();
                     },
@@ -1647,7 +1648,7 @@ function loadCommunity(response, statusText, target){
                         $('#usersUpload,#userUpSuc,#userUpFail').hide();
                         if(responseText.status ){
                             $('#downloadRep').attr('href',  'user-upload-report/'+responseText.report);
-                                $('#userUpSuc').fadeIn();
+                            $('#userUpSuc').fadeIn();
                         }else{
                             $('#userUpFail').html(responseText.Error).show();
                         }
