@@ -68,9 +68,9 @@ if ($ipData['timezone']) {
                 <div class="index-intro-2">
                     <div class="registration">
                         <div class="index-intro-1">
-                            <h1>
-                                We knew you'd come back ;) How've you been?
-                            </h1>
+                            <h2>
+                                Welcome Back!
+                            </h2>
                             <hr>
                         </div>
                         <form action="login_exec" method="post">
