@@ -1583,8 +1583,7 @@ function loadCommunity(response, statusText, target){
                         '<span id="user-upload-instructn" style="font-size:12px;">Only .xls and .xlsx files are allowed</span>'+
                         '<span id="usersUpload" style="color:#99C43D;font-size:12px;display:none;">Uploading . . . <img src="images/loading.gif" style="border:none;margin-top:-2px;"></span>'+
                         '</div>'+
-                        '</form>'+
-                        //                           
+                        '</form>'+              
                         '</div></span>'+
                         '<span id="timelime-content"><div class="post-box"><form method="POST" action="tuossog-api-json.php" id="com-' + response.id + '" enctype="multipart/form-data">' +
                         '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="animateInput"></textarea>' +

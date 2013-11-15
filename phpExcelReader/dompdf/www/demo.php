@@ -1,5 +1,6 @@
 <?php
 @session_start();
+include_once './Config.php';
 if (isset($_COOKIE['user_auth'])) {
     include_once './encryptionClass.php';
     include_once './GossoutUser.php';
@@ -14,12 +15,44 @@ if (isset($_COOKIE['user_auth'])) {
         $login = new Login();
         $login->logout();
     }
+    $param = trim($_GET['param']);
+    if (!is_numeric($param) || empty($param)) {
+        include_once './404.php';
+        exit;
+    } else {
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        $arr = array('status' => FALSE);
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "SELECT report From bulk_registration WHERE report = $param";
+            if ($result = $mysql->query($sql)) {
+                if ($result->num_rows == 0) {
+                    include_once './404.php';
+                    exit;
+                } else {
+                    $sql = "SELECT name FROM community WHERE id =(SELECT commId FROM bulk_registration WHERE report =  $param)";
+                    if ($result = $mysql->query($sql)) {
+                        if ($result->num_rows > 0) {
+                            $row = $result->fetch_row();
+                            $comName = $row[0];
+                        }
+                    }
+                }
+            }
+        }
+    }
+} else {
+    include_once './LoginClass.php';
+    $login = new Login();
+    $login->logout();
 }
 ?>
 <!doctype html>
 <html lang="en">
     <head>
-        <title>Users Information Upload Report</title>
+        <?php include_once './webbase.php'; ?>
+        <title><?php echo "$comName -Users Information Upload Report [$param]"; ?></title>
         <script src="scripts/jquery-1.9.1.min.js"></script>
         <link rel="shortcut icon" href="favicon.ico">
         <link rel="stylesheet" media="screen" href="css/style.min.1.0.css">
@@ -45,9 +78,9 @@ if (isset($_COOKIE['user_auth'])) {
         <div class="index-page-wrapper">	
             <div class="index-nav">
                 <span class="index-login" id="name-login-cont"><?php
-                    echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-                            'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-                    ?></span>
+        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+        ?></span>
                 <div class="clear"></div>
             </div>
             <div class="index-banner">
@@ -65,12 +98,10 @@ if (isset($_COOKIE['user_auth'])) {
                     <div style='min-width: 1021px;border-radius:5px;border:1px #ccc solid;background: white;width: 90%;height: auto;text-align: left;'>
                         <div style="margin: 2em;margin-top:1em;text-align:justify">
                             <?php
-//                            $file = "bulkRegReport/$name.txt";
-//                            $h = file_get_contents($file);
-//                            $arry = explode('<rabiusal>', $h);
-//                            echo "<center>$arry[0].$arry[2]</center>";
-                            echo $_SESSION['uploadReport'];
-                            print_r($_COOKIE);
+                            $file = "bulkRegReport/$param.txt";
+                            $h = file_get_contents($file);
+                            $arry = explode('<rabiusal>', $h);
+                            echo "<center>$arry[0].$arry[2]</center>";
                             ?>
                         </div> 
                     </div>

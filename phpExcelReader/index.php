@@ -1,10 +1,10 @@
 <?php
+
 if (session_id() == "")
     @session_start();
 if (isset($_POST['us'])) {
-    ini_set('max_execution_time', 300); //300 seconds = 5 minutes
+    ini_set('max_execution_time', 600); //300 seconds = 5 minutes
     $uploadDir = 'users/';
-//print_r($_FILES);
     $arrRes = array('status' => FALSE);
     $errors = array();
     if (isset($_POST['us'])) {
@@ -17,10 +17,7 @@ if (isset($_POST['us'])) {
             $target = $uploadDir . $_FILES['user-file']['name'];
             if (in_array($ext, $fileTypes)) {
                 if (@move_uploaded_file($tempFile, $target)) {
-                    define("HOSTNAME", "localhost");
-                    define("USERNAME", "root");
-                    define("PASSWORD", "");
-                    define("DATABASE_NAME", "gossoutdb");
+                   include_once '../Config.php';
                     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
                     $arrValues = array(); //to hold all uploaded values as a 2-dimensional array with a row representing a full user's record irrespective of the input status (valid or not valid)
                     $emails = array(); //will  hold all emails to be uploaded as a array
@@ -31,7 +28,7 @@ if (isset($_POST['us'])) {
                     $emailProblems = array();
                     $i = $m = $p = 2; // start index is 2 since we want to start reding from the second row of the excel file. The first row is just headings and is not needed. 
                     $countVal = 0;
-                    $minimumRows = 4;
+                    $minimumRows = 1;
 
                     /**
                       function definitions begins here
@@ -223,13 +220,13 @@ if (isset($_POST['us'])) {
                     $filename = $_FILES['user-file']['name'];
                     $cId = explode('-', $_POST['upComId']);
                     $commId = end($cId);
-                    $report = $commId . '_' . time();
+                    $report = $commId . time();
                     $successUserQ = "INSERT INTO `success_uploaded_users` (`uploadId`, `userId`) VALUES (?, ?)";
                     $arrSuccess = array();
                     $arrIds = array();
                     $stmtUpldInfo = $pdo->prepare($UploadInforQ);
                     $runUploadInfo = $stmtUpldInfo->execute(array("$filename", "$commId", "$report"));
-                    if ($runUploadInfo) {
+                    if ($runUploadInfo){
                         if ($countVal >= $minimumRows) {
                             $emails_str = implode(",", $f_emails);
                             if ($mysql->connect_errno > 0) {
@@ -298,16 +295,16 @@ if (isset($_POST['us'])) {
                                                             $emailProblems[$j] = "System error or User already exist!";
                                                         }
                                                     } else {
-                                                        $emailProblems[$j] = "System error or User already exist!";
+                                                        $emailProblems[$j] = "System error or user already exist!";
                                                     }
                                                 } catch (Exception $exc) {
-                                                    $emailProblems[$j] = "System error or User already exist!";
+                                                    $emailProblems[$j] = "System error or user already exist!";
                                                 }
                                             } else {
                                                 //user cannot be inserted
                                             }
                                         } catch (Exception $exc) {
-                                            $emailProblems[$j] = "System error or User already exist!";
+                                            $emailProblems[$j] = "System error or user already exist!";
                                         }
                                     } else {
                                         $emailProblems[$j] = 'Input gender value not accepptable';
@@ -332,9 +329,10 @@ if (isset($_POST['us'])) {
     } else {
         $errors[] = 'Submission not successful';
     }
-    if (empty($errors)) {
+
+    $registered = count($arrSuccess);
+    if (empty($errors) && $registered > 0){
         $countVal = count($arrValues);
-        $registered = count($arrSuccess);
         $rejected = count($emailProblems);
 //        $data__table1 = "";
         $data__table = "<center><div style='width:960px;'><rabiusal><img src='images/gossout-logo-image-svg.png' height='62' align='left'/><rabiusal><center><div style='width:100%;border-bottom:1px #99c43d solid;'><h3 style='color:#99c43d;margin-bottom:-12px;'><strong>Success -Your information upload was successful!</strong></h3><br><h4>The statistics of your upload are given below:</h4></div></center>";
@@ -362,12 +360,18 @@ if (isset($_POST['us'])) {
         $arrRes['data'] = $data__table;
         $arrRes['status'] = TRUE;
         $arrRes['count'] = $countVal;
+        $arrRes['report'] = $report;
         $arrRes['registered'] = $registered;
         file_put_contents("../bulkRegReport/$report.txt", $data__table);
     } else {
-//        file_put_contents("../bulkRegReport/$report.txt", "Nothing for now");
+        if (empty($errors)) 
+            $arrRes['Error'] = "No valid rows found";
+        else 
+          $arrRes['Error'] = $errors[0];  
+        
         $arrRes['data'] = "";
-        $arrRes['Error'] = $errors[0];
+        $arrRes['status'] = FALSE;
+        
     }
     echo json_encode($arrRes);
 } else {
