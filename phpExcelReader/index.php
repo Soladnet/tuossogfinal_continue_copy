@@ -60,7 +60,7 @@ if (isset($_POST['us'])) {
                             return $result;
                         }
                         $date_data = explode('/', filter($date));
-                        if (is_numeric($date_data[0]) && ($date_data[0]) && is_numeric($date_data[1]) && ($date_data[1]) && is_numeric($date_data[2]) && ($date_data[2]) && ($date_data[2] >= 1960) && ($date_data[2] < 2000)) {
+                        if (is_numeric($date_data[0]) && ($date_data[0] > 0 && ($date_data[0]) <=31) &&  is_numeric($date_data[1]) && ($date_data[1]) && ($date_data[1] <= 12) && ($date_data[1] > 0)  && is_numeric($date_data[2]) && ($date_data[2]) && ($date_data[2] >= 1960) && ($date_data[2] < 2000)) {
                             $result['status'] = TRUE;
                             return $result;
                         } else {
@@ -273,9 +273,10 @@ if (isset($_POST['us'])) {
                                             $date1 = new DateTime(formatDate($arrValues[$j]['DoB']));
                                             $date1->sub(new DateInterval('P1D'));
                                             $arrValues[$j]['DoB'] = $date1->format('Y-m-d');
-                                        }
-                                        $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . $arrValues[$j]['Gender'] . "", "" . $arrValues[$j]['DoB'] . "", "", "", "", "", "", "", "", "", "", "");
-                                        try {
+                                            $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . $arrValues[$j]['Gender'] . "", "" . $arrValues[$j]['DoB'] . "", "", "", "", "", "", "", "", "", "", "");
+                                        } else{
+                                            $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . $arrValues[$j]['Gender'] . "", "" . formatDate($arrValues[$j]['DoB']) . "", "", "", "", "", "", "", "", "", "", "");
+                                        }try {
                                             $runner = $stmt->execute($arrv);
                                             if ($runner) {
                                                 $lastId = $pdo->lastInsertId();
