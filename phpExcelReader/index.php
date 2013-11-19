@@ -54,15 +54,19 @@ if (isset($_POST['us'])) {
                         return $result;
                     }
 
-//                    function isDate($date) {//parameter are $date and the corresponding email corresponding date to be checked
-//                        $UNIX_DATE = ($date - 25569) * 86400;
-//                        $dt = gmdate("m/d/Y", $UNIX_DATE);
-//                        $arrdt = explode('/', $dt);
-//                        $x = $arrdt[0];
-//                        $arrdt[0] = $arrdt[1];
-//                        $arrdt[1] = $x;
-//                        return implode('/', $arrdt);
-//                    }
+                    function isDate($date) {//parameter are $date and the corresponding email corresponding date to be checked
+                        if (!strstr($date, '-')) {
+                            return false;
+                        }
+                        $vals = explode('-', $date);
+                        foreach ($vals as $v) {
+                            if (strlen($v) > 2)
+                                return false;
+                        }
+                        if($vals[0]==0 || $vals[0] > 12 || $vals[0] < 0 || $vals[1]==0 || $vals[1] > 31 || $vals[1] < 0)
+                            return false;
+                        return true;
+                    }
 
                     function genPass($length = 8) {
                         $password = "";
@@ -117,8 +121,6 @@ if (isset($_POST['us'])) {
                         }
                     }
 
-                  
-
                     //prepared statement allow for a single parsing of query in multuple use
                     $insert_string = "INSERT INTO `user_personal_info` (`firstname`, `lastname`, `email`, `username`, `gender`, `dob`, `phone`, `url`, `relationship_status`, `bio`, `favquote`, `location`, `likes`, `dislikes`, `works`, `agreement`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     if ($ext === "xls" || $ext === "xlsx") {
@@ -127,13 +129,13 @@ if (isset($_POST['us'])) {
                         $objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
                         $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
                         $arr = array();
-                        $countVal = count($sheetData)-1;
+                        $countVal = count($sheetData) - 1;
                         for ($i; $i <= count($sheetData); $i++) {//start from the second row of the excel file
                             $em = filter($sheetData[$i]['E']);
                             if (preg_match('/^\S+@[\w\d.-]{2,}\.[\w]{2,6}$/iU', $em)) {//quick run of a regex validatory check for email
                                 $mailStatus = hasHost($em);
                                 if ($mailStatus['status']) {
-                                    if (strlen($sheetData[$i]['D']) === 8) {
+                                    if (strlen($sheetData[$i]['D']) === 8 && isdate($sheetData[$i]['D'])) {
                                         try {
                                             $date1 = new DateTime(formatDate($sheetData[$i]['D']));
                                             $date2 = new DateTime("now");
@@ -251,6 +253,7 @@ if (isset($_POST['us'])) {
                                                             if ($runSucUpld) {
                                                                 $arrSuccess[$arrValues[$j]['Email']] = "Successfully registered";
                                                                 $arrIds[$j] = $lastId;
+                                                                //send email to the user here
                                                                 $pdo->commit();
                                                             } else {
                                                                 $pdo->rollBack();
