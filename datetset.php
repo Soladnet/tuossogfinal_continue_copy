@@ -1,5 +1,9 @@
 <?php
-$date = new DateTime('2000-01-20');
-$date->sub(new DateInterval('P2D'));
-$date->format('Y-m-d');
+
+require_once "phpExcelReader/simplexlsx.class.php";
+$xlsx = new SimpleXLSX("sample_users.xls");
+$countVal = count($xlsx->rows());
+    print_r($xlsx->rows());
+    echo '<br>';
+
 ?>

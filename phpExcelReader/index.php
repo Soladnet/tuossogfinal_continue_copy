@@ -17,13 +17,14 @@ if (isset($_POST['us'])) {
             $target = $uploadDir . $_FILES['user-file']['name'];
             if (in_array($ext, $fileTypes)) {
                 if (@move_uploaded_file($tempFile, $target)) {
-                   include_once '../Config.php';
+                    include_once '../Config.php';
                     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
                     $arrValues = array(); //to hold all uploaded values as a 2-dimensional array with a row representing a full user's record irrespective of the input status (valid or not valid)
                     $emails = array(); //will  hold all emails to be uploaded as a array
                     $f_emails = array(); //will hold all emails to be uploaded as a array with quotes suitable for query processing
                     $arrUnames = array(); // will hold array of usernames with emails as keys
                     $arrHeadings = array(1 => 'First_Name', 'Last_Name', 'Gender', 'DoB', 'Email'); //array of headings to be used as indexes during query preparations
+                    $arrKeys = array(1 => 'A', 'B', 'C', 'D', 'E');
                     $rejectedEmails = array();
                     $emailProblems = array();
                     $i = $m = $p = 2; // start index is 2 since we want to start reding from the second row of the excel file. The first row is just headings and is not needed. 
@@ -53,27 +54,15 @@ if (isset($_POST['us'])) {
                         return $result;
                     }
 
-                    function isDate($date) {//parameter are $date and the corresponding email corresponding date to be checked
-                        $result = array('status' => FALSE);
-                        if (!strstr($date, '/')) {
-                            $result['problem'] = 'Input date contains an invalid character';
-                            return $result;
-                        }
-                        $date_data = explode('/', filter($date));
-                        if (is_numeric($date_data[0]) && ($date_data[0] > 0) && ($date_data[0] <= 31) && is_numeric($date_data[1]) && ($date_data[1] > 0) && ($date_data[1] <= 12) && is_numeric($date_data[2]) && ($date_data[2] >= 1960) && ($date_data[2] <= 2000)) {
-                            $result['status'] = TRUE;
-                            return $result;
-                        } else {
-                            if (!is_numeric($date_data[0]) || !is_numeric($date_data[1]) || !is_numeric($date_data[2]))
-                                $result['problem'] = 'Input date contains an invalid character';
-                            elseif ($date_data[2] < 1960 || $date_data[2] > 2000) {
-                                $result['problem'] = 'Input year not in acceptable range (1960 - 2000)';
-                            } else {
-                                $result['problem'] = 'Input date not in correct format';
-                            }
-                            return $result;
-                        }
-                    }
+//                    function isDate($date) {//parameter are $date and the corresponding email corresponding date to be checked
+//                        $UNIX_DATE = ($date - 25569) * 86400;
+//                        $dt = gmdate("m/d/Y", $UNIX_DATE);
+//                        $arrdt = explode('/', $dt);
+//                        $x = $arrdt[0];
+//                        $arrdt[0] = $arrdt[1];
+//                        $arrdt[1] = $x;
+//                        return implode('/', $arrdt);
+//                    }
 
                     function genPass($length = 8) {
                         $password = "";
@@ -90,11 +79,23 @@ if (isset($_POST['us'])) {
                     }
 
                     function formatDate($date) {//formats date into acceptable format by the db
-                        $date_data = explode('/', $date);
-                        $last = $date_data[2];
-                        $date_data[2] = $date_data[0];
-                        $date_data[0] = $last;
-                        return implode('-', $date_data);
+                        if (strstr($date, '-')) {
+                            $date_data = explode('-', $date);
+                            $year = $date_data[2];
+                            $month = $date_data[0];
+                            $date_data[2] = $date_data[1];
+                            $date_data[0] = $year; // :  ($date_data[0] <= 13 && $date_data[0] >= 0) ? $date_data[0] = "20" . $date_data[0] : $date_data[0] = "19" . $date_data[0];
+                            if ($date_data[0] >= 60)
+                                $date_data[0] = '19' . $date_data[0];
+                            if ($date_data[0] < 60 && $date_data[0] >= 13)
+                                $date_data[0] = '19' . $date_data[0];
+                            if ($date_data[0] <= 13 && $date_data[0] >= 0)
+                                $date_data[0] = '20' . $date_data[0];
+                            $date_data[1] = $month;
+                            return implode('-', $date_data);
+                        } else {
+                            return $date;
+                        }
                     }
 
                     function prepareUsername($uname) {
@@ -116,86 +117,49 @@ if (isset($_POST['us'])) {
                         }
                     }
 
-                    function convertDate($date) {//date converstion form xlsx format into standard format
-                        $UNIX_DATE = ($date - 25569) * 86400;
-                        $dt = gmdate("m/d/Y", $UNIX_DATE);
-                        $arrdt = explode('/', $dt);
-                        $x = $arrdt[0];
-                        $arrdt[0] = $arrdt[1];
-                        $arrdt[1] = $x;
-                        return implode('/', $arrdt);
-                    }
+                  
 
                     //prepared statement allow for a single parsing of query in multuple use
                     $insert_string = "INSERT INTO `user_personal_info` (`firstname`, `lastname`, `email`, `username`, `gender`, `dob`, `phone`, `url`, `relationship_status`, `bio`, `favquote`, `location`, `likes`, `dislikes`, `works`, `agreement`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    if ($ext === "xls") {
-                        require_once 'Excel/reader.php';
-                        $data = new Spreadsheet_Excel_Reader();
-                        $data->setOutputEncoding('CP1251');
-                        $data->read($target);
-                        error_reporting(E_ALL ^ E_NOTICE);
-                        //this loop takes the rows of the uploaded excel file one after other. It performs series of checks at every instance of operation. In the end,
-                        //any rejected email for any reason is added to rejected email array and the reason for such rejection is included in another array: $emailProblems. Though thses two array may be merged into one
-                        //$emailProblems takes an email as key and the problem string as value. Both the $emailProblems and $rejectedEmails arrays would be of use later for user's feedback.
-                        for ($i; $i <= $data->sheets[0]['numRows']; $i++) {//start from the second row of the excel file
-                            for ($k = 1; $k < $data->sheets[0]['numCols']; $k++) {//make the new array of values to be associative using $arrHeadings values as indexes
-                                if (filter($data->sheets[0]['cells'][$i][1]) !== "") {
-                                    $arrValues[filter($data->sheets[0]['cells'][$i][5])][$arrHeadings[$k]] = filter($data->sheets[0]['cells'][$i][$k]);
-                                    $date = filter($data->sheets[0]['cells'][$i][4]);
-                                    if ($k === 5) {//reduce overhead by making all checks @ once when you get to the email column
-                                        $em = filter($data->sheets[0]['cells'][$i][5]);
-                                        if (preg_match('/^\S+@[\w\d.-]{2,}\.[\w]{2,6}$/iU', $em)) {//quick run of a regex validatory check for email
-                                            $mailStatus = hasHost($em);
-                                            if ($mailStatus['status']) {//email has a valid host, proceed to check the date
-                                                $isDate = isDate($date);
-                                                if ($isDate['status']) {//date is in acceptable format and figures
-                                                    $emails[$em] = $em;
-                                                    $f_emails[] = "'" . $em . "'";
-                                                } else {//date is not in acceptable format and figures
-                                                    unset($arrValues[filter($data->sheets[0]['cells'][$i][5])][$arrHeadings[$k]]);
-                                                    $rejectedEmails[] = $em;
-                                                    $emailProblems[$em] = $isDate['problem'];
-                                                }
-                                            } else {//email does not have a verifiable host
-                                                $rejectedEmails[] = $mailStatus['email'];
-                                                $emailProblems[$em] = $mailStatus['problem'];
-                                            }
-                                        } else {//email is not in valid email format so add it to blacklist before next logic
-                                            $rejectedEmails[] = $em;
-                                            $emailProblems[$em] = 'Input email is not valid';
-                                        }
-                                    }
-                                }
-                            }
-                            if (filter($data->sheets[0]['cells'][$i][1]) !== "" && filter($data->sheets[0]['cells'][$i][2]) !== "" && filter($data->sheets[0]['cells'][$i][3]) !== "" && filter($data->sheets[0]['cells'][$i][4]) !== "" && filter($data->sheets[0]['cells'][$i][5]) !== "")
-                                $countVal++;
-                        }
-                    } else {//file is in xlsx format (latest excel format).Same logic as above goes below but for .xlsx formats
-                        require_once "simplexlsx.class.php";
-                        $xlsx = new SimpleXLSX($target);
-                        $countVal = count($xlsx->rows());
-                        foreach ($xlsx->rows() as $k => $r) {//start from the second row of the excel file
-                            if ($k == 0)
-                                continue; // skip first row
-                            $arr = $r;
-                            $arrValues[filter($arr[4])][$arrHeadings[1]] = $arr[0];
-                            $arrValues[filter($arr[4])][$arrHeadings[2]] = $arr[1];
-                            $arrValues[filter($arr[4])][$arrHeadings[3]] = $arr[2];
-                            $arrValues[filter($arr[4])][$arrHeadings[4]] = convertDate($arr[3]);
-                            $arrValues[filter($arr[4])][$arrHeadings[5]] = $arr[4];
-                            $em = $arr[4];
+                    if ($ext === "xls" || $ext === "xlsx") {
+                        include 'PHPExcel/IOFactory.php';
+                        $inputFileName = $target;
+                        $objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
+                        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+                        $arr = array();
+                        $countVal = count($sheetData)-1;
+                        for ($i; $i <= count($sheetData); $i++) {//start from the second row of the excel file
+                            $em = filter($sheetData[$i]['E']);
                             if (preg_match('/^\S+@[\w\d.-]{2,}\.[\w]{2,6}$/iU', $em)) {//quick run of a regex validatory check for email
                                 $mailStatus = hasHost($em);
-                                if ($mailStatus['status']) {//email has a valid host, proceed to check the date
-                                    $date = convertDate($arr[3]);
-                                    $isDate = isDate($date);
-                                    if ($isDate['status']) {//date is in acceptable format and figures
-                                        $emails[$em] = $em;
-                                        $f_emails[] = "'" . $em . "'";
-                                    } else {//date is not in acceptable format and figures
-//                                    unset($arrValues[$em]);
+                                if ($mailStatus['status']) {
+                                    if (strlen($sheetData[$i]['D']) === 8) {
+                                        try {
+                                            $date1 = new DateTime(formatDate($sheetData[$i]['D']));
+                                            $date2 = new DateTime("now");
+                                            $interval = $date1->diff($date2);
+                                            $years = $interval->format('%y');
+                                            if ($years >= 13) {
+                                                for ($k = 1; $k <= 5; $k++) {
+                                                    if ($k == 4)
+                                                        $arr[$arrHeadings[$k]] = formatDate($sheetData[$i][$arrKeys[$k]]);
+                                                    else
+                                                        $arr[$arrHeadings[$k]] = filter($sheetData[$i][$arrKeys[$k]]);
+                                                }
+                                                $arrValues[filter($sheetData[$i]['E'])] = $arr;
+                                                $emails[$em] = $em;
+                                                $f_emails[] = "'" . $em . "'";
+                                            }else {
+                                                $rejectedEmails[] = $em;
+                                                $emailProblems[$em] = 'Input date not in acceptable format/figure';
+                                            }
+                                        } catch (Exception $exc) {
+                                            $rejectedEmails[] = $em;
+                                            $emailProblems[$em] = 'Input date not in acceptable format/figure';
+                                        }
+                                    } else {
                                         $rejectedEmails[] = $em;
-                                        $emailProblems[$em] = $isDate['problem'];
+                                        $emailProblems[$em] = 'Input date not in acceptable format/figure';
                                     }
                                 } else {//email does not have a verifiable host
                                     $rejectedEmails[] = $mailStatus['email'];
@@ -226,7 +190,7 @@ if (isset($_POST['us'])) {
                     $arrIds = array();
                     $stmtUpldInfo = $pdo->prepare($UploadInforQ);
                     $runUploadInfo = $stmtUpldInfo->execute(array("$filename", "$commId", "$report"));
-                    if ($runUploadInfo){
+                    if ($runUploadInfo) {
                         if ($countVal >= $minimumRows) {
                             $emails_str = implode(",", $f_emails);
                             if ($mysql->connect_errno > 0) {
@@ -269,7 +233,7 @@ if (isset($_POST['us'])) {
                                     $arrSex = array('f', 'm');
                                     if (in_array($g, $arrSex)) {
                                         $stmt = $pdo->prepare($insert_string);
-                                        $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . $arrValues[$j]['Gender'] . "", "" . formatDate($arrValues[$j]['DoB']) . "", "", "", "", "", "", "", "", "", "", "");
+                                        $arrv = array("" . $arrValues[$j]['First_Name'] . "", "" . $arrValues[$j]['Last_Name'] . "", "" . $arrValues[$j]['Email'] . "", "" . $arrUnames[$arrValues[$j]['Email']] . "", "" . strtoupper($arrValues[$j]['Gender']) . "", "" . $arrValues[$j]['DoB'] . "", "", "", "", "", "", "", "", "", "", "");
                                         try {
                                             $runner = $stmt->execute($arrv);
                                             if ($runner) {
@@ -331,9 +295,9 @@ if (isset($_POST['us'])) {
     }
 
     $registered = count($arrSuccess);
-    if (empty($errors) && $registered > 0){
-        $countVal = count($arrValues);
-        $rejected = count($emailProblems);
+    if (empty($errors) && $registered > 0) {
+//        $rejectedArr = array_diff($arrValues, $arrSuccess);
+        $rejected = $countVal - $registered;
 //        $data__table1 = "";
         $data__table = "<center><div style='width:960px;'><rabiusal><img src='images/gossout-logo-image-svg.png' height='62' align='left'/><rabiusal><center><div style='width:100%;border-bottom:1px #99c43d solid;'><h3 style='color:#99c43d;margin-bottom:-12px;'><strong>Success -Your information upload was successful!</strong></h3><br><h4>The statistics of your upload are given below:</h4></div></center>";
         $data__table.= "<p align='left'>Total records(rows) found: $countVal <br>Registered records: $registered <br>Unregistered records: $rejected</p><br>";
@@ -349,10 +313,10 @@ if (isset($_POST['us'])) {
         }
 
         if ($rejected > 0) {
-            $data__table .= "<div style='width:100%;border-bottom:1px red solid;margin-bottom:5px;color:red;font-weight:bold;' align='left'>Unregistered Records</div><table width='960px' border='1' cellspacing='0'><tr><th colspan='2' class='bold'>Email</th><th colspan='2' class='bold'>Fullname</th><th colspan='2' class='bold'>Status</th></tr>";
+            $data__table .= "<div style='width:100%;border-bottom:1px red solid;margin-bottom:5px;color:red;font-weight:bold;' align='left'>Unregistered Records</div><table width='960px' border='1' cellspacing='0'><tr><th colspan='2' class='bold'>Email</th><th colspan='2' class='bold'>Status</th></tr>";
             foreach ($emailProblems as $key => $v) {
                 $data__table .= "<tr><th colspan='2' style='font-weight:normal'>" . $key . "</th>";
-                $data__table .= "<th colspan='2' style='font-weight:normal'>" . $arrValues[$key]['First_Name'] . ", " . $arrValues[$key]['Last_Name'] . "</th>";
+//                $data__table .= "<th colspan='2' style='font-weight:normal'>" . $arrValues[$key]['First_Name'] . ", " . $arrValues[$key]['Last_Name'] . "</th>";
                 $data__table .= "<th colspan='2' style='font-weight:normal;'>" . $emailProblems[$key] . "</th></tr>";
             }
             $data__table.="</table>";
@@ -365,14 +329,13 @@ if (isset($_POST['us'])) {
         $arrRes['registered'] = $registered;
         file_put_contents("../bulkRegReport/$report.txt", $data__table);
     } else {
-        if (empty($errors)) 
+        if (empty($errors))
             $arrRes['Error'] = "No valid rows found";
-        else 
-          $arrRes['Error'] = $errors[0];  
-        
+        else
+            $arrRes['Error'] = $errors[0];
+
         $arrRes['data'] = "";
         $arrRes['status'] = FALSE;
-        
     }
     echo json_encode($arrRes);
 } else {
