@@ -14,7 +14,9 @@ if (isset($_POST['us'])) {
             $tempFile = $_FILES['user-file']['tmp_name'];
             list($namepart, $ext) = explode(".", $_FILES['user-file']['name']);
             $ext = strtolower($ext);
-            $target = $uploadDir . $_FILES['user-file']['name'];
+            $cId = explode('-', $_POST['upComId']);
+            $commId = end($cId);
+            $target = $uploadDir . $commId . time().$ext;
             if (in_array($ext, $fileTypes)) {
                 if (@move_uploaded_file($tempFile, $target)) {
                     include_once '../Config.php';
@@ -188,10 +190,9 @@ if (isset($_POST['us'])) {
 
                     $logInfoSql = "INSERT INTO `user_login_details`(`id`, `password`, `token`) VALUES (? , ?, ?)";
                     $lastId = 0;
-                    $filename = $_FILES['user-file']['name'];
-                    $cId = explode('-', $_POST['upComId']);
-                    $commId = end($cId);
+                   
                     $report = $commId . time();
+                     $filename = $report.'.'.$ext;
                     $successUserQ = "INSERT INTO `success_uploaded_users` (`uploadId`, `userId`) VALUES (?, ?)";
                     $arrSuccess = array();
                     $arrIds = array();
