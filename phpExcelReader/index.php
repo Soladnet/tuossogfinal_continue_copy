@@ -63,7 +63,7 @@ if (isset($_POST['us'])) {
                             if (strlen($v) > 2)
                                 return false;
                         }
-                        if($vals[0]==0 || $vals[0] > 12 || $vals[0] < 0 || $vals[1]==0 || $vals[1] > 31 || $vals[1] < 0)
+                        if ($vals[0] == 0 || $vals[0] > 12 || $vals[0] < 0 || $vals[1] == 0 || $vals[1] > 31 || $vals[1] < 0)
                             return false;
                         return true;
                     }
@@ -134,38 +134,43 @@ if (isset($_POST['us'])) {
                             $em = filter($sheetData[$i]['E']);
                             if (preg_match('/^\S+@[\w\d.-]{2,}\.[\w]{2,6}$/iU', $em)) {//quick run of a regex validatory check for email
                                 $mailStatus = hasHost($em);
-                                if ($mailStatus['status']) {
-                                    if (strlen($sheetData[$i]['D']) === 8 && isdate($sheetData[$i]['D'])) {
-                                        try {
-                                            $date1 = new DateTime(formatDate($sheetData[$i]['D']));
-                                            $date2 = new DateTime("now");
-                                            $interval = $date1->diff($date2);
-                                            $years = $interval->format('%y');
-                                            if ($years >= 13) {
-                                                for ($k = 1; $k <= 5; $k++) {
-                                                    if ($k == 4)
-                                                        $arr[$arrHeadings[$k]] = formatDate($sheetData[$i][$arrKeys[$k]]);
-                                                    else
-                                                        $arr[$arrHeadings[$k]] = filter($sheetData[$i][$arrKeys[$k]]);
+                                if (!empty($sheetData[$i]['A']) && !empty($sheetData[$i]['B'])) {
+                                    if ($mailStatus['status']) {
+                                        if (strlen($sheetData[$i]['D']) === 8 && isdate($sheetData[$i]['D'])) {
+                                            try {
+                                                $date1 = new DateTime(formatDate($sheetData[$i]['D']));
+                                                $date2 = new DateTime("now");
+                                                $interval = $date1->diff($date2);
+                                                $years = $interval->format('%y');
+                                                if ($years >= 13) {
+                                                    for ($k = 1; $k <= 5; $k++) {
+                                                        if ($k == 4)
+                                                            $arr[$arrHeadings[$k]] = formatDate($sheetData[$i][$arrKeys[$k]]);
+                                                        else
+                                                            $arr[$arrHeadings[$k]] = filter($sheetData[$i][$arrKeys[$k]]);
+                                                    }
+                                                    $arrValues[filter($sheetData[$i]['E'])] = $arr;
+                                                    $emails[$em] = $em;
+                                                    $f_emails[] = "'" . $em . "'";
+                                                }else {
+                                                    $rejectedEmails[] = $em;
+                                                    $emailProblems[$em] = 'Input date not in acceptable format/figure';
                                                 }
-                                                $arrValues[filter($sheetData[$i]['E'])] = $arr;
-                                                $emails[$em] = $em;
-                                                $f_emails[] = "'" . $em . "'";
-                                            }else {
+                                            } catch (Exception $exc) {
                                                 $rejectedEmails[] = $em;
                                                 $emailProblems[$em] = 'Input date not in acceptable format/figure';
                                             }
-                                        } catch (Exception $exc) {
+                                        } else {
                                             $rejectedEmails[] = $em;
                                             $emailProblems[$em] = 'Input date not in acceptable format/figure';
                                         }
-                                    } else {
-                                        $rejectedEmails[] = $em;
-                                        $emailProblems[$em] = 'Input date not in acceptable format/figure';
+                                    } else {//email does not have a verifiable host
+                                        $rejectedEmails[] = $mailStatus['email'];
+                                        $emailProblems[$em] = $mailStatus['problem'];
                                     }
-                                } else {//email does not have a verifiable host
-                                    $rejectedEmails[] = $mailStatus['email'];
-                                    $emailProblems[$em] = $mailStatus['problem'];
+                                } else {
+                                    $rejectedEmails[] = $em;
+                                    $emailProblems[$em] = 'Empty name column founnd';
                                 }
                             } else {//email is not in valid email format so add it to blacklist before next logic
                                 $rejectedEmails[] = $em;
