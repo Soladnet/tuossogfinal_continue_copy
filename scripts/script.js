@@ -1577,6 +1577,7 @@ function loadCommunity(response, statusText, target){
                         '<input style="float:left;" type="submit" class="button" name="submit" id="submitUsers" value="Upload file">'+
                         '<input type="hidden" name="us">'+
                         '<input type="hidden" name="upComId" value="20-23-344-'+response.id+'">'+
+                        '<input type="hidden" name="commAdmin" value="nzx-ygt-'+readCookie('user_auth')+'">'+
                         '<div style="margin:10px;margin-top:5px;">&nbsp;&nbsp;'+
                         '<span id="userUpSuc" style="display:none;font-size:12px;">Upload successful. <a target="_blank" href="user-upload-report" id="downloadRep">Click here for report</a></span>'+
                         '<span id="userUpFail" style="display:none;font-size:12px;color:red;"></span>'+
@@ -1647,7 +1648,7 @@ function loadCommunity(response, statusText, target){
                     success: function(responseText, statusText, xhr, $form) {
                         $('#usersUpload,#userUpSuc,#userUpFail').hide();
                         if(responseText.status ){
-                            $('#downloadRep').attr('href',  'user-upload-report/'+responseText.report);
+                            $('#downloadRep').attr('href',  'user-upload-report/'+responseText.uploadId);
                             $('#userUpSuc').fadeIn();
                         }else{
                             $('#userUpFail').html(responseText.Error).show();

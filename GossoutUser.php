@@ -209,6 +209,26 @@ class GossoutUser {
         }
     }
 
+    public function doMemberVeriry($token, $pass, $dob) {
+        $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
+        $response = array();
+        if ($mysql->connect_errno > 0) {
+            throw new Exception("Connection to server failed!");
+        } else {
+            $sql = "Update user_login_details SET password = '$pass' WHERE token = '$token' Limit 1";
+            $sql1 = "Update user_personal_info SET dob = '$dob' WHERE id = ('Select id From user_login_details WHERE token =  '$token')";
+            if ($mysql->query($sql) && $mysql->query($sql1)) {
+                if ($mysql->affected_rows > 0) {
+                    $response['status'] = TRUE;
+                    $response['string'] = 'Successful';
+                } else {
+                    $response['string'] = 'Not allowed';
+                }
+            }
+            $mysql->close();
+        }
+        return $response;
+    }
     public function addResetInfor($token) {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         $response = array();

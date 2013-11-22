@@ -1,5 +1,11 @@
 <?php
 
+function decodeText($param) {
+    include_once '../encryptionClass.php';
+    $encrypt = new Encryption();
+    return $encrypt->safe_b64decode($param);
+}
+
 if (session_id() == "")
     @session_start();
 if (isset($_POST['us'])) {
@@ -16,7 +22,9 @@ if (isset($_POST['us'])) {
             $ext = strtolower($ext);
             $cId = explode('-', $_POST['upComId']);
             $commId = end($cId);
-            $target = $uploadDir . $commId . time().$ext;
+            $cAdmin = explode('-', $_POST['commAdmin']);
+            $commAdmin = decodeText(end($cAdmin));
+            $target = $uploadDir . $commId . time() . $ext;
             if (in_array($ext, $fileTypes)) {
                 if (@move_uploaded_file($tempFile, $target)) {
                     include_once '../Config.php';
@@ -32,6 +40,7 @@ if (isset($_POST['us'])) {
                     $i = $m = $p = 2; // start index is 2 since we want to start reding from the second row of the excel file. The first row is just headings and is not needed. 
                     $countVal = 0;
                     $minimumRows = 1;
+                    $uploadId = 0;
 
                     /**
                       function definitions begins here
@@ -186,18 +195,18 @@ if (isset($_POST['us'])) {
                     $pdo = new PDO($p, "root", "");
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                     $pdo->beginTransaction();
-                    $UploadInforQ = "INSERT INTO `bulk_registration` (`filename`, `commId`,`report`) VALUES (?, ?,?)";
+                    $UploadInforQ = "INSERT INTO `bulk_registration` (`filename`, `commId`,`report`,`adminId`) VALUES (?, ?,?,?)";
 
                     $logInfoSql = "INSERT INTO `user_login_details`(`id`, `password`, `token`) VALUES (? , ?, ?)";
                     $lastId = 0;
-                   
-                    $report = $commId . time();
-                     $filename = $report.'.'.$ext;
+
+                    $report = $commId . '_' . time();
+                    $filename = $report . '.' . $ext;
                     $successUserQ = "INSERT INTO `success_uploaded_users` (`uploadId`, `userId`) VALUES (?, ?)";
                     $arrSuccess = array();
                     $arrIds = array();
                     $stmtUpldInfo = $pdo->prepare($UploadInforQ);
-                    $runUploadInfo = $stmtUpldInfo->execute(array("$filename", "$commId", "$report"));
+                    $runUploadInfo = $stmtUpldInfo->execute(array("$filename", "$commId", "$report", "$commAdmin"));
                     if ($runUploadInfo) {
                         if ($countVal >= $minimumRows) {
                             $emails_str = implode(",", $f_emails);
@@ -260,6 +269,18 @@ if (isset($_POST['us'])) {
                                                                 $arrSuccess[$arrValues[$j]['Email']] = "Successfully registered";
                                                                 $arrIds[$j] = $lastId;
                                                                 //send email to the user here
+                                                                if (FALSE) {
+                                                                    $fullname = $arrValues[$j]['First_Name'] .', '. $arrValues[$j]['Last_Name'];
+                                                                    $email = $j;
+                                                                    $headers = "From: Email verification<no-reply-email-verification@gossout.com>\r\n";
+                                                                    $headers .= "MIME-Version: 1.0\r\n";
+                                                                    $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+                                                                    $to = "$fullname<$email>";
+                                                                    $subject = "Email verification";
+                                                                    $htmlHead = "<!doctype html><html><head><meta charset='utf-8'><style>a:hover{color: #000;}a:active , a:focus{color: green;}.index-functions:hover{/*cursor: pointer;*/ color: #99C43D !important;-webkit-box-shadow: inset 0px 0px 1px 1px #ddd;box-shadow: inset 0px 0px 1px 1px #ddd;}.index-functions:active{color: #C4953D !important;-webkit-box-shadow: inset 0px 0px 1px 2px #ddd;box-shadow: inset 0px 0px 1px 2px #ddd;}</style></head><body style='font-family: 'Segoe UI',sans-serif;background-color: #f9f9f9;color: #000000;line-height: 2em;'><div style='max-width: 800px;margin: 0 auto;background-color: #fff;border: 1px solid #f2f2f2;padding: 10px'><div class='header'><img style='float: right;top: 0px;' src='http://service.gossout.com/images/gossout-logo-text-and-image-Copy.png'/><br><h2>Email verification, </h2><p style='margin: 3px;'><span class='user-name'>Hi, <a style='color: #62a70f;text-decoration: none;'>$fullname</a></span>, Welcome to Gossout. As part of our measures to keep you safe, we request that you verify your account by clicking on the link below. <br><br> <a href='http://gossout.com/signup-agreement/$token'>Click here to verify your email</a></p><hr style='margin: .3em 0;width: 100%;height: 1px;border-width:0;color: #ddd;background-color: #ddd;'></div><div style='background-color: #fff;padding: 1em;'><p style='margin: 3px;font-size: .9em;'></p><p style='margin: 3px;font-size: .9em;'><a style='color: #62a70f;text-decoration: none;' href='http://gossout.com/signup-agreement/$token'></a></p><p>OR</p><p style='margin: 3px;font-size: .9em;'><strong>Copy the link below and paste into your browser address bar</strong></p><p style='margin: 3px;font-size: .9em;'>http://gossout.com/password-reset/$token</p></div><hr style='margin: .3em 0;width: 100%;height: 1px;border-width:0;color: #ddd;background-color: #ddd;'><div style='background-color: #f9f9f9;padding: 10px;font-size: .8em;'><center><div class='index-intro-2'><div style='display: block;display: inline-block;padding: 1em;max-width: 200px;' class='index-functions'><div style='margin: 0 auto;width: 24px;height:1em'><span style='margin-right: .15em;display: inline-block;width: 24px;height: 24px;'><img src='http://service.gossout.com/images/community-resize.png'/></span></div><h3 style='text-align: center;height: 1em;'>Discover</h3><p style='margin: 3px;color: #777;line-height: 1.5;margin-bottom: 1em;padding-top: 1em;font-size: .8em;padding-top: 0;'>Communities &Friends</p></div><div style='display: block;display: inline-block;padding: 1em;max-width: 200px;' class='index-functions'><div style='margin: 0 auto;width: 24px;height:1em'><span style='margin-right: .15em;display: inline-block;width: 24px;height: 24px;'><img src='http://service.gossout.com/images/connect-pple.png'/></span></div><h3 style='text-align: center;height: 1em;'>Connect</h3><p style='margin: 3px;color: #777;line-height: 1.5;margin-bottom: 1em;padding-top: 1em;font-size: .8em;padding-top: 0;'>Meet People, Share Interests</p></div><div style='display: block;display: inline-block;padding: 1em;max-width: 200px;' class='index-functions'><div style='margin: 0 auto;width: 24px;height:1em'><span style='margin-right: .15em;display: inline-block;width: 24px;height: 24px;'><img src='http://service.gossout.com/images/search.png'/></span></div><h3 style='text-align: center;height: 1em;'>Search</h3><p style='margin: 3px;color: #777;line-height: 1.5;margin-bottom: 1em;padding-top: 1em;font-size: .8em;padding-top: 0;'>Communities, People and Posts</p></div></div></center><hr style='margin: .3em 0;width: 100%;height: 1px;border-width:0;color: #ddd;background-color: #ddd;'><table cellspacing='5px'><tr ><td colspan='3'> ©<?php echo date('Y');?><a style='color: #62a70f;text-decoration: none;' href='http://www.gossout.com'>Gossout</a></td></tr></table></div></div></body></html>";
+                                                                    @mail($to, $subject, $htmlHead, $headers);
+                                                                }
+                                                                //send email end
                                                                 $pdo->commit();
                                                             } else {
                                                                 $pdo->rollBack();
@@ -334,7 +355,7 @@ if (isset($_POST['us'])) {
         $arrRes['data'] = $data__table;
         $arrRes['status'] = TRUE;
         $arrRes['count'] = $countVal;
-        $arrRes['report'] = $report;
+        $arrRes['uploadId'] = $uploadId;
         $arrRes['registered'] = $registered;
         file_put_contents("../bulkRegReport/$report.txt", $data__table);
     } else {

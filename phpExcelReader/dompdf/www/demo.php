@@ -16,22 +16,21 @@ if (isset($_COOKIE['user_auth'])) {
         $login->logout();
     }
     $param = trim($_GET['param']);
-    if (!is_numeric($param) || empty($param)) {
-        include_once './404.php';
-        exit;
-    } else {
+    if (!empty($param)) {
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         $arr = array('status' => FALSE);
         if ($mysql->connect_errno > 0) {
             throw new Exception("Connection to server failed!");
         } else {
-            $sql = "SELECT report From bulk_registration WHERE report = $param";
+            $sql = "SELECT report From bulk_registration WHERE id = $param";
             if ($result = $mysql->query($sql)) {
                 if ($result->num_rows == 0) {
                     include_once './404.php';
                     exit;
                 } else {
-                    $sql = "SELECT name FROM community WHERE id =(SELECT commId FROM bulk_registration WHERE report =  $param)";
+                    $row = $result->fetch_row();
+                    $report = $row[0];
+                    $sql = "SELECT name FROM community WHERE id =(SELECT commId FROM bulk_registration WHERE id = $param)";
                     if ($result = $mysql->query($sql)) {
                         if ($result->num_rows > 0) {
                             $row = $result->fetch_row();
@@ -73,6 +72,7 @@ if (isset($_COOKIE['user_auth'])) {
                 margin-top: .5em;
             }
         </style>
+
     </head>
     <body>
         <div class="index-page-wrapper">	
@@ -98,7 +98,7 @@ if (isset($_COOKIE['user_auth'])) {
                     <div style='min-width: 1021px;border-radius:5px;border:1px #ccc solid;background: white;width: 90%;height: auto;text-align: left;'>
                         <div style="margin: 2em;margin-top:1em;text-align:justify">
                             <?php
-                            $file = "bulkRegReport/$param.txt";
+                            $file = "bulkRegReport/$report.txt";
                             $h = file_get_contents($file);
                             $arry = explode('<rabiusal>', $h);
                             echo "<center>$arry[0].$arry[2]</center>";

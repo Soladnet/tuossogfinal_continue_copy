@@ -24,7 +24,7 @@
             <div class='header'>
                 <img style='float: right;top: 0px;' src='http://service.gossout.com/images/gossout-logo-text-and-image-Copy.png'/>
                 <br>
-                <h2>Account Verification, </h2>
+                <h2>Password reset request, </h2>
                 <p style='margin: 3px;'><span class='user-name'>Hi, <a style='color: #62a70f; text-decoration: none;'>Sample Name</a></span>, we received a password reset request on your behalf. If you initiated this process, please click on the confirmation link below to continue, else ignore this email as we will stop the process if we do not hear from you in the next 24hour.</p>
                 <!-- Sample Notification types -->
                 <hr style='margin: .3em 0;    width: 100%;    height: 1px;    border-width:0;    color: #ddd;    background-color: #ddd;'>      

@@ -88,7 +88,7 @@ if (isValidEmail($email)) {
                 }
             }
         } else {
-            $_SESSION['signup_login_error']['message'] = "Something terrible just went wrong...we will fix this as soon as possible";
+            $_SESSION['signup_login_error']['message'] = "Something just went wrong...please retry your previous actions";
             $_SESSION['signup_login_error']['data'] = $_POST;
             header("Location: signup-login?signup_login_error=");
             exit;
@@ -278,12 +278,12 @@ function clean($value) {
                                     <hr>
                                     <input type="file" onchange="$('#selectedFile').html('<br/><strong>File Name:</strong> ' + showImageName(this.value));" id="fileInput" name="myfile" class="" style="position: absolute;left: -9999px;"/>
                                     <div id="fileChookseBtn" class="button"><span class="icon-16-camera"></span> Click to choose image</div>
-                                    <span id="selectedFile"></span>
-                                    <p><strong>Maximum file size:</strong> 5MB<br/><strong>Image types:</strong> .jpg, .jpeg, .gif, and .png</p>
+                                    <span id="selectedFile"></span><br>
+                                    <p class="desc">File size(Max): 5MB, allowed files: .jpg, .jpeg, .gif, and .png</p>
                                 </center>
                                 <hr>
                                 <h2>Interests and Tags</h2>
-                                <p class="desc">Add tags to help other users discover you more quickly. Separate each tags with coma(,) or space( )</p>
+                                <p class="desc">Add tags to help other users discover you more quickly. Separate each tags with a comma(,) or space( )</p>
                                 <ul id="communityTag" data-name="comTag[]">
                                     <?php
                                     if (isset($userReg)) {

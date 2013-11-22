@@ -40,7 +40,7 @@ if (isset($_POST['first_name']) && isset($_POST['last_name']) && isset($_POST['g
             <?php
         }
         ?>
-            <link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
+        <link rel="stylesheet" href="css/validationEngine.jquery.css" type="text/css"/>
         <script src="scripts/jquery-1.9.1.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="scripts/modernizr.custom.77319.js"></script>
         <script src="scripts/languages/jquery.validationEngine-en.js" type="text/javascript"></script>
