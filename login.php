@@ -39,12 +39,7 @@ if ($ipData['timezone']) {
         }
         ?>
         <script type="text/javascript">
-            function getTimeZone() {
-                var timezone = (-(new Date().getTimezoneOffset())) / 60;
-                return timezone;
-            }
             $(document).ready(function() {
-                $("#tz").val("<?php echo $timezone ?>");
                 if (Modernizr.inlinesvg) {
                     $('#logo').html('<a href="index"><img src="images/gossout-logo-text-and-image-svg.svg" alt="Gossout" /></a>');
                 } else {
@@ -82,7 +77,7 @@ if ($ipData['timezone']) {
                                 <li>
                                     <label for="password">Password</label>
                                     <input class="input-fields" name="password" placeholder="******" type="password" value="" spellcheck="false" required/>
-                                    <input name="tz" type="hidden" id="tz" />
+                                    <input name="tz" type="hidden" id="tz" value="<?php echo $timezone ?>"/>
                                 </li>
                                 <li><input type="checkbox" name="remember" value="TRUE"> Remember me</li>
                             </ul>

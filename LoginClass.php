@@ -18,7 +18,7 @@ class Login extends Encryption {
     }
 
     public function setUsername($username) {
-        $this->user = $this->clean($username);
+        $this->user = Login::clean($username);
     }
 
     public function setPassword($password, $encrypt = TRUE) {
@@ -208,7 +208,7 @@ class Login extends Encryption {
         return implode(' ', $exp);
     }
 
-    public function clean($value) {
+    public static function clean($value) {
         // If magic quotes not turned on add slashes.
         if (!get_magic_quotes_gpc()) {
             // Adds the slashes.

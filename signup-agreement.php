@@ -30,6 +30,15 @@ if (isset($_COOKIE['user_auth'])) {
 
 $bulkReg = FALSE;
 if ($token != "") {
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $json = @file_get_contents('http://smart-ip.net/geoip-json/' . $ip);
+    $ipData = json_decode($json, true);
+    $timezone = "Africa/Lagos";
+    if ($ipData['timezone']) {
+        $timezone = $ipData['timezone'];
+    }
+
+
     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
     if ($mysql->connect_errno > 0) {
         throw new Exception("Connection to server failed!");
@@ -39,33 +48,34 @@ if ($token != "") {
             if ($run1->num_rows == 1) {
                 $rows = $run1->fetch_assoc();
                 if ($rows['activated'] === 'N') {
-                    if ($mysql->query("Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'")) {
-                        $bulkReg = TRUE;
-                        $vEmail = $rows['email'];
-                        list($year, $month, $day) = explode('-', $rows['dob']);
-                    }
+//                    if () {
+                    $bulkReg = TRUE;
+                    $vEmail = $rows['email'];
+                    list($year, $month, $day) = explode('-', $rows['dob']);
+                    $month = (int) $month;
+//                    }
                 } else {
                     include_once '404.php';
                     exit();
                 }
-            } else {
-                $str = "Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'";
-                $str1 = "SELECT id from user_login_details WHERE token = '$token'";
-                if ($run1 = $mysql->query($str1)) {
-                    if ($run1->num_rows == 1) {
-                        if ($run = $mysql->query($str)) {
-                            if ($mysql->affected_rows == 1) {
-                                $_SESSION['verified'] = 'Verified';
-                            } else {
-                                include_once '404.php';
-                                exit();
-                            }
-                        }
-                    } else {
-                        include_once '404.php';
-                        exit();
-                    }
-                }
+            } else {//How possible is it to get here without 
+//                $str = "Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'";
+//                $str1 = "SELECT id from user_login_details WHERE token = '$token'";
+//                if ($run1 = $mysql->query($str1)) {
+//                    if ($run1->num_rows == 1) {
+//                        if ($run = $mysql->query($str)) {
+//                            if ($mysql->affected_rows == 1) {
+//                                $_SESSION['verified'] = 'Verified';
+//                            } else {
+                include_once '404.php';
+                exit();
+//                            }
+//                        }
+//                    } else {
+////                        include_once '404.php';
+////                        exit();
+//                    }
+//                }
             }
         }
     }
@@ -111,9 +121,9 @@ if ($token != "") {
             <div class="index-page-wrapper">	
                 <div class="index-nav">
                     <span class="index-login"><?php
-        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-            ?></span>
+                        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+                                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+                        ?></span>
                     <div class="clear"></div>
                 </div>
                 <div class="index-banner">
@@ -129,7 +139,7 @@ if ($token != "") {
                                     if (isset($_SESSION['verified'])) {
                                         if ($_SESSION['verified'] == 'Verified') {
                                             echo "Verification Successful!";
-                                        } 
+                                        }
                                     } else {
                                         echo "Please read carefully!";
                                     }
@@ -177,9 +187,9 @@ if ($token != "") {
             <div class="index-page-wrapper">	
                 <div class="index-nav">
                     <span class="index-login"><?php
-        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-            ?></span>
+                        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+                                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+                        ?></span>
                     <div class="clear"></div>
                 </div>
                 <div class="index-banner">
@@ -193,20 +203,28 @@ if ($token != "") {
                                 <h1>
                                     Welcome! Verify once to have all of Gossout. 
                                 </h1>
+                                <?php
+                                if (isset($_SESSION['error'])) {
+                                    ?>
+                                    <div class="error"><center><?php echo $_SESSION['error']; unset($_SESSION['error']);?></center></div>
+                                    <?php
+                                }
+                                ?>
                             </div>	
                             <hr>
                             <form id="formID1" class="formular" action="login_exec" method="POST">
                                 <ul>
                                     <li>
                                         <label for="email">eMail Address</label>
-                                        <div class="registration input-fields" style="padding:.2em;"><?php echo isset($vEmail) ? $vEmail : ""; ?></div> 
+                                        <input type="text" name="mail" class="text-input input-fields" readonly="" value="<?php echo $vEmail; ?>">
                                     </li>
                                     <li>
                                         <label for="password">Password</label>
                                         <input  name="paword" type="password" placeholder="Minimum of 6 characters" spellcheck="false" class="validate[required,minSize[6]] text-input input-fields" value="" min="6" maxlength="255" required id="paword"/> 
                                     </li>
-                                    <li><input type="hidden" name="mail" value="<?php echo $vEmail; ?>"></li>
-                                    <li><input type="hidden" name="token" value="<?php echo $token; ?>"></li>
+
+                                    <input type="hidden" name="token" value="<?php echo $token; ?>">
+                                    <input name="tz" type="hidden" id="tz" value="<?php echo $timezone ?>"/>
                                     <li>
                                         <label for="cpassword">Confirm Password</label>
                                         <input  name="cpaword" type="password" placeholder="Re-type password" spellcheck="false" class="validate[required,equals[paword]] text-input input-fields" value="" min="6" maxlength="255" required /> 
@@ -232,8 +250,7 @@ if ($token != "") {
                                     </li>
                                 </ul>
                                 <br>
-                                <input type="submit" id="search-field-submit" class="submit button" value="Verify" style="font-size:20px;padding-right:20px;padding-left:20px;">
-                                <input type="hidden"  name="doVerify">
+                                <input type="submit" id="search-field-submit" class="submit button" value="Verify" name="doVerify" style="font-size:20px;padding-right:20px;padding-left:20px;">
                             </form>
                             <div class="clear"></div>
                         </div>
