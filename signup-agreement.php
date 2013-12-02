@@ -37,8 +37,6 @@ if ($token != "") {
     if ($ipData['timezone']) {
         $timezone = $ipData['timezone'];
     }
-
-
     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
     if ($mysql->connect_errno > 0) {
         throw new Exception("Connection to server failed!");
