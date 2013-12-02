@@ -5,7 +5,10 @@ function decodeText($param) {
     $encrypt = new Encryption();
     return $encrypt->safe_b64decode($param);
 }
+print_r($_POST);
+print_r($_FILES);
 
+exit;
 if (session_id() == "")
     @session_start();
 if (isset($_POST['us'])) {

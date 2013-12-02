@@ -31,7 +31,7 @@ if (isset($_COOKIE['user_auth'])) {
 $bulkReg = FALSE;
 if ($token != "") {
     $ip = $_SERVER['REMOTE_ADDR'];
-    $json = @file_get_contents('http://smart-ip.net/geoip-json/' . $ip);
+    $json = file_get_contents('http://smart-ip.net/geoip-json/' . $ip);
     $ipData = json_decode($json, true);
     $timezone = "Africa/Lagos";
     if ($ipData['timezone']) {
@@ -48,34 +48,32 @@ if ($token != "") {
             if ($run1->num_rows == 1) {
                 $rows = $run1->fetch_assoc();
                 if ($rows['activated'] === 'N') {
-//                    if () {
                     $bulkReg = TRUE;
                     $vEmail = $rows['email'];
                     list($year, $month, $day) = explode('-', $rows['dob']);
                     $month = (int) $month;
-//                    }
                 } else {
                     include_once '404.php';
                     exit();
                 }
-            } else {//How possible is it to get here without 
-//                $str = "Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'";
-//                $str1 = "SELECT id from user_login_details WHERE token = '$token'";
-//                if ($run1 = $mysql->query($str1)) {
-//                    if ($run1->num_rows == 1) {
-//                        if ($run = $mysql->query($str)) {
-//                            if ($mysql->affected_rows == 1) {
-//                                $_SESSION['verified'] = 'Verified';
-//                            } else {
-                include_once '404.php';
-                exit();
-//                            }
-//                        }
-//                    } else {
-////                        include_once '404.php';
-////                        exit();
-//                    }
-//                }
+            } else {
+                $str = "Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'";
+                $str1 = "SELECT id from user_login_details WHERE token = '$token'";
+                if ($run1 = $mysql->query($str1)) {
+                    if ($run1->num_rows == 1) {
+                        if ($run = $mysql->query($str)) {
+                            if ($mysql->affected_rows == 1) {
+                                $_SESSION['verified'] = 'Verified';
+                            } else {
+                                include_once '404.php';
+                                exit();
+                            }
+                        }
+                    } else {
+                        include_once '404.php';
+                        exit();
+                    }
+                }
             }
         }
     }
@@ -206,7 +204,8 @@ if ($token != "") {
                                 <?php
                                 if (isset($_SESSION['error'])) {
                                     ?>
-                                    <div class="error"><center><?php echo $_SESSION['error']; unset($_SESSION['error']);?></center></div>
+                                    <div class="error"><center><?php echo $_SESSION['error'];
+                            unset($_SESSION['error']); ?></center></div>
                                     <?php
                                 }
                                 ?>
