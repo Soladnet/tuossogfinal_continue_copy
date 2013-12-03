@@ -1596,7 +1596,13 @@ function loadCommunity(response, statusText, target) {
                                 '</form><div class="clear"></div></div><span id="loadPost"></span><hr/><div class="button" style="float:left;display:none;" id ="commMorePostDiv"><a commPost="20"  class="commMorePost" id="commMorePost">Load more > ></a></div><div id="loadMoreImg" style="display:none;"> &nbsp;<img src="images/loading.gif"/></div></div></span>';
                     } else {
                         if (response.enableMemberPost !== "0") {
-                            htmlstr += '<div class="posts"><h1>' + response.name + '</h1><div class="post-box">' +
+                            htmlstr += '<div class="posts">' +
+                                    '<div style="float:left;height:32px;padding-top:5px;color:#444 !important;font-size:16px;">' + response.name + '</div><div class="timeline-filter" style="width:auto;height:auto;padding:2px;float:right;"><ul>' +
+                                    '<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>' +
+                                    '</ul>' +
+                                    '</div>' +
+                                    '<hr>' +
+                                    '<div class="post-box">' +
                                     '<form method="POST" action="tuossog-api-json.php" id="com-' + response.id + '" enctype="multipart/form-data">' +
                                     '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="animateInput"></textarea>' +
                                     '<input type="submit" class="submit button float-right" value="Post" id="postBtn">' +
