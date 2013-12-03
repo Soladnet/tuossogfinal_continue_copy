@@ -46,10 +46,19 @@ if ($token != "") {
             if ($run1->num_rows == 1) {
                 $rows = $run1->fetch_assoc();
                 if ($rows['activated'] === 'N') {
-                    $bulkReg = TRUE;
-                    $vEmail = $rows['email'];
-                    list($year, $month, $day) = explode('-', $rows['dob']);
-                    $month = (int) $month;
+                    $s = "Select unique_name, commId, userId From success_uploaded_users JOIN bulk_registration ON uploadId = bulk_registration.id JOIN community on commId = community.id JOIN user_login_details ON userId = (SELECT id  From user_login_details WHERE  `token` = '$token') Limit 1";
+                    if ($r = $mysql->query($s)) {
+                        if ($r->num_rows == 1) {
+                            $rs = $r->fetch_assoc();
+                            $commId = encodeText($rs['commId']);
+                            $userId = encodeText($rs['userId']);
+                            $helve = $rs['unique_name'];//
+                            $bulkReg = TRUE;
+                            $vEmail = $rows['email'];
+                            list($year, $month, $day) = explode('-', $rows['dob']);
+                            $month = (int) $month;
+                        }
+                    }
                 } else {
                     include_once '404.php';
                     exit();
@@ -117,9 +126,9 @@ if ($token != "") {
             <div class="index-page-wrapper">	
                 <div class="index-nav">
                     <span class="index-login"><?php
-                        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-                                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-                        ?></span>
+        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+            ?></span>
                     <div class="clear"></div>
                 </div>
                 <div class="index-banner">
@@ -183,9 +192,9 @@ if ($token != "") {
             <div class="index-page-wrapper">	
                 <div class="index-nav">
                     <span class="index-login"><?php
-                        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-                                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-                        ?></span>
+        echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+                'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+            ?></span>
                     <div class="clear"></div>
                 </div>
                 <div class="index-banner">
@@ -202,8 +211,10 @@ if ($token != "") {
                                 <?php
                                 if (isset($_SESSION['error'])) {
                                     ?>
-                                    <div class="error"><center><?php echo $_SESSION['error'];
-                            unset($_SESSION['error']); ?></center></div>
+                                    <div class="error"><center><?php
+                            echo $_SESSION['error'];
+                            unset($_SESSION['error']);
+                                    ?></center></div>
                                     <?php
                                 }
                                 ?>
@@ -212,6 +223,9 @@ if ($token != "") {
                             <form id="formID1" class="formular" action="login_exec" method="POST">
                                 <ul>
                                     <li>
+                                        You have been subscribed to <?php echo $helve; ?> community. Would you love to be part if this community?<br> 
+                                        <div style="margin-top:10px;"><label for="email"> Yes, add me <input style="margin:6px 40px 0 0;" type="radio" name="allowCom" value="1" checked="checked"> No, not now <input type="radio"  style="margin-top:6px;" name="allowCom" value="0"></label></div>
+                                        <hr>
                                         <label for="email">eMail Address</label>
                                         <input type="text" name="mail" class="text-input input-fields" readonly="" value="<?php echo $vEmail; ?>">
                                     </li>
@@ -248,6 +262,8 @@ if ($token != "") {
                                 </ul>
                                 <br>
                                 <input type="submit" id="search-field-submit" class="submit button" value="Verify" name="doVerify" style="font-size:20px;padding-right:20px;padding-left:20px;">
+                                <input type="hidden" name="commId" value="<?php echo $commId; ?>">
+                                       <input type="hidden" name="uId" value="<?php echo $userId ?>">
                             </form>
                             <div class="clear"></div>
                         </div>

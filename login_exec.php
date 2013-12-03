@@ -3,19 +3,22 @@
 include_once './LoginClass.php';
 include_once './Config.php';
 if (isset($_POST['doVerify'])) {
-
     $token = Login::clean($_POST['token']);
     $pass = md5(Login::clean($_POST['paword']));
     $cpass = md5(Login::clean($_POST['cpaword']));
     $email = $_POST['mail']; // since email was not used until login process, login class is left to clean this data
     $date = Login::clean(trim($_POST['dob_yr']) . '-' . trim($_POST['dob_month']) . '-' . trim($_POST['dob_day']));
     $tz = Login::clean($_POST['tz']);
-
+    $allowMembShip = Login::clean($_POST['allowCom']);
+    $commId = decodeText($_POST['commId']);
+    $uId = decodeText($_POST['uId']);
+    
     if ($pass != $cpass && ($pass == "" || $cpass == "")) {
         $_SESSION['error'] = "Password Mismatch";
         header("Location:" . $_SERVER['HTTP_REFERER']);
         exit;
     }
+    
     $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
     if ($mysql->connect_errno > 0) {
         throw new Exception("Connection to server failed!");
@@ -30,8 +33,11 @@ if (isset($_POST['doVerify'])) {
                 $login->setTimezone($tz);
                 $response = $login->confirmLogin();
                 if ($response['status']) {
-                    $mysql->query("Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'");
-                    header("Location:settings");
+                    $insertMember = ($allowMembShip == "1") ? "Insert into community_subscribers(`user`,community_id) Values ($uId, $commId)" : "";
+                    $r = array("Update user_login_details SET activated = 'Y' WHERE token = '$token' AND activated = 'N'", $insertMember);
+                        $mysql->multi_query(implode(';', $r));
+                        header("Location:settings");
+                        //
                 } else {
                     $_SESSION['login_error']['data'] = $_POST;
                     header("Location:login?login_error=");
