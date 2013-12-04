@@ -1559,7 +1559,7 @@ function loadCommunity(response, statusText, target) {
                     isAmember = "true";
                     if (response.creator_id === readCookie('user_auth')) {
                         htmlstr += '<div class="posts">' +
-                                '<div style="float:left;height:32px;padding-top:5px;color:#444 !important;font-size:16px;">' + response.name + '</div><div class="timeline-filter" style="width:auto;height:auto;padding:2px;float:right;"><ul>' +
+                                '<div class="commSmallName">' + response.name + '</div><div class="timeline-filter filt" ><ul>' +
                                 '<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>' +
                                 '<li id="comm-members" class="comm-timeline-options"><div><span><img src="images/members.png"/></span> <a>Upload Members</a>' +
                                 '</li></ul>' +
@@ -1568,7 +1568,7 @@ function loadCommunity(response, statusText, target) {
                                 '<span id="member-content" style="display:none;"><div class="post">' +
                                 '<div class="success mainCommCont" id="welcomemsg">' +
                                 "<p>Upload Users information using our <b>Community Bulk Members Regitration</b> facility. With this feature, every successfully registered User becomes a member of your Community. \n\
-                            We advise you read and understand our upload  guidelines <a href>here</a> before you proceed.</p>" +
+                                We advise you read and understand our upload  guidelines <a href>here</a> before you proceed.</p>" +
                                 '</div><hr>' +
                                 '<form id="usersUploadForm" enctype="multipart/form-data" action="phpExcelReader/index.php"><p></p>' +
                                 '<br>' +
@@ -1587,7 +1587,7 @@ function loadCommunity(response, statusText, target) {
                                 '</form>' +
                                 '</div></span>' +
                                 '<span id="timelime-content"><div class="post-box"><form method="POST" action="tuossog-api-json.php" id="com-' + response.id + '" enctype="multipart/form-data">' +
-                                '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="animateInput"></textarea>' +
+                                '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="postBox"></textarea>' +
                                 '<input type="submit" class="submit button float-right post-gadgets" value="Post" id="postBtn">' +
                                 '<input type="file" onchange="$(\'#filesSelected\').html(this.files.length + (this.files.length > 1 ? \' files selected\' : \' file selected\'))" name="photo[]" multiple style="position: absolute;left: -9999px;" id="uploadInput"/>' +
                                 '<input type="hidden" name="comid[]" value="' + comid + '"/>' +
@@ -1597,14 +1597,14 @@ function loadCommunity(response, statusText, target) {
                     } else {
                         if (response.enableMemberPost !== "0") {
                             htmlstr += '<div class="posts">' +
-                                    '<div style="float:left;height:32px;padding-top:5px;color:#444 !important;font-size:16px;">' + response.name + '</div><div class="timeline-filter" style="width:auto;height:auto;padding:2px;float:right;"><ul>' +
+                                    '<div class="commSmallName">' + response.name + '</div><div class="timeline-filter filt"><ul>' +
                                     '<li id="comm-timeline" class="comm-timeline-options active"><a><span class="icon-16-earth"></span>Timeline</a></li>' +
                                     '</ul>' +
                                     '</div>' +
                                     '<hr>' +
                                     '<div class="post-box">' +
                                     '<form method="POST" action="tuossog-api-json.php" id="com-' + response.id + '" enctype="multipart/form-data">' +
-                                    '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="animateInput"></textarea>' +
+                                    '<textarea required placeholder="Post to ' + response.name + '" name="post" id="post' + response.id + '" class="postBox"></textarea>' +
                                     '<input type="submit" class="submit button float-right" value="Post" id="postBtn">' +
                                     '<input type="file" onchange="$(\'#filesSelected\').html(this.files.length + (this.files.length > 1 ? \' files selected\' : \' file selected\'))" name="photo[]" multiple style="position: absolute;left: -9999px;" id="uploadInput"/>' +
                                     '<input type="hidden" name="comid[]" value="' + comid + '"/>' +

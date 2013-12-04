@@ -1,4 +1,14 @@
 /* line 1, _sprites.scss */
+.postBox{
+    min-height: 80px;
+}
+.commSmallName{
+ float:left;height:32px;padding-top:5px;color:#444 !important;font-size:16px;
+}
+.filt{
+   width:auto;height:auto;padding:2px;float:right;
+}
+
 .comm-timeline-options{
     padding:6px;border:1px solid #dadada;
 }
