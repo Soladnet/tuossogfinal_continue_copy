@@ -40,7 +40,7 @@ if (isset($_COOKIE['user_auth'])) {
                 }
                 $("#searchField").focus();
             });
-        
+
             function validate() {
                 if ($.trim($("#searchField").val()).length === 0) {
                     return false;
@@ -48,7 +48,7 @@ if (isset($_COOKIE['user_auth'])) {
                     return true;
                 }
             }
-        
+
             function setCookie(c_name, value, exdays)
             {
                 var exdate = new Date();
@@ -102,10 +102,10 @@ if (isset($_COOKIE['user_auth'])) {
         <div class="index-page-wrapper">	
             <div class="index-nav">
                 <span class="index-login" id="name-login-cont"><?php
-echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
-        'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
-?> | <a href onclick='javascript:callTour();
-                        return false;'>Take a Tour</a></span>
+                    echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <a href='login_exec'>Logout</a> ]" :
+                            'Already have an account? <a href="login">Login Here</a> | <a href="signup-personal">Sign up</a>'
+                    ?> | <a href onclick='javascript:callTour();
+                            return false;'>Take a Tour</a></span>
                 <div class="clear"></div>
             </div><br>
             <div class="index-banner">
@@ -123,81 +123,78 @@ echo isset($user) ? "Welcome <a href='home'>" . $user->getFullname() . "</a> [ <
 
                         <span><center>
                                 <input type="submit" id="search-field-submit" class="submit button" value="Get result!" id="postBtn" style="font-size:20px;padding-right:20px;padding-left:20px;">
-                        <div class="clear"></div>
-
-                    </div>
-                </form>
-                <br><br>
-                <center>
-                    <div class="index-intro-2-container" style="width:600px;">
-                        <div>	
-                            <center>
-                                <div class="index-functions" id="index-search-icon">
-                                    <div style="margin: 0 auto;">
-                                        <img src="images/search1.png" alt="Search"/>
-                                    </div>
-                                    <h3>Search</h3>
-                                    <p>Communities and Friends</p>
-                                </div> 
-
-                                <div class="index-functions" id="index-discover-icon">
-                                    <div style="margin: 0 auto;">
-                                        <img src="images/discover.png" alt="Discover"/>
-                                    </div>
-                                    <h3>Discover</h3>
-                                    <p>Communities &amp; Friends</p>
-                                </div>
-
-                                <div class="index-functions" id="index-connect-icon">
-                                    <div style="margin: 0 auto;">
-                                        <img src="images/share1.png" alt="Search"/>
-                                    </div>
-                                    <h3>Connect</h3>
-                                    <p>Meet People, Share Interests</p>
-                                </div>
-
                                 <div class="clear"></div>
-                            </center>
-                        </div>
-                    </div>
-                </center>
-            </div>
-            <div class="index-shadow-bottom"></div>
-            <div class="index-content-wrapper">
-                <span id="footer-links">
-                    <?php
-                    include("footer.php");
-                    ?>
-                </span>
-            </div>
-            <div>
-                <ol id="joyRideTipContent">
 
-                    <li data-text="Next" data-id="name-login-cont">
-                        <h2>Welcome!</h2>
-                        <p>Welcome to Gossout! You can login or signup as a new user here. Click <strong>Next</strong> to continue or <strong>X</strong> to close this hint and have fun!</p>
-                    </li>
-                    <li data-button="Next" data-options="tipLocation:bottom;tipAnimation:fade" data-id="searchField">
-                        <h2>Search!</h2>
-                        <p>Gossout allows you to search people, posts, and communities!</p>
-                    </li>
-                    <li data-button="Next" data-options="tipLocation:right" data-id="search-field-submit">
-                        <h2>Submit</h2>
-                        <p>This button allows you to submit your search query. You can also press <strong>Enter</strong> or <strong>Return</strong> key on your keyboard to do the same.</p>
-                    </li>
+                                </div>
+                                </form>
+                                <br><br>
+                                <div class="index-intro-2-container">
+                                    <div class="index-intro-2" id='index-three-icon'>	
 
-                    <li data-button="Next" data-id="index-three-icon" data-options="tipLocation:left"> 
-                        <h2>Gossout!</h2>
-                        <p>Gossout goes beyond meeting people: start your own community! Join other communities! Share and discover more than ever!</p>
-                    </li>
-                    <li data-id="footer-links" data-options="tipLocation:top">
-                        <h2>Terms &amp; Privacy</h2>
-                        <p>See our terms and privacy for more info.</p>
-                    </li>
-                </ol>
-            </div>
+                                        <div class="index-functions" id="index-search-icon">
+                                            <div style="margin: 0 auto; width: 24px;">
+                                                <span class="icon-search"></span>
+                                            </div>
+                                            <h3>Search</h3>
+                                            <p>Communities and Friends</p>
+                                        </div> 
 
-        </div>
+                                        <div class="index-functions" id="index-discover-icon">
+                                            <div style="margin: 0 auto; width: 24px;">
+                                                <span class="icon-globe"></span>
+                                            </div>
+                                            <h3>Discover</h3>
+                                            <p>Communities &amp; Friends</p>
+                                        </div>
 
-    </body>
-</html>
+                                        <div class="index-functions" id="index-connect-icon">
+                                            <div style="margin: 0 auto; width: 24px;">
+                                                <span class="icon-share"></span>
+                                            </div>
+                                            <h3>Connect</h3>
+                                            <p>Meet People, Share Interests</p>
+                                        </div>
+
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>	
+                                </div>
+                                <div class="index-shadow-bottom"></div>
+                                <div class="index-content-wrapper">
+                                    <span id="footer-links">
+                                        <?php
+                                        include("footer.php");
+                                        ?>
+                                    </span>
+                                </div>
+                                <div>
+                                    <ol id="joyRideTipContent">
+
+                                        <li data-text="Next" data-id="name-login-cont">
+                                            <h2>Welcome!</h2>
+                                            <p>Welcome to Gossout! You can login or signup as a new user here. Click <strong>Next</strong> to continue or <strong>X</strong> to close this hint and have fun!</p>
+                                        </li>
+                                        <li data-button="Next" data-options="tipLocation:bottom;tipAnimation:fade" data-id="searchField">
+                                            <h2>Search!</h2>
+                                            <p>Gossout allows you to search people, posts, and communities!</p>
+                                        </li>
+                                        <li data-button="Next" data-options="tipLocation:right" data-id="search-field-submit">
+                                            <h2>Submit</h2>
+                                            <p>This button allows you to submit your search query. You can also press <strong>Enter</strong> or <strong>Return</strong> key on your keyboard to do the same.</p>
+                                        </li>
+
+                                        <li data-button="Next" data-id="index-three-icon" data-options="tipLocation:left"> 
+                                            <h2>Gossout!</h2>
+                                            <p>Gossout goes beyond meeting people: start your own community! Join other communities! Share and discover more than ever!</p>
+                                        </li>
+                                        <li data-id="footer-links" data-options="tipLocation:top">
+                                            <h2>Terms &amp; Privacy</h2>
+                                            <p>See our terms and privacy for more info.</p>
+                                        </li>
+                                    </ol>
+                                </div>
+
+                                </div>
+
+                                </body>
+                                </html>
