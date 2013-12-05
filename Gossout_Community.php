@@ -310,19 +310,19 @@ class Community {
      * @param int newUid This id identifies the user to query
      */
     public function setUser($newUid) {
-        $this->uid = $newUid;
+        $this->uid = $newUid;//sets userId
     }
 
     public function setStart($newStart) {
-        $this->start = $newStart;
+        $this->start = $newStart;//sets start
     }
 
     public function setLimit($newLimit) {
-        $this->limit = $newLimit;
+        $this->limit = $newLimit;//sets limit
     }
 
     public function setNewUser() {
-        $this->newuser = true;
+        $this->newuser = true;//sets the current to newUser for some functions to be enabled.
     }
 
     public static function communityExist($comId) {
@@ -408,7 +408,7 @@ class Community {
         return $arrFetch;
     }
 
-    public static function messageExist($msgId) {
+    public static function messageExist($msgId){
         $arrFetch = array("status" => FALSE);
         $mysql = new mysqli(HOSTNAME, USERNAME, PASSWORD, DATABASE_NAME);
         if ($mysql->connect_errno > 0) {
