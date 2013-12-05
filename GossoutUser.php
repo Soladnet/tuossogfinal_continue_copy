@@ -1763,19 +1763,19 @@ WHERE p.sender_id=$this->id AND c.sender_id<>$this->id)";
         } else {
             $user = new GossoutUser(0);
             $sql2 = "SELECT c.id,c.comment, c.post_id,c.sender_id,com.unique_name, com.name, u.username, u.firstname,u.lastname,p.sender_id as post_sender_id,c.time 
-FROM comments as c 
-JOIN post as p ON c.post_id=p.id 
-JOIN user_personal_info as u ON c.sender_id=u.id 
-JOIN community as com ON p.community_id=com.id 
-WHERE c.sender_id IN(SELECT `user` FROM community_subscribers WHERE community_id IN (SELECT community_id from community_subscribers WHERE `user` = $this->id AND leave_status=0)) 
-AND c.sender_id IN (SELECT IF(uc.username1=$this->id,uc.username2,uc.username1) as id From usercontacts as uc, user_personal_info Where ((username1 = user_personal_info.id AND username2 = $this->id) OR (username2 = user_personal_info.id AND username1 = $this->id)) AND status ='Y')
-UNION (SELECT c.id,c.comment, c.post_id,c.sender_id,com.unique_name,com.`name`,u.username,u.firstname,u.lastname,p.sender_id as post_sender_id, c.`time` 
-FROM comments as c 
-JOIN post as p ON c.post_id=p.id 
-JOIN user_personal_info as u ON c.sender_id=u.id 
-JOIN community as com ON p.community_id=com.id 
-WHERE p.sender_id=$this->id AND c.sender_id<>$this->id) 
-ORDER by `time` DESC LIMIT $this->start, $this->limit";
+                    FROM comments as c 
+                    JOIN post as p ON c.post_id=p.id 
+                    JOIN user_personal_info as u ON c.sender_id=u.id 
+                    JOIN community as com ON p.community_id=com.id 
+                    WHERE c.sender_id IN(SELECT `user` FROM community_subscribers WHERE community_id IN (SELECT community_id from community_subscribers WHERE `user` = $this->id AND leave_status=0)) 
+                    AND c.sender_id IN (SELECT IF(uc.username1=$this->id,uc.username2,uc.username1) as id From usercontacts as uc, user_personal_info Where ((username1 = user_personal_info.id AND username2 = $this->id) OR (username2 = user_personal_info.id AND username1 = $this->id)) AND status ='Y')
+                    UNION (SELECT c.id,c.comment, c.post_id,c.sender_id,com.unique_name,com.`name`,u.username,u.firstname,u.lastname,p.sender_id as post_sender_id, c.`time` 
+                    FROM comments as c 
+                    JOIN post as p ON c.post_id=p.id 
+                    JOIN user_personal_info as u ON c.sender_id=u.id 
+                    JOIN community as com ON p.community_id=com.id 
+                    WHERE p.sender_id=$this->id AND c.sender_id<>$this->id) 
+                    ORDER by `time` DESC LIMIT $this->start, $this->limit";
 
 //            $arrFetch['sql2'] = $sql2;
             if ($result = $mysql->query($sql2)) {
