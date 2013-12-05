@@ -84,9 +84,6 @@ if ($token != "") {
             }
         }
     }
-} else {
-    include_once './404.php';
-    exit;
 }
 ?>
 <!doctype html>

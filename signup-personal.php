@@ -100,6 +100,7 @@
                                     </select>
                                     <input type="number"  name="dob_day" min="1" max="31" size="2" required placeholder="DD" value="<?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_day']) ? $_SESSION['signup_perosnal_error']['data']['dob_day'] : "" ?>"/>
                                     <input type="number" max="<?php echo date("Y") - 13 ?>" min="1960" size="4" name="dob_yr" required placeholder="YYYY" value="<?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_yr']) ? $_SESSION['signup_perosnal_error']['data']['dob_yr'] : "" ?>"/>
+                                    <br/><small>You must be atleast 13years of age</small>
                                 </li>
                             </ul>
                             <br>

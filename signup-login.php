@@ -1,6 +1,6 @@
 <?php
-if (isset($_POST['first_name']) && isset($_POST['last_name']) && isset($_POST['gender']) && (is_numeric($_POST['dob_day']) && $_POST['dob_day'] <= 31) && (is_numeric($_POST['dob_month']) && $_POST['dob_month'] <= 12) && (is_numeric($_POST['dob_yr']) && $_POST['dob_yr'] > 1959)) {
-    if ($_POST['dob_day'] > 0 && $_POST['dob_yr'] > 0 && trim($_POST['first_name']) != "" && trim($_POST['last_name']) != "") {
+if (isset($_POST['first_name']) && isset($_POST['last_name']) && isset($_POST['gender']) && (is_numeric($_POST['dob_day']) && $_POST['dob_day'] <= 31) && (is_numeric($_POST['dob_month']) && $_POST['dob_month'] <= 12) && (is_numeric($_POST['dob_yr']) && $_POST['dob_yr'] > 1959) && (is_numeric($_POST['dob_yr']) && $_POST['dob_yr'] <= date("Y") - 13)) {
+    if ($_POST['dob_day'] > 0 && $_POST['dob_yr'] > 0 && ($_POST['dob_yr'] <= date("Y") - 13)&& trim($_POST['first_name']) != "" && trim($_POST['last_name']) != "") {
         $_SESSION['data'] = $_POST;
     } else {
         $_SESSION['signup_perosnal_error']['message'] = "Month or Year must be entered correctly";
