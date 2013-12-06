@@ -76,6 +76,7 @@ if (isset($_COOKIE['user_auth'])) {
                                 humane.log(responseText.error.message, {timeout: 3000, clickToClose: true, addnCls: 'humane-jackedup-error'});
                             }
                         }
+                        window.location = 'http://www.gossout.com'+ responseText.unique_name;
                     },
                     complete: function(xhr) {
                         $(".progress").hide();

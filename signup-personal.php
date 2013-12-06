@@ -36,6 +36,19 @@
                     $('#logo').html('<a href="index"><img src="images/gossout-logo-text-and-image-svg.png" alt="Gossout" /></a>');
                 }
             });
+            function changeMaxDay(num){
+                $('#dob_day').attr('max',num);
+            }
+            function checkDate(val){
+                var month = parseInt(val);
+                if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12){
+                    changeMaxDay(31)
+                } else  if(month == 9 || month == 4 || month == 6 || month==11){
+                    changeMaxDay(30)
+                }else{
+                    changeMaxDay(29)
+                }
+            }
         </script>
     </head>
     <body>
@@ -83,9 +96,9 @@
                                 </li>
                                 <li>
                                     <label for="dob">Date of Birth (mm-dd-yyyy)</label>
-                                    <select name="dob_month" required>
+                                    <select name="dob_month" required onchange="checkDate(this.value);">
                                         <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "" ? "selected" : ""  : "" ?>></option>
-                                        <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "1" ? "selected" : ""  : "" ?> value="1">January</option>
+                                        <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "1" ? "selected" : ""  : "" ?> value="1" >January</option>
                                         <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "2" ? "selected" : ""  : "" ?> value="2">February</option>
                                         <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "3" ? "selected" : ""  : "" ?> value="3">March</option>
                                         <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "4" ? "selected" : ""  : "" ?> value="4">April</option>
@@ -98,7 +111,7 @@
                                         <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "11" ? "selected" : ""  : "" ?> value="11">November</option>
                                         <option <?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_month']) ? $_SESSION['signup_perosnal_error']['data']['dob_month'] == "12" ? "selected" : ""  : "" ?> value="12">December</option>
                                     </select>
-                                    <input type="number"  name="dob_day" min="1" max="31" size="2" required placeholder="DD" value="<?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_day']) ? $_SESSION['signup_perosnal_error']['data']['dob_day'] : "" ?>"/>
+                                    <input type="number"  name="dob_day" id="dob_day" min="1" max="31" size="2" required placeholder="DD" value="<?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_day']) ? $_SESSION['signup_perosnal_error']['data']['dob_day'] : "" ?>"/>
                                     <input type="number" max="<?php echo date("Y") - 13 ?>" min="1960" size="4" name="dob_yr" required placeholder="YYYY" value="<?php echo isset($_SESSION['signup_perosnal_error']['data']['dob_yr']) ? $_SESSION['signup_perosnal_error']['data']['dob_yr'] : "" ?>"/>
                                     <br/><small>You must be atleast 13years of age</small>
                                 </li>
